@@ -9,9 +9,14 @@ import IntroductionEditor from "./IntroductionEditor";
 
 import { LEVELS } from "@/app/data/options";
 
-export default function AddModelForm() {
+interface AddModelFormProps {
+  onSuccess?: () => void;
+}
+
+export default function AddModelForm({
+  onSuccess,
+}: AddModelFormProps) {
   const [level, setLevel] = useState("CROWN");
-  const [number, setNumber] = useState("001");
 
   const [avatar, setAvatar] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
@@ -31,7 +36,6 @@ export default function AddModelForm() {
         },
         body: JSON.stringify({
           level,
-          number,
           avatar,
           gallery: gallery.join(","),
           videos: videos.join(","),
@@ -42,7 +46,7 @@ export default function AddModelForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        console.log(result);
+        console.error(result);
         alert(JSON.stringify(result, null, 2));
         return;
       }
@@ -50,11 +54,16 @@ export default function AddModelForm() {
       alert("Model saved successfully.");
 
       setLevel("CROWN");
-      setNumber("001");
       setAvatar("");
       setGallery([]);
       setVideos([]);
       setIntroduction("");
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert(String(error));
@@ -77,48 +86,46 @@ export default function AddModelForm() {
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-8">
-        <div>
-          <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-            Level
-          </label>
+      <div className="mt-10 max-w-md">
+        <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
+          Level
+        </label>
 
-          <select
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] p-4 text-white"
-          >
-            {LEVELS.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-            Number
-          </label>
-
-          <input
-            value={number}
-            onChange={(e) => setNumber(e.target.value)}
-            className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] p-4 text-white"
-          />
-        </div>
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] p-4 text-white"
+        >
+          {LEVELS.map((item) => (
+            <option
+              key={item}
+              value={item}
+            >
+              {item}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mt-12">
-        <AvatarUpload value={avatar} onChange={setAvatar} />
+        <AvatarUpload
+          value={avatar}
+          onChange={setAvatar}
+        />
       </div>
 
       <div className="mt-12">
-        <GalleryUpload value={gallery} onChange={setGallery} />
+        <GalleryUpload
+          value={gallery}
+          onChange={setGallery}
+        />
       </div>
 
       <div className="mt-12">
-        <VideoUpload value={videos} onChange={setVideos} />
+        <VideoUpload
+          value={videos}
+          onChange={setVideos}
+        />
       </div>
 
       <div className="mt-12">
@@ -131,6 +138,7 @@ export default function AddModelForm() {
       <div className="mt-12 flex justify-end gap-4">
         <button
           type="button"
+          onClick={() => onSuccess?.()}
           className="rounded-full border border-gray-600 px-8 py-4 text-white"
         >
           Cancel

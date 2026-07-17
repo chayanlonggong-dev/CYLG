@@ -16,41 +16,47 @@ enum ModelLevel {
 }
 
 model Model {
-  id           Int        @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
 
-  level        ModelLevel
+  level     ModelLevel
+  number    Int
+  code      String     @unique
 
-  number       Int
+  title        String   @default("")
+  nationality  String   @default("")
+  city         String   @default("")
 
-  code         String     @unique
+  age          Int      @default(18)
+  height       Int      @default(160)
+  weight       Int      @default(50)
 
-  avatar       String
+  languages    String   @default("")
+  services     String   @default("")
 
-  gallery      String
+  avatar       String   @default("")
+  gallery      String   @default("")
+  videos       String   @default("")
 
-  videos       String
+  introduction String   @default("")
 
-  introduction String
+  online       Boolean  @default(true)
+  featured     Boolean  @default(false)
 
-  createdAt    DateTime   @default(now())
-
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model WebsiteSettings {
   id         Int      @id @default(1)
 
-  siteName   String
+  siteName   String   @default("ChaYanLongGong")
 
-  logo       String
+  logo       String   @default("")
 
-  whatsapp   String
-
-  telegram   String
-
-  signal     String
+  whatsapp   String   @default("")
+  telegram   String   @default("")
+  signal     String   @default("")
 
   createdAt  DateTime @default(now())
-
   updatedAt  DateTime @updatedAt
 }

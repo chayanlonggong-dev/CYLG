@@ -25,7 +25,7 @@ export default function AddModelModal({
           ✕
         </button>
 
-        <AddModelForm />
+        <AddModelForm onSuccess={onClose} />
 
       </div>
     </div>
