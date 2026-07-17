@@ -22,12 +22,23 @@ export async function getModelById(id: number) {
 }
 
 export async function createModel(data: {
-  level: "S" | "SS" | "SSS";
+  level: "CROWN" | "SSS" | "SS" | "S" | "A";
   number: number;
-  avatar: string;
-  gallery: string;
-  videos: string;
-  introduction: string;
+  code: string;
+  title?: string;
+  nationality?: string;
+  city?: string;
+  age?: number;
+  height?: number;
+  weight?: number;
+  languages?: string;
+  services?: string;
+  avatar?: string;
+  gallery?: string;
+  videos?: string;
+  introduction?: string;
+  online?: boolean;
+  featured?: boolean;
 }) {
   return prisma.model.create({
     data,
@@ -37,12 +48,23 @@ export async function createModel(data: {
 export async function updateModel(
   id: number,
   data: {
-    level?: "S" | "SS" | "SSS";
+    level?: "CROWN" | "SSS" | "SS" | "S" | "A";
     number?: number;
+    code?: string;
+    title?: string;
+    nationality?: string;
+    city?: string;
+    age?: number;
+    height?: number;
+    weight?: number;
+    languages?: string;
+    services?: string;
     avatar?: string;
     gallery?: string;
     videos?: string;
     introduction?: string;
+    online?: boolean;
+    featured?: boolean;
   }
 ) {
   return prisma.model.update({

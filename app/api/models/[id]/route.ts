@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(
@@ -12,9 +12,10 @@ export async function GET(
   { params }: Params
 ) {
   try {
+    const { id } = await params;
     const model = await prisma.model.findUnique({
       where: {
-        id: Number(params.id),
+        id: Number(id),
       },
     });
 
@@ -49,32 +50,37 @@ export async function PUT(
   { params }: Params
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     const model = await prisma.model.update({
       where: {
-        id: Number(params.id),
+        id: Number(id),
       },
       data: {
-        title: body.title,
-        age: Number(body.age),
-        height: Number(body.height),
-        weight: Number(body.weight),
+        level: body.level,
+        number: Number(body.number ?? 1),
+        code: body.code,
 
-        nationality: body.nationality,
-        city: body.city,
+        title: body.title ?? "",
+        age: Number(body.age ?? 18),
+        height: Number(body.height ?? 160),
+        weight: Number(body.weight ?? 50),
 
-        languages: body.languages,
-        services: body.services,
+        nationality: body.nationality ?? "",
+        city: body.city ?? "",
 
-        avatar: body.avatar,
-        gallery: body.gallery,
-        videos: body.videos,
+        languages: body.languages ?? "",
+        services: body.services ?? "",
 
-        introduction: body.introduction,
+        avatar: body.avatar ?? "",
+        gallery: body.gallery ?? "",
+        videos: body.videos ?? "",
 
-        online: body.online,
-        featured: body.featured,
+        introduction: body.introduction ?? "",
+
+        online: body.online ?? true,
+        featured: body.featured ?? false,
       },
     });
 
@@ -98,9 +104,11 @@ export async function DELETE(
   { params }: Params
 ) {
   try {
+    const { id } = await params;
+
     await prisma.model.delete({
       where: {
-        id: Number(params.id),
+        id: Number(id),
       },
     });
 

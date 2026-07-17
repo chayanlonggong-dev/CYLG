@@ -1,17 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+const levelOrder = {
+  CROWN: 0,
+  SSS: 1,
+  SS: 2,
+  S: 3,
+  A: 4,
+} as const;
+
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+
+    const search = searchParams.get("search")?.trim() || "";
+    const level = searchParams.get("level")?.trim() || "";
+
     const models = await prisma.model.findMany({
-      orderBy: [
-        {
-          level: "asc",
-        },
-        {
-          number: "asc",
-        },
-      ],
+      where: {
+        ...(level && level !== "ALL"
+          ? {
+              level: level as any,
+            }
+          : {}),
+
+        ...(search
+          ? {
+              OR: [
+                {
+                  code: {
+                    contains: search,
+                  },
+                },
+                {
+                  title: {
+                    contains: search,
+                  },
+                },
+                {
+                  nationality: {
+                    contains: search,
+                  },
+                },
+                {
+                  city: {
+                    contains: search,
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+    });
+
+    models.sort((a: { level: string; number: number }, b: { level: string; number: number }) => {
+      const levelCompare =
+        levelOrder[a.level as keyof typeof levelOrder] -
+        levelOrder[b.level as keyof typeof levelOrder];
+
+      if (levelCompare !== 0) {
+        return levelCompare;
+      }
+
+      return a.number - b.number;
     });
 
     return NextResponse.json(models);
@@ -21,7 +72,6 @@ export async function GET() {
     return NextResponse.json(
       {
         message: "Failed to fetch models.",
-        error: String(error),
       },
       {
         status: 500,
@@ -45,17 +95,14 @@ export async function POST(request: NextRequest) {
 
     const nextNumber = lastModel ? lastModel.number + 1 : 1;
 
-    const code = `${body.level}${String(nextNumber).padStart(3, "0")}`;
+    const code =
+      body.level + String(nextNumber).padStart(3, "0");
 
     const model = await prisma.model.create({
       data: {
         level: body.level,
         number: nextNumber,
         code,
-
-        avatar: body.avatar ?? "",
-        gallery: body.gallery ?? "",
-        videos: body.videos ?? "",
 
         title: body.title ?? "",
         nationality: body.nationality ?? "",
@@ -67,6 +114,10 @@ export async function POST(request: NextRequest) {
 
         languages: body.languages ?? "",
         services: body.services ?? "",
+
+        avatar: body.avatar ?? "",
+        gallery: body.gallery ?? "",
+        videos: body.videos ?? "",
 
         introduction: body.introduction ?? "",
 
@@ -82,7 +133,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Create model failed.",
-        error: String(error),
       },
       {
         status: 500,

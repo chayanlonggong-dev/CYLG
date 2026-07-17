@@ -47,16 +47,21 @@ model Model {
 }
 
 model WebsiteSettings {
-  id         Int      @id @default(1)
+  id          Int      @id @default(1)
 
-  siteName   String   @default("ChaYanLongGong")
+  siteName    String   @default("ChaYanLongGong")
+  logo        String   @default("")
 
-  logo       String   @default("")
+  whatsapp    String   @default("")
+  telegram    String   @default("")
+  signal      String   @default("")
+  email       String   @default("")
 
-  whatsapp   String   @default("")
-  telegram   String   @default("")
-  signal     String   @default("")
+  enableWhatsApp      Boolean @default(true)
+  enableTelegram      Boolean @default(true)
+  enableSignal        Boolean @default(true)
+  enableFeedbackEmail Boolean @default(true)
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
