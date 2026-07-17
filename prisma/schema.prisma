@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum ModelLevel {
+  CROWN
+  SSS
+  SS
+  S
+  A
+}
+
+model Model {
+  id           Int        @id @default(autoincrement())
+
+  level        ModelLevel
+
+  number       Int
+
+  code         String     @unique
+
+  avatar       String
+
+  gallery      String
+
+  videos       String
+
+  introduction String
+
+  createdAt    DateTime   @default(now())
+
+  updatedAt    DateTime   @updatedAt
+}
+
+model WebsiteSettings {
+  id         Int      @id @default(1)
+
+  siteName   String
+
+  logo       String
+
+  whatsapp   String
+
+  telegram   String
+
+  signal     String
+
+  createdAt  DateTime @default(now())
+
+  updatedAt  DateTime @updatedAt
+}
