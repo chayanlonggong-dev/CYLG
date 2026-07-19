@@ -1,35 +1,30 @@
-"use client";
+import { prisma } from "@/lib/prisma";
 
-import { useState } from "react";
+import HomeClient from "./HomeClient";
 
-import Header from "../components/Header";
-import Hero from "../components/Hero";
-import LuxuryExperience from "../components/LuxuryExperience";
-import CollectionCards from "../components/CollectionCards";
-import FloatingContact from "../components/FloatingContact";
-import HomeContactPopup from "../components/HomeContactPopup";
 
-export default function Home() {
-  const [isContactOpen, setIsContactOpen] = useState(false);
+
+export default async function Home(){
+
+
+  const settings = await prisma.websiteSettings.findUnique({
+
+    where:{
+      id:1
+    }
+
+  });
+
+
 
   return (
-    <>
-      <Header />
 
-      <Hero />
+    <HomeClient
 
-      <LuxuryExperience />
+      settings={settings}
 
-      <CollectionCards />
+    />
 
-      <FloatingContact
-        onOpen={() => setIsContactOpen(true)}
-      />
-
-      <HomeContactPopup
-        isOpen={isContactOpen}
-        onClose={() => setIsContactOpen(false)}
-      />
-    </>
   );
+
 }

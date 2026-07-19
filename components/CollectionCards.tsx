@@ -15,14 +15,23 @@ export default function CollectionCards() {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
+
     async function loadModels() {
+
       try {
+
         const res = await fetch("/api/models");
 
         const data = await res.json();
 
-        setModels(Array.isArray(data) ? data : []);
+        setModels(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+
 
       } catch (error) {
 
@@ -33,16 +42,21 @@ export default function CollectionCards() {
 
         setModels([]);
 
+
       } finally {
 
         setLoading(false);
 
       }
+
     }
+
 
     loadModels();
 
+
   }, []);
+
 
 
   // CYLG 等級排序
@@ -55,41 +69,44 @@ export default function CollectionCards() {
   ];
 
 
-  // 自動排序：
-  // CROWN
-  // SSS001
-  // SSS002
-  // SS001
-  // SS002
+
+  // 自動排序
   const sortedModels = [...models].sort(
     (a, b) => {
+
 
       const levelCompare =
         levelOrder.indexOf(a.level) -
         levelOrder.indexOf(b.level);
 
 
+
       if (levelCompare !== 0) {
+
         return levelCompare;
+
       }
+
 
 
       return a.code.localeCompare(
         b.code
       );
+
     }
   );
 
 
+
   return (
+
     <section className="bg-black py-24 px-8">
 
       <div className="max-w-7xl mx-auto">
 
 
-        {/* Title */}
-
         <div className="text-center mb-16">
+
 
           <p className="text-yellow-500 uppercase tracking-[0.4em]">
             FEATURED COLLECTION
@@ -105,11 +122,10 @@ export default function CollectionCards() {
             Select your exclusive companion.
           </p>
 
+
         </div>
 
 
-
-        {/* Loading */}
 
         {loading && (
 
@@ -121,8 +137,6 @@ export default function CollectionCards() {
 
 
 
-        {/* Empty */}
-
         {!loading && sortedModels.length === 0 && (
 
           <p className="text-center text-gray-500">
@@ -133,19 +147,22 @@ export default function CollectionCards() {
 
 
 
-        {/* Cards */}
 
         {!loading && sortedModels.length > 0 && (
 
-          <div className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            xl:grid-cols-3
-            gap-10
-          ">
+          <div
+            className="
+              grid
+              grid-cols-1
+              md:grid-cols-2
+              xl:grid-cols-3
+              gap-10
+            "
+          >
 
-            {sortedModels.map((model) => (
+
+            {sortedModels.map((model)=>(
+
 
               <CollectionCard
 
@@ -153,17 +170,25 @@ export default function CollectionCards() {
 
                 id={model.code}
 
+
                 images={[
-                  model.avatar,
+
+                  ...(model.avatar
+                    ? [model.avatar]
+                    : []),
+
 
                   ...(model.gallery
                     ? model.gallery
                         .split(",")
                         .filter(Boolean)
                     : [])
+
                 ]}
 
+
               />
+
 
             ))}
 
@@ -176,5 +201,7 @@ export default function CollectionCards() {
       </div>
 
     </section>
+
   );
+
 }

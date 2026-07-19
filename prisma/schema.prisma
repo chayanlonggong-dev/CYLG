@@ -16,52 +16,56 @@ enum ModelLevel {
 }
 
 model Model {
-  id        Int        @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  level     ModelLevel
-  number    Int
-  code      String     @unique
+  level  ModelLevel
+  number Int
+  code   String @unique
 
-  title        String   @default("")
-  nationality  String   @default("")
-  city         String   @default("")
+  title       String @default("")
+  nationality String @default("")
+  city        String @default("")
 
-  age          Int      @default(18)
-  height       Int      @default(160)
-  weight       Int      @default(50)
+  age    Int @default(18)
+  height Int @default(160)
+  weight Int @default(50)
 
-  languages    String   @default("")
-  services     String   @default("")
+  languages String @default("")
+  services  String @default("")
 
-  avatar       String   @default("")
-  gallery      String   @default("")
-  videos       String   @default("")
+  avatar  String @default("")
+  gallery String @default("")
+  videos  String @default("")
 
-  introduction String   @default("")
+  introduction String @default("")
 
-  online       Boolean  @default(true)
-  featured     Boolean  @default(false)
+  online   Boolean @default(true)
+  featured Boolean @default(false)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WebsiteSettings {
-  id          Int      @id @default(1)
+  id Int @id @default(1)
 
-  siteName    String   @default("ChaYanLongGong")
-  logo        String   @default("")
+  siteName String @default("ChaYanLongGong")
+  logo     String @default("")
 
-  whatsapp    String   @default("")
-  telegram    String   @default("")
-  signal      String   @default("")
-  email       String   @default("")
+  whatsapp String @default("")
+  telegram String @default("")
+  signal   String @default("")
+  line     String @default("")
+  wechat   String @default("")
+  email    String @default("")
 
   enableWhatsApp      Boolean @default(true)
   enableTelegram      Boolean @default(true)
   enableSignal        Boolean @default(true)
+  enableLine          Boolean @default(false)
+  enableWechat        Boolean @default(false)
   enableFeedbackEmail Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,0 +1,105 @@
+[1mdiff --git a/prisma/schema.prisma b/prisma/schema.prisma[m
+[1mindex c189a6d..5b5a73b 100644[m
+[1m--- a/prisma/schema.prisma[m
+[1m+++ b/prisma/schema.prisma[m
+[36m@@ -1,67 +1,49 @@[m
+[31m-generator client {[m
+[31m-  provider = "prisma-client-js"[m
+[31m-}[m
+[32m+[m[32mmodel WebsiteSettings {[m
+ [m
+[31m-datasource db {[m
+[31m-  provider = "sqlite"[m
+[31m-  url      = "file:./dev.db"[m
+[31m-}[m
+[32m+[m[32m  id Int @id @default(1)[m
+ [m
+[31m-enum ModelLevel {[m
+[31m-  CROWN[m
+[31m-  SSS[m
+[31m-  SS[m
+[31m-  S[m
+[31m-  A[m
+[31m-}[m
+ [m
+[31m-model Model {[m
+[31m-  id        Int        @id @default(autoincrement())[m
+[32m+[m[32m  siteName String[m
+ [m
+[31m-  level     ModelLevel[m
+[31m-  number    Int[m
+[31m-  code      String     @unique[m
+ [m
+[31m-  title        String   @default("")[m
+[31m-  nationality  String   @default("")[m
+[31m-  city         String   @default("")[m
+[32m+[m[32m  logo String?[m
+ [m
+[31m-  age          Int      @default(18)[m
+[31m-  height       Int      @default(160)[m
+[31m-  weight       Int      @default(50)[m
+ [m
+[31m-  languages    String   @default("")[m
+[31m-  services     String   @default("")[m
+ [m
+[31m-  avatar       String   @default("")[m
+[31m-  gallery      String   @default("")[m
+[31m-  videos       String   @default("")[m
+[32m+[m[32m  // Contact Numbers[m
+ [m
+[31m-  introduction String   @default("")[m
+[32m+[m[32m  whatsapp String?[m
+ [m
+[31m-  online       Boolean  @default(true)[m
+[31m-  featured     Boolean  @default(false)[m
+[32m+[m[32m  telegram String?[m
+ [m
+[31m-  createdAt    DateTime @default(now())[m
+[31m-  updatedAt    DateTime @updatedAt[m
+[31m-}[m
+[32m+[m[32m  signal String?[m
+[32m+[m
+[32m+[m[32m  line String?[m
+[32m+[m
+[32m+[m[32m  wechat String?[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  // Contact Enable Control[m
+[32m+[m
+[32m+[m[32m  enableWhatsapp Boolean @default(true)[m
+[32m+[m
+[32m+[m[32m  enableTelegram Boolean @default(true)[m
+[32m+[m
+[32m+[m[32m  enableSignal Boolean @default(false)[m
+[32m+[m
+[32m+[m[32m  enableLine Boolean @default(false)[m
+[32m+[m
+[32m+[m[32m  enableWechat Boolean @default(false)[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  email String?[m
+ [m
+[31m-model WebsiteSettings {[m
+[31m-  id          Int      @id @default(1)[m
+ [m
+[31m-  siteName    String   @default("ChaYanLongGong")[m
+[31m-  logo        String   @default("")[m
+ [m
+[31m-  whatsapp    String   @default("")[m
+[31m-  telegram    String   @default("")[m
+[31m-  signal      String   @default("")[m
+[31m-  email       String   @default("")[m
+[32m+[m[32m  createdAt DateTime @default(now())[m
+ [m
+[31m-  enableWhatsApp      Boolean @default(true)[m
+[31m-  enableTelegram      Boolean @default(true)[m
+[31m-  enableSignal        Boolean @default(true)[m
+[31m-  enableFeedbackEmail Boolean @default(true)[m
+[32m+[m[32m  updatedAt DateTime @updatedAt[m
+ [m
+[31m-  createdAt   DateTime @default(now())[m
+[31m-  updatedAt   DateTime @updatedAt[m
+ }[m
+\ No newline at end of file[m

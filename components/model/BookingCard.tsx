@@ -1,55 +1,362 @@
 "use client";
 
-import { useState } from "react";
-import ContactPopup from "./ContactPopup";
 
 interface BookingCardProps {
-  whatsapp?: string;
-  telegram?: string;
-  signal?: string;
+
+
+  modelId:string;
+
+
+  whatsapp?:string;
+
+  telegram?:string;
+
+  signal?:string;
+
+  line?:string;
+
+  wechat?:string;
+
+
+
+  enableWhatsapp?:boolean;
+
+  enableTelegram?:boolean;
+
+  enableSignal?:boolean;
+
+  enableLine?:boolean;
+
+  enableWechat?:boolean;
+
+
 }
 
+
+
 export default function BookingCard({
+
+  modelId,
+
   whatsapp,
+
   telegram,
+
   signal,
-}: BookingCardProps) {
-  const [open, setOpen] = useState(false);
+
+  line,
+
+  wechat,
+
+
+  enableWhatsapp,
+
+  enableTelegram,
+
+  enableSignal,
+
+  enableLine,
+
+  enableWechat,
+
+
+}:BookingCardProps){
+
+
+
+  const message =
+    encodeURIComponent(
+      `Hi, I'm interested in ${modelId}`
+    );
+
+
+
+
+
+  function openChat(type:string){
+
+
+
+    if(type==="WhatsApp"){
+
+      window.open(
+
+        `https://wa.me/${whatsapp?.replace(/\D/g,"")}?text=${message}`,
+
+        "_blank"
+
+      );
+
+    }
+
+
+
+
+
+    if(type==="Telegram"){
+
+      window.open(
+
+        `https://t.me/${telegram?.replace("@","")}`,
+
+        "_blank"
+
+      );
+
+    }
+
+
+
+
+
+    if(type==="Signal"){
+
+      window.open(
+
+        `https://signal.me/#p/${signal?.replace("+","")}`,
+
+        "_blank"
+
+      );
+
+    }
+
+
+
+
+
+    if(type==="LINE"){
+
+      window.open(
+
+        `https://line.me/ti/p/${line}`,
+
+        "_blank"
+
+      );
+
+    }
+
+
+
+
+
+    if(type==="WeChat"){
+
+      alert(
+
+        `Please add WeChat: ${wechat}`
+
+      );
+
+    }
+
+
+
+  }
+
+
+
+
+
+
+  const channels = [
+
+    {
+
+      name:"WhatsApp",
+
+      show:
+        enableWhatsapp &&
+        whatsapp
+
+    },
+
+
+    {
+
+      name:"Telegram",
+
+      show:
+        enableTelegram &&
+        telegram
+
+    },
+
+
+    {
+
+      name:"Signal",
+
+      show:
+        enableSignal &&
+        signal
+
+    },
+
+
+    {
+
+      name:"LINE",
+
+      show:
+        enableLine &&
+        line
+
+    },
+
+
+    {
+
+      name:"WeChat",
+
+      show:
+        enableWechat &&
+        wechat
+
+    },
+
+
+  ];
+
+
+
+
+
 
   return (
-    <>
-      <section className="bg-black py-24 px-6">
-        <div className="max-w-5xl mx-auto rounded-3xl border border-yellow-500/20 bg-[#111111] p-12 text-center">
 
-          <p className="uppercase tracking-[0.45em] text-yellow-400 text-sm">
-            CONTACT
-          </p>
 
-          <h2 className="mt-5 text-5xl font-black text-white">
-            Contact Us
-          </h2>
+    <section
 
-          <p className="mt-6 max-w-2xl mx-auto text-gray-400 leading-8">
-            Contact our concierge team to arrange your exclusive luxury experience.
-          </p>
+      className="
+      bg-black
+      py-24
+      flex
+      justify-center
+      "
 
-          <button
-            onClick={() => setOpen(true)}
-            className="mt-12 px-12 py-4 rounded-full bg-yellow-400 text-black font-bold uppercase tracking-[0.25em] hover:scale-105 duration-300"
-          >
-            Contact Us
-          </button>
+    >
+
+
+
+      <div
+
+        className="
+        w-full
+        max-w-md
+        px-6
+        "
+
+      >
+
+
+
+
+        <h2
+
+          className="
+          text-center
+          text-yellow-400
+          text-2xl
+          tracking-[0.5em]
+          mb-8
+          "
+
+        >
+
+          BOOK NOW
+
+        </h2>
+
+
+
+
+
+
+        <div
+
+          className="
+          space-y-4
+          "
+
+        >
+
+
+
+        {
+
+          channels
+
+          .filter(
+
+            item=>item.show
+
+          )
+
+          .map(channel=>(
+
+
+            <button
+
+
+              key={channel.name}
+
+
+              onClick={()=>openChat(channel.name)}
+
+
+              className="
+
+              w-full
+
+              rounded-full
+
+              border
+
+              border-yellow-500
+
+              py-4
+
+              text-yellow-400
+
+              hover:bg-yellow-500
+
+              hover:text-black
+
+              transition
+
+              "
+
+
+            >
+
+
+              {channel.name}
+
+
+            </button>
+
+
+          ))
+
+
+        }
+
+
 
         </div>
-      </section>
 
-      <ContactPopup
-        open={open}
-        onClose={() => setOpen(false)}
-        whatsapp={whatsapp}
-        telegram={telegram}
-        signal={signal}
-      />
-    </>
+
+
+      </div>
+
+
+
+    </section>
+
+
   );
+
+
 }

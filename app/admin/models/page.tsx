@@ -2,59 +2,55 @@
 
 import { useState } from "react";
 
-import AddModelModal from "@/components/admin/AddModelModal";
-import ModelsList from "@/components/admin/ModelsList";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import LuxuryExperience from "@/components/LuxuryExperience";
+import CollectionCards from "@/components/CollectionCards";
+import FloatingContact from "@/components/FloatingContact";
+import HomeContactPopup from "@/components/HomeContactPopup";
 
-export default function ModelsPage() {
-  const [open, setOpen] = useState(false);
+
+export default function Home() {
+
+
+  const [isContactOpen,setIsContactOpen] = useState(false);
+
 
   return (
+
     <>
-      <main className="min-h-screen bg-black text-white">
 
-        {/* Header */}
-        <header className="border-b border-yellow-500/20 bg-[#101010]">
 
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
+      <Header />
 
-            <div>
 
-              <p className="uppercase tracking-[0.35em] text-yellow-500 text-sm">
-                CYLG ADMIN
-              </p>
+      <Hero />
 
-              <h1 className="mt-2 text-4xl font-black">
-                Models Management
-              </h1>
 
-            </div>
+      <LuxuryExperience />
 
-            <button
-              onClick={() => setOpen(true)}
-              className="rounded-full border border-yellow-500 px-6 py-3 font-bold uppercase tracking-[0.25em] text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
-            >
-              + ADD MODEL
-            </button>
 
-          </div>
+      <CollectionCards />
 
-        </header>
 
-        {/* Models */}
+      <FloatingContact
 
-        <section className="mx-auto max-w-7xl px-8 py-12">
+        onOpen={()=>setIsContactOpen(true)}
 
-          <ModelsList />
-
-        </section>
-
-      </main>
-
-      <AddModelModal
-        open={open}
-        onClose={() => setOpen(false)}
       />
 
+
+      <HomeContactPopup
+
+        isOpen={isContactOpen}
+
+        onClose={()=>setIsContactOpen(false)}
+
+      />
+
+
     </>
+
   );
+
 }

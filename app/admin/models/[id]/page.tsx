@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
 
 import ModelHero from "@/components/model/ModelHero";
 import ModelGallery from "@/components/model/ModelGallery";
@@ -7,23 +6,41 @@ import ModelInfo from "@/components/model/ModelInfo";
 import BookingCard from "@/components/model/BookingCard";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ModelPage({
   params,
 }: PageProps) {
-  const model = await prisma.model.findFirst({
+  const { id } = await params;
+
+  const model = await prisma.model.findUnique({
     where: {
-      code: params.id,
+      code: id,
     },
   });
 
   if (!model) {
-    notFound();
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <h1 className="text-3xl text-yellow-500">
+          Model Not Found
+        </h1>
+      </main>
+    );
   }
+
+  const gallery =
+    model.gallery && model.gallery.length > 0
+      ? model.gallery.split(",")
+      : [];
+
+  const languages =
+    model.languages && model.languages.length > 0
+      ? model.languages.split(",")
+      : [];
 
   const settings = await prisma.websiteSettings.findUnique({
     where: {
@@ -31,16 +48,8 @@ export default async function ModelPage({
     },
   });
 
-  const gallery = model.gallery
-    ? model.gallery.split(",")
-    : [];
-
-  const languages = model.languages
-    ? model.languages.split(",")
-    : [];
-
   return (
-    <main className="bg-black min-h-screen">
+    <main className="min-h-screen bg-black text-white">
 
       <ModelHero
         id={model.code}
@@ -49,10 +58,7 @@ export default async function ModelPage({
 
       <ModelGallery
         id={model.code}
-        images={[
-          model.avatar,
-          ...gallery,
-        ]}
+        images={[model.avatar, ...gallery]}
       />
 
       <ModelInfo
@@ -61,7 +67,7 @@ export default async function ModelPage({
         city={model.city}
         nationality={model.nationality}
         languages={languages}
-        introduction={model.introduction || ""}
+        introduction={model.introduction}
       />
 
       <BookingCard
@@ -69,9 +75,6 @@ export default async function ModelPage({
         whatsapp={settings?.whatsapp || ""}
         telegram={settings?.telegram || ""}
         signal={settings?.signal || ""}
-        enableWhatsapp={settings?.enableWhatsApp ?? false}
-        enableTelegram={settings?.enableTelegram ?? false}
-        enableSignal={settings?.enableSignal ?? false}
       />
 
     </main>

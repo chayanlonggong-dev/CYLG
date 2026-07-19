@@ -4,18 +4,32 @@ import Link from "next/link";
 import ImageSlider from "./ImageSlider";
 import ModelTitle from "./ModelTitle";
 
+
 interface CollectionCardProps {
+
   id: string;
+
   images: string[];
+
 }
 
+
+
 export default function CollectionCard({
+
   id,
+
   images,
+
 }: CollectionCardProps) {
+
+
   return (
+
     <Link
+
       href={`/models/${id}`}
+
       className="
         group
         block
@@ -30,12 +44,37 @@ export default function CollectionCard({
         transition-all
         duration-700
       "
+
     >
+
+
       {/* Image */}
-      <ImageSlider id={id} images={images} />
+
+      <ImageSlider
+
+        id={id}
+
+        images={
+          images.length > 0
+            ? images
+            : ["/logo.png"]
+        }
+
+      />
+
+
 
       {/* Model ID */}
-      <ModelTitle id={id} />
+
+      <ModelTitle
+
+        id={id}
+
+      />
+
+
     </Link>
+
   );
+
 }

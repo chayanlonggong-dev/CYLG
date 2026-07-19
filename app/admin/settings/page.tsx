@@ -2,228 +2,469 @@
 
 import { useEffect, useState } from "react";
 
-type WebsiteSettingsState = {
-  siteName: string;
-  logo: string;
-  whatsapp: string;
-  telegram: string;
-  signal: string;
-  email: string;
-  enableWhatsApp: boolean;
-  enableTelegram: boolean;
-  enableSignal: boolean;
-  enableFeedbackEmail: boolean;
-};
-
-const emptySettings: WebsiteSettingsState = {
-  siteName: "ChaYanLongGong",
-  logo: "",
-  whatsapp: "",
-  telegram: "",
-  signal: "",
-  email: "",
-  enableWhatsApp: true,
-  enableTelegram: true,
-  enableSignal: true,
-  enableFeedbackEmail: true,
-};
 
 export default function WebsiteSettingsPage() {
-  const [settings, setSettings] = useState<WebsiteSettingsState>(emptySettings);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        const response = await fetch("/api/settings");
-        const data = await response.json();
 
-        setSettings({
-          ...emptySettings,
-          ...data,
-        });
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const [settings,setSettings] = useState<any>({
 
-    loadSettings();
-  }, []);
+    siteName:"",
 
-  async function handleSave() {
-    try {
-      setSaving(true);
-      setMessage("");
+    whatsapp:"",
+    telegram:"",
+    signal:"",
+    line:"",
+    wechat:"",
 
-      const response = await fetch("/api/settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(settings),
+    email:"",
+
+    enableWhatsapp:true,
+    enableTelegram:true,
+    enableSignal:false,
+    enableLine:false,
+    enableWechat:false,
+
+  });
+
+
+
+  useEffect(()=>{
+
+
+    fetch("/api/settings")
+      .then(res=>res.json())
+      .then(data=>{
+
+        if(data){
+
+          setSettings(data);
+
+        }
+
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save settings.");
-      }
 
-      setMessage("Settings saved successfully.");
-    } catch (error) {
-      console.error(error);
-      setMessage("Unable to save settings right now.");
-    } finally {
-      setSaving(false);
-    }
+  },[]);
+
+
+
+
+
+  function update(
+    key:string,
+    value:any
+  ){
+
+    setSettings({
+
+      ...settings,
+
+      [key]:value
+
+    });
+
   }
 
+
+
+
+
+
+  async function save(){
+
+
+    await fetch("/api/settings",{
+
+      method:"PUT",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify(settings)
+
+    });
+
+
+    alert("Settings Saved");
+
+
+  }
+
+
+
+
+
+
   return (
-    <main className="min-h-screen bg-black text-white">
-      <header className="border-b border-yellow-500/20 bg-[#101010]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-6">
-          <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-yellow-500">CYLG ADMIN</p>
-            <h1 className="mt-2 text-3xl font-black">Website Settings</h1>
-          </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="rounded-full border border-yellow-500 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-yellow-500 transition hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </header>
+    <main
+      className="
+      min-h-screen
+      bg-black
+      text-white
+      flex
+      justify-center
+      py-20
+      "
+    >
 
-      <section className="mx-auto max-w-6xl px-8 py-12">
-        <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-10">
-          {loading ? (
-            <p className="text-gray-400">Loading settings...</p>
-          ) : (
-            <>
-              <div className="mb-8">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  Website Name
-                </label>
-                <input
-                  type="text"
-                  value={settings.siteName}
-                  onChange={(event) => setSettings({ ...settings, siteName: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
 
-              <div className="mb-8">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  Logo URL
-                </label>
-                <input
-                  type="text"
-                  value={settings.logo}
-                  onChange={(event) => setSettings({ ...settings, logo: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
+      <div
+        className="
+        w-full
+        max-w-3xl
+        bg-[#111]
+        border
+        border-yellow-500/30
+        rounded-3xl
+        p-10
+        "
+      >
 
-              <div className="mb-8">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  WhatsApp
-                </label>
-                <input
-                  type="text"
-                  value={settings.whatsapp}
-                  onChange={(event) => setSettings({ ...settings, whatsapp: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
 
-              <div className="mb-8">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  Telegram
-                </label>
-                <input
-                  type="text"
-                  value={settings.telegram}
-                  onChange={(event) => setSettings({ ...settings, telegram: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
 
-              <div className="mb-8">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  Signal
-                </label>
-                <input
-                  type="text"
-                  value={settings.signal}
-                  onChange={(event) => setSettings({ ...settings, signal: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
+        <h1
+          className="
+          text-4xl
+          font-bold
+          text-yellow-400
+          mb-10
+          "
+        >
+          Website Settings
+        </h1>
 
-              <div className="mb-10">
-                <label className="mb-3 block text-sm uppercase tracking-[0.2em] text-yellow-500">
-                  Feedback Email
-                </label>
-                <input
-                  type="email"
-                  value={settings.email}
-                  onChange={(event) => setSettings({ ...settings, email: event.target.value })}
-                  className="w-full rounded-2xl border border-yellow-500/20 bg-[#181818] px-5 py-4 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
 
-              <div className="border-t border-yellow-500/20 pt-10">
-                <h2 className="mb-8 text-2xl font-bold">Contact Channels</h2>
 
-                <div className="space-y-5">
-                  <label className="flex items-center justify-between rounded-2xl border border-yellow-500/20 bg-[#181818] px-6 py-5">
-                    <span>Enable WhatsApp</span>
-                    <input
-                      type="checkbox"
-                      checked={settings.enableWhatsApp}
-                      onChange={(event) => setSettings({ ...settings, enableWhatsApp: event.target.checked })}
-                    />
-                  </label>
 
-                  <label className="flex items-center justify-between rounded-2xl border border-yellow-500/20 bg-[#181818] px-6 py-5">
-                    <span>Enable Telegram</span>
-                    <input
-                      type="checkbox"
-                      checked={settings.enableTelegram}
-                      onChange={(event) => setSettings({ ...settings, enableTelegram: event.target.checked })}
-                    />
-                  </label>
 
-                  <label className="flex items-center justify-between rounded-2xl border border-yellow-500/20 bg-[#181818] px-6 py-5">
-                    <span>Enable Signal</span>
-                    <input
-                      type="checkbox"
-                      checked={settings.enableSignal}
-                      onChange={(event) => setSettings({ ...settings, enableSignal: event.target.checked })}
-                    />
-                  </label>
 
-                  <label className="flex items-center justify-between rounded-2xl border border-yellow-500/20 bg-[#181818] px-6 py-5">
-                    <span>Enable Feedback Email</span>
-                    <input
-                      type="checkbox"
-                      checked={settings.enableFeedbackEmail}
-                      onChange={(event) => setSettings({ ...settings, enableFeedbackEmail: event.target.checked })}
-                    />
-                  </label>
-                </div>
-              </div>
+        <Input
 
-              {message ? <p className="mt-8 text-sm text-yellow-500">{message}</p> : null}
-            </>
-          )}
-        </div>
-      </section>
+          label="Site Name"
+
+          value={settings.siteName}
+
+          onChange={(v)=>update("siteName",v)}
+
+        />
+
+
+
+
+
+
+        <Input
+
+          label="WhatsApp Number"
+
+          value={settings.whatsapp}
+
+          onChange={(v)=>update("whatsapp",v)}
+
+        />
+
+        <Toggle
+
+          label="Enable WhatsApp"
+
+          checked={settings.enableWhatsapp}
+
+          onChange={(v)=>update("enableWhatsapp",v)}
+
+        />
+
+
+
+
+
+
+        <Input
+
+          label="Telegram Username"
+
+          value={settings.telegram}
+
+          onChange={(v)=>update("telegram",v)}
+
+        />
+
+
+        <Toggle
+
+          label="Enable Telegram"
+
+          checked={settings.enableTelegram}
+
+          onChange={(v)=>update("enableTelegram",v)}
+
+        />
+
+
+
+
+
+
+
+        <Input
+
+          label="Signal Number"
+
+          value={settings.signal}
+
+          onChange={(v)=>update("signal",v)}
+
+        />
+
+
+        <Toggle
+
+          label="Enable Signal"
+
+          checked={settings.enableSignal}
+
+          onChange={(v)=>update("enableSignal",v)}
+
+        />
+
+
+
+
+
+
+
+        <Input
+
+          label="LINE ID"
+
+          value={settings.line}
+
+          onChange={(v)=>update("line",v)}
+
+        />
+
+
+        <Toggle
+
+          label="Enable LINE"
+
+          checked={settings.enableLine}
+
+          onChange={(v)=>update("enableLine",v)}
+
+        />
+
+
+
+
+
+
+
+        <Input
+
+          label="WeChat ID"
+
+          value={settings.wechat}
+
+          onChange={(v)=>update("wechat",v)}
+
+        />
+
+
+        <Toggle
+
+          label="Enable WeChat"
+
+          checked={settings.enableWechat}
+
+          onChange={(v)=>update("enableWechat",v)}
+
+        />
+
+
+
+
+
+
+        <Input
+
+          label="Email"
+
+          value={settings.email}
+
+          onChange={(v)=>update("email",v)}
+
+        />
+
+
+
+
+
+
+
+        <button
+
+          onClick={save}
+
+          className="
+          mt-10
+          w-full
+          bg-yellow-500
+          text-black
+          py-4
+          rounded-xl
+          font-bold
+          "
+        >
+
+          SAVE SETTINGS
+
+        </button>
+
+
+
+
+      </div>
+
+
     </main>
+
   );
+
+}
+
+
+
+
+
+
+
+function Input({
+
+label,
+
+value,
+
+onChange,
+
+}:{
+
+label:string;
+
+value:string;
+
+onChange:(v:string)=>void;
+
+}){
+
+
+return (
+
+<div className="mb-5">
+
+
+<label
+className="
+block
+text-gray-400
+mb-2
+"
+>
+
+{label}
+
+</label>
+
+
+<input
+
+value={value || ""}
+
+onChange={
+e=>onChange(e.target.value)
+}
+
+className="
+w-full
+bg-black
+border
+border-white/20
+rounded-xl
+px-5
+py-4
+outline-none
+"
+
+/>
+
+
+</div>
+
+)
+
+}
+
+
+
+
+
+
+
+function Toggle({
+
+label,
+
+checked,
+
+onChange,
+
+}:{
+
+label:string;
+
+checked:boolean;
+
+onChange:(v:boolean)=>void;
+
+}){
+
+
+return (
+
+<div
+className="
+flex
+justify-between
+items-center
+mb-6
+"
+>
+
+
+<span>
+
+{label}
+
+</span>
+
+
+<input
+
+type="checkbox"
+
+checked={checked}
+
+onChange={
+e=>onChange(e.target.checked)
+}
+
+/>
+
+
+</div>
+
+)
+
+
 }

@@ -476,9 +476,9 @@ export default function ModelsList() {
 
                         {
                           model.level==="CROWN"
-                          ? `👑${model.number
-                              .toString()
-                              .padStart(3,"0")}`
+                          ? `👑 CY${model.number
+    .toString()
+    .padStart(3, "0")}`
                           : model.code
                         }
 
