@@ -10,7 +10,7 @@ interface HomeContactPopupProps {
   telegram?: string;
   signal?: string;
   line?: string;
-  wechatQr?: string;
+ wechatQr?: string;
   email?: string;
 
   enableWhatsapp?: boolean;
@@ -30,31 +30,27 @@ export default function HomeContactPopup({
   signal,
   line,
   wechatQr,
-  email,
 
   enableWhatsapp,
   enableTelegram,
   enableSignal,
   enableLine,
   enableWechat,
-  enableFeedbackEmail,
 }: HomeContactPopupProps) {
   return (
-    <div>
-      <ContactPopup
-        open={isOpen}
-        onClose={onClose}
-        whatsapp={whatsapp}
-        telegram={telegram}
-        signal={signal}
-        line={line}
-        wechatQr={wechatQr}
-        enableWhatsapp={enableWhatsapp}
-        enableTelegram={enableTelegram}
-        enableSignal={enableSignal}
-        enableLine={enableLine}
-        enableWechat={enableWechat}
-      />
-    </div>
+    <ContactPopup
+      open={isOpen}
+      onClose={onClose}
+      whatsapp={whatsapp}
+      telegram={telegram}
+      signal={signal}
+      line={line}
+      wechatQr={wechatQr}
+      enableWhatsapp={enableWhatsapp}
+      enableTelegram={enableTelegram}
+      enableSignal={enableSignal}
+      enableLine={enableLine}
+      enableWechat={enableWechat}
+    />
   );
 }

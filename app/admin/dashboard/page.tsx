@@ -4,11 +4,23 @@ import { useEffect, useMemo, useState } from "react";
 
 import { LEVELS } from "@/app/data/options";
 
+import DashboardStats from "@/components/admin/DashboardStats";
+import ActivityChart from "@/components/admin/ActivityChart";
+import RecentModels from "@/components/admin/RecentModels";
+import RecentActivity from "@/components/admin/RecentActivity";
+import QuickActions from "@/components/admin/QuickActions";
+
 type ModelSummary = {
   id: number;
+  code: string;
+  title: string;
+  avatar: string;
+  city: string;
+  nationality: string;
   level: string;
   online: boolean;
   featured: boolean;
+  createdAt?: string;
 };
 
 export default function DashboardPage() {
@@ -20,6 +32,7 @@ export default function DashboardPage() {
       try {
         const response = await fetch("/api/models");
         const data = await response.json();
+
         setModels(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(error);
@@ -35,24 +48,43 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     const totalByLevel = LEVELS.map((level) => ({
       level,
-      count: models.filter((model) => model.level === level).length,
+      count: models.filter((m) => m.level === level).length,
     }));
 
     return {
       totalModels: models.length,
-      onlineModels: models.filter((model) => model.online).length,
-      featuredModels: models.filter((model) => model.featured).length,
+      onlineModels: models.filter((m) => m.online).length,
+      featuredModels: models.filter((m) => m.featured).length,
       totalByLevel,
     };
   }, [models]);
+
+  const recentModels = useMemo(() => {
+    return [...models].slice(0, 8);
+  }, [models]);
+
+  const recentActivity = useMemo(() => {
+    return recentModels.map((model) => ({
+      id: model.id,
+      title: model.code,
+      description: `Profile ${model.code} is available in the CMS.`,
+      time: "Recently",
+      type: "system" as const,
+    }));
+  }, [recentModels]);
 
   return (
     <main className="min-h-screen bg-black text-white">
       <header className="border-b border-yellow-500/20 bg-[#101010]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-yellow-500">CYLG ADMIN</p>
-            <h1 className="mt-2 text-3xl font-black">Dashboard</h1>
+            <p className="text-sm uppercase tracking-[0.35em] text-yellow-500">
+              CYLG ADMIN
+            </p>
+
+            <h1 className="mt-2 text-3xl font-black">
+              Dashboard
+            </h1>
           </div>
 
           <button className="rounded-full border border-yellow-500 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-yellow-500 transition hover:bg-yellow-500 hover:text-black">
@@ -62,47 +94,35 @@ export default function DashboardPage() {
       </header>
 
       <section className="mx-auto max-w-7xl px-8 py-12">
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-8">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">Models</p>
-            <h2 className="mt-5 text-5xl font-black">{loading ? "—" : stats.totalModels}</h2>
-            <p className="mt-4 text-gray-400">Total profiles</p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-8">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">Online</p>
-            <h2 className="mt-5 text-5xl font-black">{loading ? "—" : stats.onlineModels}</h2>
-            <p className="mt-4 text-gray-400">Currently live</p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-8">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">Featured</p>
-            <h2 className="mt-5 text-5xl font-black">{loading ? "—" : stats.featuredModels}</h2>
-            <p className="mt-4 text-gray-400">Pinned profiles</p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-8">
-            <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">Levels</p>
-            <h2 className="mt-5 text-5xl font-black">{loading ? "—" : stats.totalByLevel.length}</h2>
-            <p className="mt-4 text-gray-400">Collections tracked</p>
-          </div>
-        </div>
+        <DashboardStats
+          loading={loading}
+          totalModels={stats.totalModels}
+          onlineModels={stats.onlineModels}
+          featuredModels={stats.featuredModels}
+          totalLevels={stats.totalByLevel.length}
+        />
       </section>
 
-      <section className="mx-auto max-w-7xl px-8 pb-16">
-        <div className="rounded-3xl border border-yellow-500/20 bg-[#111111] p-10">
-          <h2 className="text-3xl font-black">Level Breakdown</h2>
-          <p className="mt-3 text-gray-400">Live counts across each collection.</p>
+      <section className="mx-auto grid max-w-7xl gap-8 px-8 pb-8 lg:grid-cols-2">
+        <ActivityChart
+          totalModels={stats.totalModels}
+          onlineModels={stats.onlineModels}
+          featuredModels={stats.featuredModels}
+        />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {stats.totalByLevel.map((item) => (
-              <div key={item.level} className="rounded-2xl border border-yellow-500/20 bg-[#181818] p-6">
-                <p className="text-sm uppercase tracking-[0.25em] text-yellow-500">{item.level}</p>
-                <p className="mt-4 text-4xl font-black text-white">{item.count}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <QuickActions />
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-8 pb-16 lg:grid-cols-2">
+        <RecentModels
+          loading={loading}
+          models={recentModels}
+        />
+
+        <RecentActivity
+          loading={loading}
+          activities={recentActivity}
+        />
       </section>
     </main>
   );

@@ -13,9 +13,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const model = await prisma.model.findUnique({
+
+    const model = await prisma.model.findFirst({
       where: {
-        id: Number(id),
+        code: id,
       },
     });
 
@@ -55,17 +56,16 @@ export async function PUT(
 
     const model = await prisma.model.update({
       where: {
-        id: Number(id),
+        code: id,
       },
       data: {
         level: body.level,
-        number: Number(body.number ?? 1),
-        code: body.code,
+        number: Number(body.number),
 
         title: body.title ?? "",
-        age: Number(body.age ?? 18),
-        height: Number(body.height ?? 160),
-        weight: Number(body.weight ?? 50),
+        age: Number(body.age),
+        height: Number(body.height),
+        weight: Number(body.weight),
 
         nationality: body.nationality ?? "",
         city: body.city ?? "",
@@ -79,8 +79,8 @@ export async function PUT(
 
         introduction: body.introduction ?? "",
 
-        online: body.online ?? true,
-        featured: body.featured ?? false,
+        online: Boolean(body.online),
+        featured: Boolean(body.featured),
       },
     });
 
@@ -108,7 +108,7 @@ export async function DELETE(
 
     await prisma.model.delete({
       where: {
-        id: Number(id),
+        code: id,
       },
     });
 

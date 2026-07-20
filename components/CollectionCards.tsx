@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LevelGrid from "./collection/LevelGrid";
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 interface Model {
   id: number;
@@ -12,6 +13,8 @@ interface Model {
 }
 
 export default function CollectionCards() {
+  const { messages } = useLanguage();
+
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,15 +37,15 @@ export default function CollectionCards() {
   }, []);
 
   return (
-    <section className="bg-black py-24 px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-yellow-500 uppercase tracking-[0.4em]">
-            FEATURED COLLECTION
+    <section className="bg-black px-8 py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-16 text-center">
+          <p className="uppercase tracking-[0.4em] text-yellow-500">
+            {messages.nav.collection}
           </p>
 
           <h2 className="mt-4 text-5xl font-bold text-white">
-            Elite Collection
+            {messages.nav.collection}
           </h2>
 
           <p className="mt-6 text-gray-500">
@@ -52,13 +55,13 @@ export default function CollectionCards() {
 
         {loading && (
           <p className="text-center text-gray-400">
-            Loading Collection...
+            {messages.collection.loading}
           </p>
         )}
 
         {!loading && models.length === 0 && (
           <p className="text-center text-gray-500">
-            No models available.
+            {messages.collection.noModels}
           </p>
         )}
 

@@ -33,16 +33,26 @@ export default async function ModelPage({
   });
 
   const gallery = model.gallery
-    ? model.gallery.split(",")
+    ? model.gallery
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
     : [];
 
   const languages = model.languages
-    ? model.languages.split(",")
+    ? model.languages
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
     : [];
 
-  return (
-    <main className="bg-black min-h-screen">
+  const images = [
+    model.avatar,
+    ...gallery,
+  ].filter(Boolean);
 
+  return (
+    <main className="min-h-screen bg-black">
       <ModelHero
         id={model.code}
         image={model.avatar}
@@ -60,21 +70,18 @@ export default async function ModelPage({
 
       <ModelGallery
         id={model.code}
-        images={[
-          model.avatar,
-          ...gallery,
-        ]}
+        images={images}
       />
 
       <ModelInfo
         age={model.age}
         height={model.height}
+        weight={model.weight}
         city={model.city}
         nationality={model.nationality}
         languages={languages}
         introduction={model.introduction || ""}
       />
-
     </main>
   );
 }

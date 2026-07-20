@@ -23,7 +23,7 @@ export default async function ModelPage({
 
   if (!model) {
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+      <main className="min-h-screen bg-black flex items-center justify-center text-white">
         <h1 className="text-3xl text-yellow-500">
           Model Not Found
         </h1>
@@ -49,7 +49,6 @@ export default async function ModelPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
-
       <ModelHero
         id={model.code}
         image={model.avatar}
@@ -73,12 +72,12 @@ export default async function ModelPage({
       <ModelInfo
         age={model.age}
         height={model.height}
+        weight={model.weight}
         city={model.city}
         nationality={model.nationality}
         languages={languages}
         introduction={model.introduction}
       />
-
     </main>
   );
 }

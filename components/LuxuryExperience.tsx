@@ -1,61 +1,57 @@
+"use client";
+
+import { useLanguage } from "@/app/providers/LanguageProvider";
+
 export default function LuxuryExperience() {
+  const { messages } = useLanguage();
+
   return (
-    <section className="bg-black py-24 px-6">
-
-      <div className="max-w-7xl mx-auto text-center">
-
-        <p className="uppercase tracking-[0.35em] text-yellow-500 mb-4">
+    <section className="bg-black px-6 py-24">
+      <div className="mx-auto max-w-7xl text-center">
+        <p className="mb-4 uppercase tracking-[0.35em] text-yellow-500">
           WHY CHOOSE CYLG
         </p>
 
         <h2 className="text-5xl font-bold text-white">
-          Luxury Beyond Expectations
+          {messages.luxury.title}
         </h2>
 
-        <p className="mt-8 text-gray-400 text-lg max-w-3xl mx-auto">
-          Every arrangement is carefully curated to deliver elegance,
-          discretion and a truly first-class private experience.
+        <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-gray-400">
+          {messages.luxury.subtitle}
         </p>
-
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mt-20">
-
-        <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
-          <h3 className="text-yellow-400 text-2xl font-bold mb-4">
-            Worldwide Arrangement
+      <div className="mx-auto mt-20 grid max-w-7xl gap-8 md:grid-cols-3">
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-10">
+          <h3 className="mb-4 text-2xl font-bold text-yellow-400">
+            {messages.luxury.worldwide}
           </h3>
 
-          <p className="text-gray-400 leading-8">
-            Private luxury companion arrangements tailored for international
-            clients with flexible scheduling and premium service.
+          <p className="leading-8 text-gray-400">
+            {messages.luxury.worldwideDesc}
           </p>
         </div>
 
-        <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
-          <h3 className="text-yellow-400 text-2xl font-bold mb-4">
-            VIP Standard
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-10">
+          <h3 className="mb-4 text-2xl font-bold text-yellow-400">
+            {messages.luxury.vip}
           </h3>
 
-          <p className="text-gray-400 leading-8">
-            Carefully selected companions, elegant presentation and exceptional
-            attention to every detail.
+          <p className="leading-8 text-gray-400">
+            {messages.luxury.vipDesc}
           </p>
         </div>
 
-        <div className="bg-zinc-900 rounded-3xl p-10 border border-zinc-800">
-          <h3 className="text-yellow-400 text-2xl font-bold mb-4">
-            Absolute Privacy
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-10">
+          <h3 className="mb-4 text-2xl font-bold text-yellow-400">
+            {messages.luxury.privacy}
           </h3>
 
-          <p className="text-gray-400 leading-8">
-            Confidential communication and completely private arrangements for
-            every distinguished client.
+          <p className="leading-8 text-gray-400">
+            {messages.luxury.privacyDesc}
           </p>
         </div>
-
       </div>
-
     </section>
   );
 }

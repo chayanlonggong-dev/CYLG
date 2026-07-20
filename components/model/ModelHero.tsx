@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+
 import ContactPopup from "@/components/ContactPopup";
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 interface ModelHeroProps {
   id: string;
@@ -18,19 +20,19 @@ interface ModelHeroProps {
   enableWechat?: boolean;
 }
 
-function displayModelTitle(id:string){
-  if(id.startsWith("CROWN")){
-    const number=id.replace("CROWN","");
+function displayModelTitle(id: string) {
+  if (id.startsWith("CROWN")) {
+    const number = id.replace("CROWN", "");
 
     return {
-      crown:true,
-      title:`CY${number}`,
+      crown: true,
+      title: `CY${number}`,
     };
   }
 
   return {
-    crown:false,
-    title:id,
+    crown: false,
+    title: id,
   };
 }
 
@@ -48,15 +50,18 @@ export default function ModelHero({
   enableLine,
   enableWechat,
 }: ModelHeroProps) {
+  const { messages } = useLanguage();
+
   const [open, setOpen] = useState(false);
+
   const display = displayModelTitle(id);
 
   return (
     <section
       className="
         relative
-        min-h-[700px]
         flex
+        min-h-[700px]
         items-center
         justify-center
         overflow-hidden
@@ -70,8 +75,8 @@ export default function ModelHero({
           className="
             absolute
             inset-0
-            w-full
             h-full
+            w-full
             object-cover
             opacity-40
           "
@@ -81,15 +86,15 @@ export default function ModelHero({
       <div className="absolute inset-0 bg-black/70" />
 
       <div className="relative z-10 text-center">
-        <p className="mb-8 text-sm tracking-[0.8em] text-yellow-500 uppercase">
-          Luxury Elite Companion
+        <p className="mb-8 uppercase tracking-[0.8em] text-yellow-500">
+          {messages.hero.title}
         </p>
 
         <h1
-          className="text-7xl md:text-9xl font-black tracking-[0.25em] uppercase text-black"
+          className="text-7xl font-black uppercase tracking-[0.25em] text-black md:text-9xl"
           style={{
-            WebkitTextStroke:"4px #D4AF37",
-            textShadow:"0 0 25px rgba(212,175,55,.8)",
+            WebkitTextStroke: "4px #D4AF37",
+            textShadow: "0 0 25px rgba(212,175,55,.8)",
           }}
         >
           {display.crown && "👑 "}
@@ -98,10 +103,8 @@ export default function ModelHero({
 
         <div className="mx-auto mt-10 h-[2px] w-32 bg-yellow-500" />
 
-        <p className="mt-10 text-lg text-gray-300">
-          Exclusive beauty, refined elegance and unforgettable luxury experiences.
-          <br/>
-          Personalized companionship with absolute discretion.
+        <p className="mt-10 max-w-3xl text-lg leading-9 text-gray-300">
+          {messages.hero.description}
         </p>
 
         <button
@@ -113,14 +116,14 @@ export default function ModelHero({
             border-yellow-500
             px-12
             py-4
-            text-yellow-500
             tracking-[0.4em]
+            text-yellow-500
+            transition-all
             hover:bg-yellow-500
             hover:text-black
-            transition-all
           "
         >
-          BOOK NOW
+          {messages.contact.bookNow}
         </button>
       </div>
 
