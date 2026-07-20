@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import ModelHero from "@/components/model/ModelHero";
 import ModelGallery from "@/components/model/ModelGallery";
 import ModelInfo from "@/components/model/ModelInfo";
-import BookingCard from "@/components/model/BookingCard";
 
 interface PageProps {
   params: Promise<{
@@ -54,6 +53,16 @@ export default async function ModelPage({
       <ModelHero
         id={model.code}
         image={model.avatar}
+        whatsapp={settings?.whatsapp || ""}
+        telegram={settings?.telegram || ""}
+        signal={settings?.signal || ""}
+        line={settings?.line || ""}
+        wechatQr={settings?.wechatQr || ""}
+        enableWhatsapp={settings?.enableWhatsApp ?? false}
+        enableTelegram={settings?.enableTelegram ?? false}
+        enableSignal={settings?.enableSignal ?? false}
+        enableLine={settings?.enableLine ?? false}
+        enableWechat={settings?.enableWechat ?? false}
       />
 
       <ModelGallery
@@ -68,13 +77,6 @@ export default async function ModelPage({
         nationality={model.nationality}
         languages={languages}
         introduction={model.introduction}
-      />
-
-      <BookingCard
-        modelId={model.code}
-        whatsapp={settings?.whatsapp || ""}
-        telegram={settings?.telegram || ""}
-        signal={settings?.signal || ""}
       />
 
     </main>

@@ -14,17 +14,21 @@ export default function WebsiteSettingsPage() {
     telegram:"",
     signal:"",
     line:"",
-    wechat:"",
+    wechatQr:"",
 
     email:"",
 
-    enableWhatsapp:true,
+    enableWhatsApp:true,
     enableTelegram:true,
     enableSignal:false,
     enableLine:false,
     enableWechat:false,
 
   });
+
+  const [isUploadingQr, setIsUploadingQr] = useState(false);
+  const [isDeletingQr, setIsDeletingQr] = useState(false);
+  const [qrUploadError, setQrUploadError] = useState("");
 
 
 
@@ -55,13 +59,13 @@ export default function WebsiteSettingsPage() {
     value:any
   ){
 
-    setSettings({
+    setSettings((prev:any) => ({
 
-      ...settings,
+      ...prev,
 
       [key]:value
 
-    });
+    }));
 
   }
 
@@ -70,8 +74,9 @@ export default function WebsiteSettingsPage() {
 
 
 
-  async function save(){
+  async function save(nextSettings: any = settings){
 
+    const payload = nextSettings ?? settings;
 
     await fetch("/api/settings",{
 
@@ -81,7 +86,7 @@ export default function WebsiteSettingsPage() {
         "Content-Type":"application/json"
       },
 
-      body:JSON.stringify(settings)
+      body:JSON.stringify(payload)
 
     });
 
@@ -89,6 +94,75 @@ export default function WebsiteSettingsPage() {
     alert("Settings Saved");
 
 
+  }
+
+  async function uploadWechatQr(file: File) {
+    if (!file) return;
+
+    setIsUploadingQr(true);
+    setQrUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload?.url) {
+        throw new Error(payload?.message || "WeChat QR upload failed.");
+      }
+
+      update("wechatQr", payload.url);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "WeChat QR upload failed.";
+      setQrUploadError(message);
+    } finally {
+      setIsUploadingQr(false);
+    }
+  }
+
+  async function deleteWechatQr() {
+    const nextSettings = {
+      ...settings,
+      wechatQr: "",
+    };
+
+    setSettings(nextSettings);
+    setQrUploadError("");
+
+    try {
+      setIsDeletingQr(true);
+
+      if (settings.wechatQr) {
+        const response = await fetch("/api/settings", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            path: settings.wechatQr,
+          }),
+        });
+
+        const payload = await response.json();
+
+        if (!response.ok || !payload?.success) {
+          throw new Error(payload?.message || "WeChat QR delete failed.");
+        }
+      }
+
+      await save(nextSettings);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "WeChat QR delete failed.";
+      setQrUploadError(message);
+    } finally {
+      setIsDeletingQr(false);
+    }
   }
 
 
@@ -169,9 +243,9 @@ export default function WebsiteSettingsPage() {
 
           label="Enable WhatsApp"
 
-          checked={settings.enableWhatsapp}
+          checked={settings.enableWhatsApp}
 
-          onChange={(v)=>update("enableWhatsapp",v)}
+          onChange={(v)=>update("enableWhatsApp",v)}
 
         />
 
@@ -261,15 +335,55 @@ export default function WebsiteSettingsPage() {
 
 
 
-        <Input
+        <div className="mt-8 rounded-2xl border border-yellow-500/20 bg-black/40 p-5">
 
-          label="WeChat ID"
+          <label className="mb-3 block text-sm font-semibold uppercase tracking-[0.3em] text-yellow-400">
+            Upload WeChat QR Image
+          </label>
 
-          value={settings.wechat}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                void uploadWechatQr(file);
+              }
+            }}
+            className="w-full rounded-xl border border-yellow-500/30 bg-[#0b0b0b] px-4 py-3 text-sm text-white file:mr-4 file:rounded-full file:border-0 file:bg-yellow-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+          />
 
-          onChange={(v)=>update("wechat",v)}
+          {isUploadingQr && (
+            <p className="mt-3 text-sm text-yellow-400">Uploading QR image...</p>
+          )}
 
-        />
+          {qrUploadError && (
+            <p className="mt-3 text-sm text-red-400">{qrUploadError}</p>
+          )}
+
+          {settings.wechatQr ? (
+            <div className="mt-4 flex justify-center rounded-2xl border border-yellow-500/20 bg-black/60 p-4">
+              <img
+                src={settings.wechatQr}
+                alt="WeChat QR preview"
+                className="max-h-64 max-w-full rounded-xl object-contain"
+              />
+            </div>
+          ) : (
+            <div className="mt-4 flex min-h-36 items-center justify-center rounded-2xl border border-dashed border-yellow-500/20 bg-black/50 p-4 text-center text-sm text-gray-400">
+              No QR uploaded
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => void deleteWechatQr()}
+            disabled={!settings.wechatQr || isDeletingQr}
+            className="mt-4 w-full rounded-full border border-yellow-500/30 bg-transparent px-4 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-yellow-400 transition hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isDeletingQr ? "Deleting..." : "Delete QR"}
+          </button>
+        </div>
 
 
         <Toggle
@@ -305,7 +419,7 @@ export default function WebsiteSettingsPage() {
 
         <button
 
-          onClick={save}
+          onClick={() => void save(settings)}
 
           className="
           mt-10

@@ -56,7 +56,7 @@ model WebsiteSettings {
   telegram String @default("")
   signal   String @default("")
   line     String @default("")
-  wechat   String @default("")
+  wechatQr String @default("")
   email    String @default("")
 
   enableWhatsApp      Boolean @default(true)

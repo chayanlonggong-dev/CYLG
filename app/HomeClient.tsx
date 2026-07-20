@@ -30,6 +30,8 @@ export default function HomeClient({
 
       <FloatingContact
         onOpen={() => setIsContactOpen(true)}
+        email={settings?.email}
+        showFeedback
       />
 
       <HomeContactPopup
@@ -40,7 +42,7 @@ export default function HomeClient({
         telegram={settings?.telegram}
         signal={settings?.signal}
         line={settings?.line}
-        wechat={settings?.wechat}
+        wechatQr={settings?.wechatQr}
         email={settings?.email}
 
         enableWhatsapp={settings?.enableWhatsApp}
