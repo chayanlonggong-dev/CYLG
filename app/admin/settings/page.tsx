@@ -1,51 +1,122 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 
-export default function WebsiteSettingsPage() {
+
+interface Settings {
+  siteName:string;
+
+  whatsapp:string;
+  telegram:string;
+  signal:string;
+  line:string;
+  wechatQr:string;
+
+  email:string;
+
+  enableWhatsapp:boolean;
+  enableTelegram:boolean;
+  enableSignal:boolean;
+  enableLine:boolean;
+  enableWechat:boolean;
+}
 
 
-  const [settings,setSettings] = useState<any>({
 
-    siteName:"",
 
-    whatsapp:"",
-    telegram:"",
-    signal:"",
-    line:"",
-    wechatQr:"",
+const defaultSettings:Settings = {
 
-    email:"",
+  siteName:"",
 
-    enableWhatsApp:true,
-    enableTelegram:true,
-    enableSignal:false,
-    enableLine:false,
-    enableWechat:false,
+  whatsapp:"",
+  telegram:"",
+  signal:"",
+  line:"",
+  wechatQr:"",
 
-  });
+  email:"",
 
-  const [isUploadingQr, setIsUploadingQr] = useState(false);
-  const [isDeletingQr, setIsDeletingQr] = useState(false);
-  const [qrUploadError, setQrUploadError] = useState("");
+  enableWhatsapp:true,
+  enableTelegram:true,
+  enableSignal:false,
+  enableLine:false,
+  enableWechat:false,
+
+};
+
+
+
+
+
+export default function WebsiteSettingsPage(){
+
+
+  const [settings,setSettings] =
+    useState<Settings>(
+      defaultSettings
+    );
+
+
+  const [loading,setLoading] =
+    useState(false);
+
+
+  const [uploading,setUploading] =
+    useState(false);
+
+
+  const [error,setError] =
+    useState("");
+
 
 
 
   useEffect(()=>{
 
 
-    fetch("/api/settings")
-      .then(res=>res.json())
-      .then(data=>{
+    async function load(){
+
+
+      try{
+
+
+        const response =
+          await fetch(
+            "/api/settings"
+          );
+
+
+        const data =
+          await response.json();
+
+
 
         if(data){
 
-          setSettings(data);
+          setSettings({
+            ...defaultSettings,
+            ...data,
+          });
 
         }
 
-      });
+
+
+      }catch(error){
+
+        console.error(error);
+
+      }
+
+
+    }
+
+
+    load();
 
 
   },[]);
@@ -55,15 +126,15 @@ export default function WebsiteSettingsPage() {
 
 
   function update(
-    key:string,
+    key:keyof Settings,
     value:any
   ){
 
-    setSettings((prev:any) => ({
+    setSettings(prev=>({
 
       ...prev,
 
-      [key]:value
+      [key]:value,
 
     }));
 
@@ -74,96 +145,162 @@ export default function WebsiteSettingsPage() {
 
 
 
-  async function save(nextSettings: any = settings){
-
-    const payload = nextSettings ?? settings;
-
-    await fetch("/api/settings",{
-
-      method:"PUT",
-
-      headers:{
-        "Content-Type":"application/json"
-      },
-
-      body:JSON.stringify(payload)
-
-    });
+  async function save(){
 
 
-    alert("Settings Saved");
+    try{
 
 
-  }
+      setLoading(true);
 
-  async function uploadWechatQr(file: File) {
-    if (!file) return;
 
-    setIsUploadingQr(true);
-    setQrUploadError("");
+      const response =
+        await fetch(
+          "/api/settings",
+          {
+            method:"PUT",
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+            headers:{
+              "Content-Type":
+                "application/json",
+            },
 
-      const response = await fetch("/api/upload/avatar", {
-        method: "POST",
-        body: formData,
-      });
+            body:
+              JSON.stringify(settings),
 
-      const payload = await response.json();
+          }
+        );
 
-      if (!response.ok || !payload?.url) {
-        throw new Error(payload?.message || "WeChat QR upload failed.");
+
+
+      if(!response.ok){
+
+        throw new Error(
+          "Save failed."
+        );
+
       }
 
-      update("wechatQr", payload.url);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "WeChat QR upload failed.";
-      setQrUploadError(message);
-    } finally {
-      setIsUploadingQr(false);
+
+
+      alert(
+        "Settings Saved"
+      );
+
+
+
+    }catch(error){
+
+
+      console.error(error);
+
+
+      alert(
+        error instanceof Error
+        ? error.message
+        : "Save failed."
+      );
+
+
+
+    }finally{
+
+
+      setLoading(false);
+
+
     }
+
+
   }
 
-  async function deleteWechatQr() {
-    const nextSettings = {
-      ...settings,
-      wechatQr: "",
-    };
 
-    setSettings(nextSettings);
-    setQrUploadError("");
 
-    try {
-      setIsDeletingQr(true);
 
-      if (settings.wechatQr) {
-        const response = await fetch("/api/settings", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            path: settings.wechatQr,
-          }),
-        });
 
-        const payload = await response.json();
 
-        if (!response.ok || !payload?.success) {
-          throw new Error(payload?.message || "WeChat QR delete failed.");
-        }
+  async function uploadWechatQr(
+    file:File
+  ){
+
+
+    try{
+
+
+      setUploading(true);
+
+      setError("");
+
+
+
+      const formData =
+        new FormData();
+
+
+      formData.append(
+        "file",
+        file
+      );
+
+
+
+      const response =
+        await fetch(
+          "/api/upload/avatar",
+          {
+            method:"POST",
+            body:formData,
+          }
+        );
+
+
+
+      const data =
+        await response.json();
+
+
+
+
+      if(!response.ok){
+
+        throw new Error(
+          data.message ||
+          "Upload failed."
+        );
+
       }
 
-      await save(nextSettings);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "WeChat QR delete failed.";
-      setQrUploadError(message);
-    } finally {
-      setIsDeletingQr(false);
+
+
+      update(
+        "wechatQr",
+        data.url
+      );
+
+
+
+    }catch(error){
+
+
+      setError(
+        error instanceof Error
+        ? error.message
+        : "Upload failed."
+      );
+
+
+
+    }finally{
+
+
+      setUploading(false);
+
+
     }
+
+
   }
+
 
 
 
@@ -172,218 +309,261 @@ export default function WebsiteSettingsPage() {
 
   return (
 
-    <main
-      className="
+    <main className="
       min-h-screen
       bg-black
-      text-white
-      flex
-      justify-center
       py-20
-      "
-    >
+      text-white
+    ">
 
 
-      <div
-        className="
+      <div className="
+        mx-auto
         w-full
         max-w-3xl
-        bg-[#111]
+        rounded-3xl
         border
         border-yellow-500/30
-        rounded-3xl
+        bg-[#111]
         p-10
-        "
-      >
+      ">
 
 
 
-        <h1
-          className="
+        <h1 className="
+          mb-10
           text-4xl
           font-bold
           text-yellow-400
-          mb-10
-          "
-        >
+        ">
+
           Website Settings
+
         </h1>
 
 
 
 
-
-
         <Input
-
           label="Site Name"
-
           value={settings.siteName}
-
-          onChange={(v)=>update("siteName",v)}
-
+          onChange={(v)=>
+            update(
+              "siteName",
+              v
+            )
+          }
         />
 
 
 
-
-
-
         <Input
-
-          label="WhatsApp Number"
-
+          label="WhatsApp"
           value={settings.whatsapp}
-
-          onChange={(v)=>update("whatsapp",v)}
-
+          onChange={(v)=>
+            update(
+              "whatsapp",
+              v
+            )
+          }
         />
 
         <Toggle
-
           label="Enable WhatsApp"
-
-          checked={settings.enableWhatsApp}
-
-          onChange={(v)=>update("enableWhatsApp",v)}
-
+          checked={settings.enableWhatsapp}
+          onChange={(v)=>
+            update(
+              "enableWhatsapp",
+              v
+            )
+          }
         />
 
 
 
 
-
-
         <Input
-
-          label="Telegram Username"
-
+          label="Telegram"
           value={settings.telegram}
-
-          onChange={(v)=>update("telegram",v)}
-
+          onChange={(v)=>
+            update(
+              "telegram",
+              v
+            )
+          }
         />
 
-
         <Toggle
-
           label="Enable Telegram"
-
           checked={settings.enableTelegram}
-
-          onChange={(v)=>update("enableTelegram",v)}
-
+          onChange={(v)=>
+            update(
+              "enableTelegram",
+              v
+            )
+          }
         />
 
 
 
 
-
-
-
         <Input
-
-          label="Signal Number"
-
+          label="Signal"
           value={settings.signal}
-
-          onChange={(v)=>update("signal",v)}
-
+          onChange={(v)=>
+            update(
+              "signal",
+              v
+            )
+          }
         />
-
 
         <Toggle
-
           label="Enable Signal"
-
           checked={settings.enableSignal}
-
-          onChange={(v)=>update("enableSignal",v)}
-
+          onChange={(v)=>
+            update(
+              "enableSignal",
+              v
+            )
+          }
         />
-
-
-
 
 
 
 
         <Input
-
-          label="LINE ID"
-
+          label="LINE"
           value={settings.line}
-
-          onChange={(v)=>update("line",v)}
-
+          onChange={(v)=>
+            update(
+              "line",
+              v
+            )
+          }
         />
-
 
         <Toggle
-
           label="Enable LINE"
-
           checked={settings.enableLine}
-
-          onChange={(v)=>update("enableLine",v)}
-
+          onChange={(v)=>
+            update(
+              "enableLine",
+              v
+            )
+          }
         />
 
 
 
 
 
+        <div className="
+          mt-8
+          rounded-2xl
+          border
+          border-yellow-500/20
+          p-5
+        ">
 
 
-        <div className="mt-8 rounded-2xl border border-yellow-500/20 bg-black/40 p-5">
+          <label className="
+            mb-3
+            block
+            text-sm
+            text-yellow-400
+          ">
 
-          <label className="mb-3 block text-sm font-semibold uppercase tracking-[0.3em] text-yellow-400">
-            Upload WeChat QR Image
+            WeChat QR
+
           </label>
 
+
+
           <input
+
             type="file"
+
             accept="image/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                void uploadWechatQr(file);
+
+            disabled={uploading}
+
+            onChange={(e)=>{
+
+              const file =
+                e.target.files?.[0];
+
+              if(file){
+
+                uploadWechatQr(file);
+
               }
+
             }}
-            className="w-full rounded-xl border border-yellow-500/30 bg-[#0b0b0b] px-4 py-3 text-sm text-white file:mr-4 file:rounded-full file:border-0 file:bg-yellow-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+
+            className="
+              w-full
+              text-white
+            "
+
           />
 
-          {isUploadingQr && (
-            <p className="mt-3 text-sm text-yellow-400">Uploading QR image...</p>
-          )}
 
-          {qrUploadError && (
-            <p className="mt-3 text-sm text-red-400">{qrUploadError}</p>
-          )}
 
-          {settings.wechatQr ? (
-            <div className="mt-4 flex justify-center rounded-2xl border border-yellow-500/20 bg-black/60 p-4">
+          {
+            settings.wechatQr && (
+
               <img
-                src={settings.wechatQr}
-                alt="WeChat QR preview"
-                className="max-h-64 max-w-full rounded-xl object-contain"
-              />
-            </div>
-          ) : (
-            <div className="mt-4 flex min-h-36 items-center justify-center rounded-2xl border border-dashed border-yellow-500/20 bg-black/50 p-4 text-center text-sm text-gray-400">
-              No QR uploaded
-            </div>
-          )}
 
-          <button
-            type="button"
-            onClick={() => void deleteWechatQr()}
-            disabled={!settings.wechatQr || isDeletingQr}
-            className="mt-4 w-full rounded-full border border-yellow-500/30 bg-transparent px-4 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-yellow-400 transition hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isDeletingQr ? "Deleting..." : "Delete QR"}
-          </button>
+                src={settings.wechatQr}
+
+                alt="Wechat QR"
+
+                className="
+                  mt-5
+                  max-h-64
+                  rounded-xl
+                "
+
+              />
+
+            )
+          }
+
+
+
+          {
+            uploading && (
+
+              <p className="
+                mt-3
+                text-yellow-400
+              ">
+                Uploading...
+              </p>
+
+            )
+          }
+
+
+          {
+            error && (
+
+              <p className="
+                mt-3
+                text-red-400
+              ">
+                {error}
+              </p>
+
+            )
+          }
+
+
         </div>
+
+
+
 
 
         <Toggle
@@ -392,10 +572,14 @@ export default function WebsiteSettingsPage() {
 
           checked={settings.enableWechat}
 
-          onChange={(v)=>update("enableWechat",v)}
+          onChange={(v)=>
+            update(
+              "enableWechat",
+              v
+            )
+          }
 
         />
-
 
 
 
@@ -407,7 +591,12 @@ export default function WebsiteSettingsPage() {
 
           value={settings.email}
 
-          onChange={(v)=>update("email",v)}
+          onChange={(v)=>
+            update(
+              "email",
+              v
+            )
+          }
 
         />
 
@@ -415,24 +604,29 @@ export default function WebsiteSettingsPage() {
 
 
 
-
-
         <button
 
-          onClick={() => void save(settings)}
+          onClick={save}
+
+          disabled={loading}
 
           className="
-          mt-10
-          w-full
-          bg-yellow-500
-          text-black
-          py-4
-          rounded-xl
-          font-bold
+            mt-10
+            w-full
+            rounded-xl
+            bg-yellow-500
+            py-4
+            font-bold
+            text-black
           "
+
         >
 
-          SAVE SETTINGS
+          {
+            loading
+            ? "SAVING..."
+            : "SAVE SETTINGS"
+          }
 
         </button>
 
@@ -447,7 +641,6 @@ export default function WebsiteSettingsPage() {
   );
 
 }
-
 
 
 
@@ -477,14 +670,11 @@ return (
 
 <div className="mb-5">
 
-
-<label
-className="
+<label className="
 block
-text-gray-400
 mb-2
-"
->
+text-gray-400
+">
 
 {label}
 
@@ -495,31 +685,31 @@ mb-2
 
 value={value || ""}
 
-onChange={
-e=>onChange(e.target.value)
+onChange={(e)=>
+onChange(
+e.target.value
+)
 }
 
 className="
 w-full
-bg-black
+rounded-xl
 border
 border-white/20
-rounded-xl
+bg-black
 px-5
 py-4
-outline-none
+text-white
 "
 
 />
 
-
 </div>
 
-)
+);
+
 
 }
-
-
 
 
 
@@ -546,14 +736,12 @@ onChange:(v:boolean)=>void;
 
 return (
 
-<div
-className="
-flex
-justify-between
-items-center
+<div className="
 mb-6
-"
->
+flex
+items-center
+justify-between
+">
 
 
 <span>
@@ -569,8 +757,10 @@ type="checkbox"
 
 checked={checked}
 
-onChange={
-e=>onChange(e.target.checked)
+onChange={(e)=>
+onChange(
+e.target.checked
+)
 }
 
 />
@@ -578,7 +768,7 @@ e=>onChange(e.target.checked)
 
 </div>
 
-)
+);
 
 
 }

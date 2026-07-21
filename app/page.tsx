@@ -7,13 +7,73 @@ import HomeClient from "./HomeClient";
 export default async function Home(){
 
 
-  const settings = await prisma.websiteSettings.findUnique({
+  const settings =
+    await prisma.websiteSettings.findUnique({
 
-    where:{
-      id:1
-    }
+      where:{
+        id:1,
+      },
 
-  });
+    });
+
+
+
+
+
+  const websiteSettings = {
+
+    siteName:
+      settings?.siteName ?? "ChaYanLongGong",
+
+
+    whatsapp:
+      settings?.whatsapp ?? "",
+
+
+    telegram:
+      settings?.telegram ?? "",
+
+
+    signal:
+      settings?.signal ?? "",
+
+
+    line:
+      settings?.line ?? "",
+
+
+    wechatQr:
+      settings?.wechatQr ?? "",
+
+
+    email:
+      settings?.email ?? "",
+
+
+
+    enableWhatsapp:
+      settings?.enableWhatsApp ?? true,
+
+
+    enableTelegram:
+      settings?.enableTelegram ?? true,
+
+
+    enableSignal:
+      settings?.enableSignal ?? false,
+
+
+    enableLine:
+      settings?.enableLine ?? false,
+
+
+    enableWechat:
+      settings?.enableWechat ?? false,
+
+
+  };
+
+
 
 
 
@@ -21,7 +81,9 @@ export default async function Home(){
 
     <HomeClient
 
-      settings={settings}
+      settings={
+        websiteSettings
+      }
 
     />
 

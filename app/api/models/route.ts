@@ -1,105 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-
-const levelOrder = {
-  CROWN: 0,
-  SSS: 1,
-  SS: 2,
-  S: 3,
-  A: 4,
-} as const;
+import {
+  getAllModels,
+  createModel,
+} from "@/lib/modelService";
 
 
 // =======================
 // GET ALL MODELS
 // =======================
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest
+) {
+
   try {
-    const { searchParams } = new URL(request.url);
+
+    const { searchParams } =
+      new URL(request.url);
+
 
     const search =
-      searchParams.get("search")?.trim() || "";
+      searchParams
+        .get("search")
+        ?.trim() || "";
+
 
     const level =
-      searchParams.get("level")?.trim() || "";
+      searchParams
+        .get("level")
+        ?.trim() || "";
 
 
-    const models = await prisma.model.findMany({
-      where: {
-
-        ...(level && level !== "ALL"
-          ? {
-              level: level as any,
-            }
-          : {}),
+    const models =
+      await getAllModels();
 
 
-        ...(search
-          ? {
-              OR: [
-                {
-                  code: {
-                    contains: search,
-                  },
-                },
-                {
-                  title: {
-                    contains: search,
-                  },
-                },
-                {
-                  nationality: {
-                    contains: search,
-                  },
-                },
-                {
-                  city: {
-                    contains: search,
-                  },
-                },
-              ],
-            }
-          : {}),
-      },
-    });
+    const filtered =
+      models.filter((model)=>{
+
+        const matchLevel =
+          !level ||
+          level === "ALL" ||
+          model.level === level;
 
 
-    models.sort(
-      (
-        a: {
-          level: string;
-          number: number;
-        },
-        b: {
-          level: string;
-          number: number;
-        }
-      ) => {
-
-        const levelCompare =
-          levelOrder[
-            a.level as keyof typeof levelOrder
-          ] -
-          levelOrder[
-            b.level as keyof typeof levelOrder
-          ];
+        const keyword =
+          search.toLowerCase();
 
 
-        if (levelCompare !== 0) {
-          return levelCompare;
-        }
+        const matchSearch =
+          !search ||
+          model.code
+            .toLowerCase()
+            .includes(keyword) ||
+          model.title
+            ?.toLowerCase()
+            .includes(keyword) ||
+          model.city
+            ?.toLowerCase()
+            .includes(keyword) ||
+          model.nationality
+            ?.toLowerCase()
+            .includes(keyword);
 
 
-        return a.number - b.number;
-      }
+        return (
+          matchLevel &&
+          matchSearch
+        );
+
+      });
+
+
+    return NextResponse.json(
+      filtered
     );
 
 
-    return NextResponse.json(models);
-
-
-  } catch (error) {
+  } catch(error){
 
     console.error(
       "GET MODELS ERROR:",
@@ -111,14 +89,14 @@ export async function GET(request: NextRequest) {
       {
         message:
           "Failed to fetch models.",
-        error:
-          String(error),
       },
       {
         status:500,
       }
     );
+
   }
+
 }
 
 
@@ -133,124 +111,79 @@ export async function POST(
 
   try {
 
+
     const body =
       await request.json();
 
 
-    const level =
-      body.level || "CROWN";
-
-
-
-    // 找同 Level 最大編號
-
-    const lastModel =
-      await prisma.model.findFirst({
-
-        where:{
-          level,
-        },
-
-        orderBy:{
-          number:"desc",
-        },
-
-      });
-
-
-
-    const nextNumber =
-      lastModel
-        ? lastModel.number + 1
-        : 1;
-
-
-
-    const code =
-      level +
-      String(nextNumber)
-        .padStart(3,"0");
-
-
 
     const model =
-      await prisma.model.create({
+      await createModel({
 
-        data:{
-
-
-          // 自動生成
-
-          code,
-
-          level,
-
-          number:
-            nextNumber,
+        level:
+          body.level || "CROWN",
 
 
-
-          title:
-            body.title ?? "",
-
-
-          age:
-            Number(body.age ?? 18),
+        title:
+          body.title ?? "",
 
 
-          height:
-            Number(body.height ?? 160),
+        age:
+          Number(
+            body.age ?? 18
+          ),
 
 
-          weight:
-            Number(body.weight ?? 50),
+        height:
+          Number(
+            body.height ?? 160
+          ),
 
 
-
-          nationality:
-            body.nationality ?? "",
-
-
-          city:
-            body.city ?? "",
+        weight:
+          Number(
+            body.weight ?? 50
+          ),
 
 
-
-          languages:
-            body.languages ?? "",
-
-
-          services:
-            body.services ?? "",
+        nationality:
+          body.nationality ?? "",
 
 
-
-          avatar:
-            body.avatar ?? "",
-
-
-          gallery:
-            body.gallery ?? "",
+        city:
+          body.city ?? "",
 
 
-          videos:
-            body.videos ?? "",
+        languages:
+          body.languages ?? "",
 
 
-
-          introduction:
-            body.introduction ?? "",
-
+        services:
+          body.services ?? "",
 
 
-          online:
-            body.online ?? true,
+        avatar:
+          body.avatar ?? "",
 
 
-          featured:
-            body.featured ?? false,
+        gallery:
+          body.gallery ?? "",
 
-        },
+
+        videos:
+          body.videos ?? "",
+
+
+        introduction:
+          body.introduction ?? "",
+
+
+        online:
+          body.online ?? true,
+
+
+        featured:
+          body.featured ?? false,
 
       });
 
@@ -264,7 +197,6 @@ export async function POST(
     );
 
 
-
   } catch(error){
 
 
@@ -274,22 +206,16 @@ export async function POST(
     );
 
 
-
     return NextResponse.json(
-
       {
         message:
           "Create model failed.",
-
         error:
           String(error),
-
       },
-
       {
         status:500,
       }
-
     );
 
   }

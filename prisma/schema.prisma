@@ -2,70 +2,224 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
 
+
+
 enum ModelLevel {
+
   CROWN
+
   SSS
+
   SS
+
   S
+
   A
+
 }
 
+
+
+
+
 model Model {
+
   id Int @id @default(autoincrement())
 
-  level  ModelLevel
+
+  level ModelLevel
+
+
   number Int
-  code   String @unique
 
-  title       String @default("")
+
+  code String @unique
+
+
+
+
+  title String @default("")
+
+
   nationality String @default("")
-  city        String @default("")
 
-  age    Int @default(18)
+
+  city String @default("")
+
+
+
+
+
+  age Int @default(18)
+
+
   height Int @default(160)
+
+
   weight Int @default(50)
 
-  languages String @default("")
-  services  String @default("")
 
-  avatar  String @default("")
+
+
+
+  languages String @default("")
+
+
+  services String @default("")
+
+
+
+
+
+  avatar String @default("")
+
+
   gallery String @default("")
-  videos  String @default("")
+
+
+  videos String @default("")
+
+
+
+
 
   introduction String @default("")
 
-  online   Boolean @default(true)
+
+
+
+
+  online Boolean @default(true)
+
+
   featured Boolean @default(false)
 
+
+
+
+
   createdAt DateTime @default(now())
+
+
   updatedAt DateTime @updatedAt
+
 }
 
+
+
+
+
+
+
+
+
 model WebsiteSettings {
+
+
   id Int @id @default(1)
 
+
+
+
+
   siteName String @default("ChaYanLongGong")
-  logo     String @default("")
+
+
+  logo String @default("")
+
+
+
+
 
   whatsapp String @default("")
-  telegram String @default("")
-  signal   String @default("")
-  line     String @default("")
-  wechatQr String @default("")
-  email    String @default("")
 
-  enableWhatsApp      Boolean @default(true)
-  enableTelegram      Boolean @default(true)
-  enableSignal        Boolean @default(true)
-  enableLine          Boolean @default(false)
-  enableWechat        Boolean @default(false)
+
+  telegram String @default("")
+
+
+  signal String @default("")
+
+
+  line String @default("")
+
+
+  wechatQr String @default("")
+
+
+  email String @default("")
+
+
+
+
+
+
+
+  enableWhatsApp Boolean @default(true)
+
+
+  enableTelegram Boolean @default(true)
+
+
+  enableSignal Boolean @default(false)
+
+
+  enableLine Boolean @default(false)
+
+
+  enableWechat Boolean @default(false)
+
+
   enableFeedbackEmail Boolean @default(true)
 
+
+
+
+
+
+
   createdAt DateTime @default(now())
+
+
   updatedAt DateTime @updatedAt
+
+
+}
+
+
+
+
+
+
+
+
+
+model AdminUser {
+
+
+  id Int @id @default(autoincrement())
+
+
+
+  username String @unique
+
+
+
+  password String
+
+
+
+
+
+  createdAt DateTime @default(now())
+
+
+  updatedAt DateTime @updatedAt
+
+
 }

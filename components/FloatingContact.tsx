@@ -2,23 +2,60 @@
 
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
+
 interface FloatingContactProps {
+
   onOpen: () => void;
+
   email?: string;
+
   showFeedback?: boolean;
+
 }
 
+
+
+
+
 export default function FloatingContact({
+
   onOpen,
+
   email,
+
   showFeedback = false,
+
 }: FloatingContactProps) {
-  const { messages } = useLanguage();
+
+
+
+  const { messages } =
+    useLanguage();
+
+
+
+
 
   return (
-    <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-3">
+
+    <div className="
+      fixed
+      bottom-8
+      right-8
+      z-50
+      flex
+      flex-col
+      items-end
+      gap-3
+    ">
+
+
       <button
+
+        type="button"
+
         onClick={onOpen}
+
         className="
           rounded-full
           border
@@ -38,25 +75,49 @@ export default function FloatingContact({
           hover:bg-yellow-500
           hover:text-black
         "
+
       >
+
         {messages.contact.title}
+
       </button>
 
-      {showFeedback && email && (
-        <a
-          href={`mailto:${email}`}
-          className="
-            text-[11px]
-            uppercase
-            tracking-[0.35em]
-            text-yellow-500
-            transition
-            hover:text-yellow-400
-          "
-        >
-          {messages.contact.feedback}
-        </a>
-      )}
+
+
+
+
+      {
+        showFeedback &&
+        email && (
+
+          <a
+
+            href={`mailto:${email}`}
+
+            className="
+              text-[11px]
+              uppercase
+              tracking-[0.35em]
+              text-yellow-500
+              transition
+              hover:text-yellow-400
+            "
+
+          >
+
+            {messages.contact.feedback}
+
+          </a>
+
+        )
+      }
+
+
+
+
+
     </div>
+
   );
+
 }
