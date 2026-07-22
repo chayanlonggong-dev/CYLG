@@ -10,7 +10,6 @@ import ContactPopup from "@/components/ContactPopup";
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
 
-
 interface ModelHeroProps {
 
   id:string;
@@ -43,7 +42,6 @@ function displayModelTitle(
 
   if(id.startsWith("CROWN")){
 
-
     const number =
       id.replace(
         "CROWN",
@@ -59,11 +57,7 @@ function displayModelTitle(
 
     };
 
-
   }
-
-
-
 
 
   return {
@@ -74,8 +68,9 @@ function displayModelTitle(
 
   };
 
-
 }
+
+
 
 
 
@@ -151,6 +146,7 @@ export default function ModelHero({
 
 
 
+
       {
         image && (
 
@@ -168,7 +164,7 @@ export default function ModelHero({
 
             className="
               object-cover
-              opacity-40
+              opacity-70
             "
 
           />
@@ -180,11 +176,16 @@ export default function ModelHero({
 
 
 
-      <div className="
-        absolute
-        inset-0
-        bg-black/70
-      " />
+
+      <div
+
+        className="
+          absolute
+          inset-0
+          bg-black/40
+        "
+
+      />
 
 
 
@@ -192,21 +193,33 @@ export default function ModelHero({
 
 
 
-      <div className="
-        relative
-        z-10
-        text-center
-      ">
+
+      <div
+
+        className="
+          relative
+          z-10
+          text-center
+          px-6
+        "
+
+      >
 
 
 
 
-        <p className="
-          mb-8
-          uppercase
-          tracking-[0.8em]
-          text-yellow-500
-        ">
+
+
+        <p
+
+          className="
+            mb-8
+            uppercase
+            tracking-[0.8em]
+            text-yellow-500
+          "
+
+        >
 
           {messages.hero.title}
 
@@ -218,19 +231,23 @@ export default function ModelHero({
 
 
 
+
+
         <h1
 
           className="
-            text-7xl
+            text-5xl
             font-black
             uppercase
-            tracking-[0.25em]
+            tracking-[0.15em]
             text-black
+            sm:text-7xl
             md:text-9xl
           "
 
 
           style={{
+
 
             WebkitTextStroke:
               "4px #D4AF37",
@@ -239,9 +256,11 @@ export default function ModelHero({
             textShadow:
               "0 0 25px rgba(212,175,55,.8)",
 
+
           }}
 
         >
+
 
           {
             display.crown &&
@@ -262,13 +281,19 @@ export default function ModelHero({
 
 
 
-        <div className="
-          mx-auto
-          mt-10
-          h-[2px]
-          w-32
-          bg-yellow-500
-        " />
+
+
+        <div
+
+          className="
+            mx-auto
+            mt-10
+            h-[2px]
+            w-32
+            bg-yellow-500
+          "
+
+        />
 
 
 
@@ -276,13 +301,22 @@ export default function ModelHero({
 
 
 
-        <p className="
-          mt-10
-          max-w-3xl
-          text-lg
-          leading-9
-          text-gray-300
-        ">
+
+
+        <p
+
+          className="
+            mx-auto
+            mt-10
+            max-w-3xl
+            text-base
+            leading-8
+            text-gray-300
+            sm:text-lg
+            sm:leading-9
+          "
+
+        >
 
           {messages.hero.description}
 
@@ -294,13 +328,18 @@ export default function ModelHero({
 
 
 
+
+
         <button
 
+
           type="button"
+
 
           onClick={()=>
             setOpen(true)
           }
+
 
           className="
             mt-14
@@ -325,7 +364,11 @@ export default function ModelHero({
 
 
 
+
+
       </div>
+
+
 
 
 
@@ -370,8 +413,13 @@ export default function ModelHero({
 
 
 
+
+
+
+
     </section>
 
   );
+
 
 }
