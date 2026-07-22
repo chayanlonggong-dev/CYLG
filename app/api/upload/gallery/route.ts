@@ -1,61 +1,148 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
-export async function POST(request: NextRequest) {
+import cloudinary from "@/lib/cloudinary";
+
+
+export async function POST(
+  request: NextRequest
+) {
+
+
   try {
-    const data = await request.formData();
 
-    const file = data.get("file") as File;
+
+    const data =
+      await request.formData();
+
+
+    const file =
+      data.get("file") as File;
+
+
 
     if (!file) {
+
       return NextResponse.json(
         {
-          message: "No file uploaded.",
+          message:
+            "No file uploaded.",
         },
         {
-          status: 400,
+          status:400,
         }
       );
+
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
 
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "gallery"
-    );
 
-    await mkdir(uploadDir, {
-      recursive: true,
-    });
 
-    const fileName =
-      Date.now() +
-      "-" +
-      file.name.replace(/\s+/g, "-");
 
-    const filePath = path.join(uploadDir, fileName);
+    const bytes =
+      await file.arrayBuffer();
 
-    await writeFile(filePath, buffer);
 
-    return NextResponse.json({
-      success: true,
-      url: `/uploads/gallery/${fileName}`,
-    });
-  } catch (error) {
-    console.error(error);
+    const buffer =
+      Buffer.from(bytes);
+
+
+
+
+
+
+    const uploadResult =
+      await new Promise<any>(
+        (
+          resolve,
+          reject
+        ) => {
+
+
+          cloudinary.uploader.upload_stream(
+
+            {
+              folder:
+                "cylg/gallery",
+
+              resource_type:
+                "image",
+
+            },
+
+
+            (
+              error,
+              result
+            ) => {
+
+
+              if(error){
+
+                reject(error);
+
+              }
+              else{
+
+                resolve(result);
+
+              }
+
+
+            }
+
+          ).end(buffer);
+
+
+
+        }
+      );
+
+
+
+
+
+
 
     return NextResponse.json(
       {
-        message: "Upload failed.",
-      },
-      {
-        status: 500,
+        success:true,
+
+        url:
+          uploadResult.secure_url,
+
       }
     );
+
+
+
+
+
+
+  } catch(error){
+
+
+    console.error(
+      "GALLERY UPLOAD ERROR:",
+      error
+    );
+
+
+
+    return NextResponse.json(
+      {
+        message:
+          "Upload failed.",
+
+        error:
+          String(error),
+
+      },
+      {
+        status:500,
+      }
+    );
+
+
   }
+
 }
