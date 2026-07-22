@@ -1,87 +1,147 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
-export async function POST(request: NextRequest) {
+import cloudinary from "@/lib/cloudinary";
+
+
+export async function POST(
+  request: NextRequest
+) {
+
   console.log("========== AVATAR API ==========");
 
+
   try {
-    console.log("Receiving form data...");
 
-    const data = await request.formData();
 
-    console.log("FormData OK");
+    const data =
+      await request.formData();
 
-    const file = data.get("file") as File;
 
-    console.log("File:", file);
+    const file =
+      data.get("file") as File;
+
+
 
     if (!file) {
-      console.log("No file uploaded.");
 
       return NextResponse.json(
         {
-          message: "No file uploaded.",
+          message:
+            "No file uploaded.",
         },
         {
-          status: 400,
+          status:400,
         }
       );
+
     }
 
-    const bytes = await file.arrayBuffer();
 
-    console.log("ArrayBuffer OK");
 
-    const buffer = Buffer.from(bytes);
 
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "avatar"
-    );
+    const bytes =
+      await file.arrayBuffer();
 
-    console.log("Upload Directory:", uploadDir);
 
-    await mkdir(uploadDir, {
-      recursive: true,
-    });
 
-    const fileName =
-      Date.now() +
-      "-" +
-      file.name.replace(/\s+/g, "-");
+    const buffer =
+      Buffer.from(bytes);
 
-    console.log("File Name:", fileName);
 
-    const filePath = path.join(uploadDir, fileName);
 
-    console.log("Saving To:", filePath);
 
-    await writeFile(filePath, buffer);
 
-    console.log("Upload Success!");
+    const uploadResult =
+      await new Promise<any>(
+        (
+          resolve,
+          reject
+        ) => {
 
-    return NextResponse.json({
-      success: true,
-      url: `/uploads/avatar/${fileName}`,
-    });
 
-  } catch (error) {
+          cloudinary.uploader.upload_stream(
 
-    console.error("UPLOAD ERROR:");
+            {
+              folder:
+                "cylg/avatar",
 
-    console.error(error);
+              resource_type:
+                "image",
+
+            },
+
+
+            (
+              error,
+              result
+            ) => {
+
+
+              if(error){
+
+                reject(error);
+
+              }
+              else{
+
+                resolve(result);
+
+              }
+
+
+            }
+
+          ).end(buffer);
+
+
+
+        }
+      );
+
+
+
+
+
 
     return NextResponse.json(
       {
-        message: "Upload failed.",
-        error: String(error),
-      },
-      {
-        status: 500,
+        success:true,
+
+        url:
+          uploadResult.secure_url,
+
       }
     );
+
+
+
+
+
+  } catch(error){
+
+
+    console.error(
+      "AVATAR UPLOAD ERROR:",
+      error
+    );
+
+
+
+    return NextResponse.json(
+      {
+        message:
+          "Upload failed.",
+
+        error:
+          String(error),
+
+      },
+      {
+        status:500,
+      }
+    );
+
+
   }
+
 }
