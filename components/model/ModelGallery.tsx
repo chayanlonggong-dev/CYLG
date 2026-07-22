@@ -83,9 +83,39 @@ export default function ModelGallery({
 
   const touchEndX =
     useRef(0);
+function handleTouchStart(
+  e: React.TouchEvent
+){
 
+  touchStartX.current =
+    e.touches[0].clientX;
 
+}
+function handleTouchEnd(
+  e: React.TouchEvent
+){
 
+  touchEndX.current =
+    e.changedTouches[0].clientX;
+
+  const distance =
+    touchStartX.current -
+    touchEndX.current;
+
+  if (Math.abs(distance) < 50)
+    return;
+
+  if (distance > 0) {
+
+    next();
+
+  } else {
+
+    previous();
+
+  }
+
+}
 
 
 

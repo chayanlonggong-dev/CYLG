@@ -1,0 +1,16 @@
+{
+  "name": "ChaYanLongGong",
+  "short_name": "CYLG",
+  "description": "Luxury Elite Companion Agency",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

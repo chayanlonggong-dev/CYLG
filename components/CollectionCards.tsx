@@ -38,17 +38,35 @@ export default function CollectionCards() {
 
   return (
     <section className="bg-black px-8 py-24">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1600px]">
         <div className="mb-16 text-center">
           <p className="uppercase tracking-[0.4em] text-yellow-500">
             {messages.nav.collection}
           </p>
 
-          <h2 className="mt-4 text-5xl font-bold text-white">
+          <h2
+  className="
+    mt-4
+    text-5xl
+    font-black
+    tracking-[0.08em]
+    text-white
+    md:text-6xl
+  "
+>
             {messages.nav.collection}
           </h2>
 
-          <p className="mt-6 text-gray-500">
+          <p
+  className="
+    mx-auto
+    mt-6
+    max-w-2xl
+    text-lg
+    leading-8
+    text-gray-400
+  "
+>
             Select your exclusive companion.
           </p>
         </div>

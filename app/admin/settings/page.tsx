@@ -69,6 +69,10 @@ export default function WebsiteSettingsPage(){
     useState(false);
 
 
+  const [deleting,setDeleting] =
+    useState(false);
+
+
   const [error,setError] =
     useState("");
 
@@ -307,6 +311,97 @@ export default function WebsiteSettingsPage(){
 
 
 
+
+
+  async function deleteWechatQr(){
+
+
+    if(!settings.wechatQr){
+
+      return;
+
+    }
+
+
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to delete this WeChat QR?"
+      );
+
+
+    if(!confirmed){
+
+      return;
+
+    }
+
+
+    try{
+
+
+      setDeleting(true);
+      setError("");
+
+
+      const response =
+        await fetch(
+          "/api/settings",
+          {
+            method:"DELETE",
+            headers:{
+              "Content-Type":
+                "application/json",
+            },
+            body:
+              JSON.stringify({
+                path:
+                  settings.wechatQr,
+              }),
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if(!response.ok){
+
+        throw new Error(
+          data.message ||
+          "Delete failed."
+        );
+
+      }
+
+
+      update(
+        "wechatQr",
+        ""
+      );
+
+
+    }catch(error){
+
+
+      setError(
+        error instanceof Error
+        ? error.message
+        : "Delete failed."
+      );
+
+
+    }finally{
+
+
+      setDeleting(false);
+
+
+    }
+
+
+  }
+
   return (
 
     <main className="
@@ -513,19 +608,55 @@ export default function WebsiteSettingsPage(){
           {
             settings.wechatQr && (
 
-              <img
+              <div className="
+                mt-5
+                flex
+                flex-col
+                gap-3
+              ">
 
-                src={settings.wechatQr}
+                <img
 
-                alt="Wechat QR"
+                  src={settings.wechatQr}
 
-                className="
-                  mt-5
-                  max-h-64
-                  rounded-xl
-                "
+                  alt="Wechat QR"
 
-              />
+                  className="
+                    max-h-64
+                    rounded-xl
+                  "
+
+                />
+
+
+                <button
+
+                  onClick={deleteWechatQr}
+
+                  disabled={deleting}
+
+                  className="
+                    rounded-xl
+                    border
+                    border-red-500/40
+                    bg-red-500/10
+                    px-4
+                    py-3
+                    font-semibold
+                    text-red-400
+                  "
+
+                >
+
+                  {
+                    deleting
+                    ? "DELETING..."
+                    : "Delete QR"
+                  }
+
+                </button>
+
+              </div>
 
             )
           }

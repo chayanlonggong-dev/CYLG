@@ -248,7 +248,18 @@ export default function RootLayout({
 
       >
 
-
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "ChaYanLongGong",
+      url: "https://chayanlonggong.com",
+      logo: "https://chayanlonggong.com/logo.png",
+    }),
+  }}
+/>
         <LanguageProvider>
 
           {children}

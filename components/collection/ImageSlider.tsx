@@ -8,16 +8,13 @@ import {
 } from "react";
 
 
-
 interface ImageSliderProps {
 
-  id:string;
+  id: string;
 
-  images:string[];
+  images: string[];
 
 }
-
-
 
 
 
@@ -27,8 +24,7 @@ export default function ImageSlider({
 
   images,
 
-}:ImageSliderProps){
-
+}: ImageSliderProps) {
 
 
   const safeImages =
@@ -39,24 +35,22 @@ export default function ImageSlider({
 
 
 
-  const [current,setCurrent] =
+  const [current, setCurrent] =
     useState(0);
 
 
 
-  const [hover,setHover] =
+  const [hover, setHover] =
     useState(false);
 
 
 
 
 
+  useEffect(() => {
 
 
-  useEffect(()=>{
-
-
-    if(!hover){
+    if (!hover) {
 
 
       setCurrent(0);
@@ -70,9 +64,8 @@ export default function ImageSlider({
 
 
 
-
     const timer =
-      setInterval(()=>{
+      setInterval(() => {
 
 
         setCurrent(
@@ -83,27 +76,23 @@ export default function ImageSlider({
         );
 
 
-      },3000);
+      }, 3000);
 
 
 
 
 
-
-
-    return ()=>{
+    return () => {
 
       clearInterval(timer);
 
     };
 
 
-
-  },[
+  }, [
     hover,
     safeImages.length,
   ]);
-
 
 
 
@@ -115,50 +104,41 @@ export default function ImageSlider({
 
     <div
 
-
       className="
         relative
         h-[520px]
         overflow-hidden
       "
 
-
-      onMouseEnter={()=>
+      onMouseEnter={() =>
         setHover(true)
       }
 
-
-      onMouseLeave={()=>
+      onMouseLeave={() =>
         setHover(false)
       }
-
 
     >
 
 
 
-
-
       <Image
-
 
         src={
           safeImages[current]
         }
 
-
         alt={id}
 
+        quality={85}
 
         fill
-
 
         sizes="
           (max-width:768px) 100vw,
           (max-width:1200px) 50vw,
           33vw
         "
-
 
         className="
           object-cover
@@ -167,15 +147,11 @@ export default function ImageSlider({
           group-hover:scale-105
         "
 
-
       />
 
 
 
-
-
     </div>
-
 
   );
 

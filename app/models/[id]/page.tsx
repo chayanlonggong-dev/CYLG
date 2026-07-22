@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ModelHero from "@/components/model/ModelHero";
 import ModelGallery from "@/components/model/ModelGallery";
 import ModelInfo from "@/components/model/ModelInfo";
-
+import ModelVideos from "@/components/model/ModelVideos";
 
 interface PageProps {
 
@@ -218,7 +218,16 @@ export default async function ModelPage({
         }
 
       />
-
+<ModelVideos
+  videos={
+    model.videos
+      ? model.videos
+          .split(",")
+          .map(item => item.trim())
+          .filter(Boolean)
+      : []
+  }
+/>
 
 
 

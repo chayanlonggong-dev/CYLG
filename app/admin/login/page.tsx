@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
 import {
   useRouter,
+  useSearchParams,
 } from "next/navigation";
 
 
@@ -13,6 +15,7 @@ export default function AdminLoginPage() {
 
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
 
   const [username,setUsername] =
@@ -20,6 +23,9 @@ export default function AdminLoginPage() {
 
   const [password,setPassword] =
     useState("");
+
+  const [showPassword,setShowPassword] =
+    useState(false);
 
   const [error,setError] =
     useState("");
@@ -29,6 +35,66 @@ export default function AdminLoginPage() {
 
 
 
+
+
+  const [sessionExpiredMessage,setSessionExpiredMessage] =
+    useState("");
+useEffect(() => {
+  if (searchParams.get("expired") === "1") {
+    setSessionExpiredMessage(
+      "Your session has expired. Please log in again."
+    );
+  }
+}, [searchParams]);
+
+  function showPasswordTemporarily(){
+
+    setShowPassword(true);
+
+  }
+
+
+  function hidePasswordTemporarily(){
+
+    setShowPassword(false);
+
+  }
+
+
+  function handlePasswordKeyDown(
+    e:React.KeyboardEvent<HTMLButtonElement>
+  ){
+
+    if(
+      e.key === "Enter" ||
+      e.key === " " ||
+      e.key === "Spacebar"
+    ){
+
+      e.preventDefault();
+      setShowPassword(true);
+
+    }
+
+  }
+
+
+  function handlePasswordKeyUp(
+    e:React.KeyboardEvent<HTMLButtonElement>
+  ){
+
+    if(
+      e.key === "Enter" ||
+      e.key === " " ||
+      e.key === "Spacebar"
+    ){
+
+      e.preventDefault();
+      setShowPassword(false);
+
+    }
+
+  }
 
 
   async function handleSubmit(
@@ -181,6 +247,30 @@ export default function AdminLoginPage() {
 
 
         {
+          sessionExpiredMessage && (
+
+            <div
+              className="
+                mb-5
+                rounded-lg
+                border
+                border-yellow-500/20
+                bg-yellow-500/10
+                p-3
+                text-center
+                text-yellow-300
+              "
+            >
+
+              {sessionExpiredMessage}
+
+            </div>
+
+          )
+        }
+
+
+        {
           error && (
 
             <div
@@ -236,33 +326,81 @@ export default function AdminLoginPage() {
 
 
 
-        <input
+        <div className="relative mb-8">
 
-          type="password"
+          <input
 
-          placeholder="Password"
+            type={showPassword ? "text" : "password"}
 
-          value={password}
+            placeholder="Password"
 
-          onChange={(e)=>
-            setPassword(
-              e.target.value
-            )
-          }
+            value={password}
 
-          className="
-            mb-8
-            w-full
-            rounded-xl
-            border
-            border-white/20
-            bg-black
-            px-5
-            py-4
-            text-white
-          "
+            onChange={(e)=>
+              setPassword(
+                e.target.value
+              )
+            }
 
-        />
+            className="
+              w-full
+              rounded-xl
+              border
+              border-white/20
+              bg-black
+              px-5
+              py-4
+              pr-12
+              text-white
+            "
+
+          />
+
+
+          <button
+
+            type="button"
+
+            aria-label={
+              showPassword
+              ? "Hide password"
+              : "Show password"
+            }
+
+            onMouseDown={showPasswordTemporarily}
+            onMouseUp={hidePasswordTemporarily}
+            onMouseLeave={hidePasswordTemporarily}
+            onTouchStart={showPasswordTemporarily}
+            onTouchEnd={hidePasswordTemporarily}
+            onTouchCancel={hidePasswordTemporarily}
+            onPointerDown={showPasswordTemporarily}
+            onPointerUp={hidePasswordTemporarily}
+            onPointerLeave={hidePasswordTemporarily}
+            onKeyDown={handlePasswordKeyDown}
+            onKeyUp={handlePasswordKeyUp}
+            onBlur={hidePasswordTemporarily}
+
+            className="
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              text-xl
+              text-yellow-400/80
+              transition
+              hover:text-yellow-300
+              focus:outline-none
+            "
+
+          >
+
+            <span aria-hidden="true">
+              👁
+            </span>
+
+          </button>
+
+        </div>
 
 
 
