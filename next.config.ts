@@ -1,11 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+
   images: {
-    formats: [
-      "image/avif",
-      "image/webp",
-    ],
 
     remotePatterns: [
       {
@@ -13,11 +10,15 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+
   },
+
 
   turbopack: {
     root: process.cwd(),
   },
+
 };
+
 
 export default nextConfig;

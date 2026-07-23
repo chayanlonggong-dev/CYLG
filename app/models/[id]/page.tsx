@@ -6,6 +6,7 @@ import ModelGallery from "@/components/model/ModelGallery";
 import ModelInfo from "@/components/model/ModelInfo";
 import ModelVideos from "@/components/model/ModelVideos";
 
+
 interface PageProps {
 
   params: Promise<{
@@ -16,8 +17,6 @@ interface PageProps {
 
 
 
-
-
 export default async function ModelPage({
 
   params,
@@ -25,11 +24,8 @@ export default async function ModelPage({
 }:PageProps){
 
 
-
   const { id } =
     await params;
-
-
 
 
 
@@ -44,14 +40,11 @@ export default async function ModelPage({
 
 
 
-
-
   if(!model){
 
     notFound();
 
   }
-
 
 
 
@@ -73,6 +66,7 @@ export default async function ModelPage({
 
 
   const gallery =
+
     model.gallery
 
       ? model.gallery
@@ -91,6 +85,7 @@ export default async function ModelPage({
 
 
   const languages =
+
     model.languages
 
       ? model.languages
@@ -101,6 +96,8 @@ export default async function ModelPage({
           .filter(Boolean)
 
       : [];
+
+
 
 
 
@@ -122,12 +119,59 @@ export default async function ModelPage({
 
 
 
+
+  // ============================
+  // DEBUG
+  // ============================
+
+  console.log(
+    "========== MODEL DEBUG =========="
+  );
+
+
+  console.log(
+    "MODEL CODE:",
+    model.code
+  );
+
+
+  console.log(
+    "MODEL AVATAR:",
+    model.avatar
+  );
+
+
+  console.log(
+    "MODEL GALLERY:",
+    gallery
+  );
+
+
+  console.log(
+    "FINAL IMAGES:",
+    images
+  );
+
+
+  console.log(
+    "================================="
+  );
+
+
+
+
+
+
+
+
   return (
 
-    <main className="
-      min-h-screen
-      bg-black
-    ">
+    <main
+      className="
+        min-h-screen
+        bg-black
+      "
+    >
 
 
 
@@ -141,7 +185,6 @@ export default async function ModelPage({
         image={
           model.avatar
         }
-
 
 
 
@@ -168,8 +211,6 @@ export default async function ModelPage({
         wechatQr={
           settings?.wechatQr ?? ""
         }
-
-
 
 
 
@@ -217,17 +258,35 @@ export default async function ModelPage({
           images
         }
 
+
       />
-<ModelVideos
-  videos={
-    model.videos
-      ? model.videos
-          .split(",")
-          .map(item => item.trim())
-          .filter(Boolean)
-      : []
-  }
-/>
+
+
+
+
+
+
+
+      <ModelVideos
+
+        videos={
+
+          model.videos
+
+            ? model.videos
+                .split(",")
+                .map(
+                  item=>item.trim()
+                )
+                .filter(Boolean)
+
+            : []
+
+        }
+
+      />
+
+
 
 
 
@@ -235,6 +294,7 @@ export default async function ModelPage({
 
 
       <ModelInfo
+
 
         age={
           model.age
@@ -275,9 +335,9 @@ export default async function ModelPage({
 
 
 
+
     </main>
 
   );
-
 
 }

@@ -7,9 +7,7 @@ export async function POST(
   request: NextRequest
 ) {
 
-
   try {
-
 
     const data =
       await request.formData();
@@ -17,7 +15,6 @@ export async function POST(
 
     const file =
       data.get("file") as File;
-
 
 
     if (!file) {
@@ -36,16 +33,12 @@ export async function POST(
 
 
 
-
-
     const bytes =
       await file.arrayBuffer();
 
 
     const buffer =
       Buffer.from(bytes);
-
-
 
 
 
@@ -66,7 +59,6 @@ export async function POST(
 
               resource_type:
                 "image",
-
             },
 
 
@@ -80,8 +72,7 @@ export async function POST(
 
                 reject(error);
 
-              }
-              else{
+              } else {
 
                 resolve(result);
 
@@ -93,11 +84,8 @@ export async function POST(
           ).end(buffer);
 
 
-
         }
       );
-
-
 
 
 
@@ -109,23 +97,18 @@ export async function POST(
 
         url:
           uploadResult.secure_url,
-
       }
     );
 
 
 
-
-
-
-  } catch(error){
+  } catch(error) {
 
 
     console.error(
       "GALLERY UPLOAD ERROR:",
       error
     );
-
 
 
     return NextResponse.json(
@@ -135,7 +118,6 @@ export async function POST(
 
         error:
           String(error),
-
       },
       {
         status:500,

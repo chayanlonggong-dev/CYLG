@@ -40,6 +40,10 @@ export default function ModelVideos({
               className="overflow-hidden rounded-3xl border border-yellow-500/20 bg-black"
             >
               <video
+                autoPlay
+muted
+loop
+playsInline
                 controls
                 preload="metadata"
                 className="

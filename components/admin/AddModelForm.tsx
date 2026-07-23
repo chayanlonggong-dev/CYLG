@@ -17,47 +17,66 @@ interface AddModelFormProps {
 }
 
 
+
 export default function AddModelForm({
+
   onSuccess,
+
 }: AddModelFormProps) {
 
 
-  const [level, setLevel] =
+
+  const [level,setLevel] =
     useState("CROWN");
 
 
-  const [avatar, setAvatar] =
+  const [title,setTitle] =
     useState("");
 
 
-  const [gallery, setGallery] =
-    useState<string[]>([]);
 
-
-  const [videos, setVideos] =
-    useState<string[]>([]);
-
-
-  const [introduction, setIntroduction] =
+  const [avatar,setAvatar] =
     useState("");
 
 
-  const [loading, setLoading] =
+
+  const [gallery,setGallery] =
+    useState<string[]>([]);
+
+
+
+  const [videos,setVideos] =
+    useState<string[]>([]);
+
+
+
+  const [introduction,setIntroduction] =
+    useState("");
+
+
+
+  const [loading,setLoading] =
     useState(false);
 
 
 
-  async function handleSave() {
-
-
-    if (loading) return;
 
 
 
-    try {
+
+  async function handleSave(){
+
+
+    if(loading)
+      return;
+
+
+
+    try{
 
 
       setLoading(true);
+
 
 
 
@@ -65,11 +84,15 @@ export default function AddModelForm({
         await fetch(
           "/api/models",
           {
+
             method:"POST",
 
+
             headers:{
+
               "Content-Type":
                 "application/json",
+
             },
 
 
@@ -77,22 +100,34 @@ export default function AddModelForm({
 
               level,
 
+
+              title,
+
+
               avatar,
+
 
               gallery:
                 gallery.join(","),
+
 
 
               videos:
                 videos.join(","),
 
 
+
               introduction,
 
             }),
 
+
           }
         );
+
+
+
+
 
 
 
@@ -102,12 +137,16 @@ export default function AddModelForm({
 
 
 
+
+
       if(!response.ok){
 
 
         throw new Error(
+
           result.message ||
           "Create model failed."
+
         );
 
 
@@ -117,9 +156,14 @@ export default function AddModelForm({
 
 
 
+
+
       alert(
+
         `Model Created: ${result.code}`
+
       );
+
 
 
 
@@ -128,21 +172,31 @@ export default function AddModelForm({
 
 
 
+
       onSuccess?.();
+
+
 
 
 
     }catch(error){
 
 
+
       console.error(error);
 
 
+
       alert(
+
         error instanceof Error
-          ? error.message
-          : String(error)
+
+        ? error.message
+
+        : String(error)
+
       );
+
 
 
 
@@ -161,18 +215,35 @@ export default function AddModelForm({
 
 
 
+
+
+
+
   function resetForm(){
+
 
 
     setLevel("CROWN");
 
+
+    setTitle("");
+
+
+
     setAvatar("");
+
+
 
     setGallery([]);
 
+
+
     setVideos([]);
 
+
+
     setIntroduction("");
+
 
 
   }
@@ -181,261 +252,453 @@ export default function AddModelForm({
 
 
 
+
+
+
   return (
 
 
-    <div className="
-      w-full
-      max-w-6xl
-      rounded-3xl
-      border
-      border-yellow-500/20
-      bg-[#101010]
-      p-10
-    ">
 
+<div
 
+className="
+w-full
+max-w-6xl
+rounded-3xl
+border
+border-yellow-500/20
+bg-[#101010]
+p-10
+"
 
-      <div>
+>
 
 
-        <p className="
-          uppercase
-          tracking-[0.35em]
-          text-sm
-          text-yellow-500
-        ">
 
-          CYLG CMS
+<div>
 
-        </p>
 
+<p
 
+className="
+uppercase
+tracking-[0.35em]
+text-sm
+text-yellow-500
+"
 
-        <h2 className="
-          mt-2
-          text-4xl
-          font-black
-          text-white
-        ">
+>
 
-          Add New Model
+CYLG CMS
 
-        </h2>
+</p>
 
 
-      </div>
 
+<h2
 
+className="
+mt-2
+text-4xl
+font-black
+text-white
+"
 
+>
 
+Add New Model
 
-      <div className="mt-10 max-w-md">
+</h2>
 
 
-        <label className="
-          mb-3
-          block
-          text-sm
-          uppercase
-          tracking-[0.2em]
-          text-yellow-500
-        ">
+</div>
 
-          Level
 
-        </label>
 
 
 
 
-        <select
 
-          value={level}
 
-          onChange={(e)=>
-            setLevel(
-              e.target.value
-            )
-          }
+<div className="mt-10 max-w-md">
 
-          className="
-            w-full
-            rounded-2xl
-            border
-            border-yellow-500/20
-            bg-[#181818]
-            p-4
-            text-white
-          "
 
-        >
 
+<label
 
-          {
-            LEVELS.map(item=>(
+className="
+mb-3
+block
+text-sm
+uppercase
+tracking-[0.2em]
+text-yellow-500
+"
 
-              <option
-                key={item}
-                value={item}
-              >
+>
 
-                {item}
+Level
 
-              </option>
+</label>
 
 
-            ))
-          }
 
 
-        </select>
 
+<select
 
-      </div>
 
+value={level}
 
 
+onChange={(e)=>
 
+setLevel(
+e.target.value
+)
 
-      <div className="mt-12">
+}
 
-        <AvatarUpload
 
-          value={avatar}
+className="
+w-full
+rounded-2xl
+border
+border-yellow-500/20
+bg-[#181818]
+p-4
+text-white
+"
 
-          onChange={setAvatar}
 
-        />
+>
 
-      </div>
 
 
+{
 
+LEVELS.map(item=>(
 
 
-      <div className="mt-12">
+<option
 
-        <GalleryUpload
+key={item}
 
-          value={gallery}
+value={item}
 
-          onChange={setGallery}
+>
 
-        />
 
-      </div>
+{item}
 
 
+</option>
 
 
 
-      <div className="mt-12">
+))
 
-        <VideoUpload
 
-          value={videos}
+}
 
-          onChange={setVideos}
 
-        />
 
-      </div>
+</select>
 
 
 
+</div>
 
 
-      <div className="mt-12">
 
-        <IntroductionEditor
 
-          value={introduction}
 
-          onChange={setIntroduction}
 
-        />
 
-      </div>
 
 
+<div className="mt-10 max-w-md">
 
 
+<label
 
-      <div className="mt-12 flex justify-end gap-4">
+className="
+mb-3
+block
+text-sm
+uppercase
+tracking-[0.2em]
+text-yellow-500
+"
 
+>
 
+Title
 
-        <button
+</label>
 
-          type="button"
 
-          onClick={()=>{
-            resetForm();
-            onSuccess?.();
-          }}
 
-          disabled={loading}
+<input
 
-          className="
-            rounded-full
-            border
-            border-gray-600
-            px-8
-            py-4
-            text-white
-          "
 
-        >
+value={title}
 
-          Cancel
 
-        </button>
+onChange={(e)=>
 
+setTitle(
+e.target.value
+)
 
+}
 
 
 
-        <button
+placeholder="Model title"
 
-          type="button"
 
-          onClick={handleSave}
+className="
+w-full
+rounded-2xl
+border
+border-yellow-500/20
+bg-[#181818]
+p-4
+text-white
+"
 
-          disabled={loading}
 
-          className="
-            rounded-full
-            border
-            border-yellow-500
-            bg-yellow-500
-            px-10
-            py-4
-            font-bold
-            uppercase
-            tracking-[0.25em]
-            text-black
-          "
+/>
 
-        >
 
-          {
-            loading
-            ? "Saving..."
-            : "Save Model"
-          }
 
+</div>
 
-        </button>
 
 
 
 
-      </div>
 
 
 
-    </div>
+
+<div className="mt-12">
+
+
+<AvatarUpload
+
+
+value={avatar}
+
+
+onChange={setAvatar}
+
+
+/>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="mt-12">
+
+
+<GalleryUpload
+
+
+value={gallery}
+
+
+onChange={setGallery}
+
+
+/>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="mt-12">
+
+
+<VideoUpload
+
+
+value={videos}
+
+
+onChange={setVideos}
+
+
+/>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="mt-12">
+
+
+<IntroductionEditor
+
+
+value={introduction}
+
+
+onChange={setIntroduction}
+
+
+/>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div
+
+className="
+mt-12
+flex
+justify-end
+gap-4
+"
+
+>
+
+
+
+
+<button
+
+
+type="button"
+
+
+onClick={()=>{
+
+
+resetForm();
+
+
+onSuccess?.();
+
+
+}}
+
+
+disabled={loading}
+
+
+className="
+rounded-full
+border
+border-gray-600
+px-8
+py-4
+text-white
+"
+
+
+>
+
+Cancel
+
+</button>
+
+
+
+
+
+
+
+
+<button
+
+
+type="button"
+
+
+onClick={handleSave}
+
+
+disabled={loading}
+
+
+className="
+rounded-full
+border
+border-yellow-500
+bg-yellow-500
+px-10
+py-4
+font-bold
+uppercase
+tracking-[0.25em]
+text-black
+"
+
+
+>
+
+
+{
+
+loading
+
+?
+
+"Saving..."
+
+:
+
+"Save Model"
+
+}
+
+
+</button>
+
+
+
+
+
+</div>
+
+
+
+
+
+</div>
+
 
 
   );

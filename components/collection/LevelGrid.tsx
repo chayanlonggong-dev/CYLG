@@ -2,27 +2,18 @@
 
 import LevelCard from "./LevelCard";
 
-
 interface Model {
-
   level:
     | "CROWN"
     | "SSS"
     | "SS"
     | "S"
     | "A";
-
 }
-
-
 
 interface LevelGridProps {
-
   models: Model[];
-
 }
-
-
 
 const levels = [
   "CROWN",
@@ -32,59 +23,36 @@ const levels = [
   "A",
 ] as const;
 
-
-
 export default function LevelGrid({
   models,
 }: LevelGridProps) {
-
-
   return (
-
     <div
       className="
+        mx-auto
         grid
+        max-w-5xl
         grid-cols-1
-        md:grid-cols-2
-        xl:grid-cols-3
-        gap-8
+        gap-6
+        sm:grid-cols-2
+        md:grid-cols-3
+        xl:grid-cols-4
+        xl:gap-8
       "
     >
+      {levels.map((level) => {
+        const count = models.filter(
+          (model) => model.level === level
+        ).length;
 
-      {
-        levels.map((level)=>{
-
-
-          const count =
-            models.filter(
-              (model)=>
-                model.level === level
-            ).length;
-
-
-
-          return (
-
-            <LevelCard
-
-              key={level}
-
-              level={level}
-
-              count={count}
-
-            />
-
-          );
-
-
-        })
-      }
-
-
+        return (
+          <LevelCard
+            key={level}
+            level={level}
+            count={count}
+          />
+        );
+      })}
     </div>
-
   );
-
-
 }

@@ -66,18 +66,14 @@ export default function HomeClient({
 
       <Header />
 
+      <main className="pt-[4.5rem] sm:pt-[5.5rem] lg:pt-[6.5rem]">
+        <Hero />
 
-      <Hero />
-
-
-      <LuxuryExperience />
+        <LuxuryExperience />
 
 
       <CollectionCards />
-
-
-
-
+      </main>
 
       <FloatingContact
 
