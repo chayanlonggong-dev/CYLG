@@ -51,16 +51,16 @@ export default function Header() {
           "
         >
           {/* Mobile */}
-          <div className="flex items-center lg:hidden">
-            <Image
-              src="/logo.png"
-              alt="ChaYanLongGong"
-              width={140}
-              height={56}
-              priority
-              className="h-auto w-20"
-            />
-          </div>
+          <div className="flex h-12 items-center lg:hidden">
+  <Image
+    src="/logo.png"
+    alt="ChaYanLongGong"
+    width={140}
+    height={56}
+    priority
+    className="h-full w-auto object-contain"
+  />
+</div>
 
           {/* Desktop */}
           <div
