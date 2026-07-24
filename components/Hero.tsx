@@ -85,9 +85,25 @@ export default function Hero() {
             {messages.hero.title}
           </p>
 
+          <p
+            className="
+              mt-4
+              text-[1.7rem]
+              font-medium
+              leading-none
+              text-white
+              sm:hidden
+            "
+            style={{
+              fontFamily: "var(--font-cinzel)",
+            }}
+          >
+            茶艳龙宫
+          </p>
+
           <h1
             className="
-              mt-5
+              mt-1
               whitespace-nowrap
               text-[2.95rem]
               font-black
