@@ -58,7 +58,7 @@ export default function Header() {
               width={140}
               height={56}
               priority
-              className="h-auto w-55"
+              className="h-auto w-20"
             />
           </div>
 
