@@ -6,6 +6,7 @@ import {
 
 import Header from "../components/Header";
 import Hero from "../components/Hero";
+import Lifestyle from "../components/Lifestyle";
 import LuxuryExperience from "../components/LuxuryExperience";
 import CollectionCards from "../components/CollectionCards";
 import FloatingContact from "../components/FloatingContact";
@@ -69,10 +70,11 @@ export default function HomeClient({
       <main className="pt-18 sm:pt-22 lg:pt-26">
         <Hero />
 
-        <LuxuryExperience />
+<Lifestyle />
 
+<LuxuryExperience />
 
-      <CollectionCards />
+<CollectionCards />
       </main>
 
       <FloatingContact
