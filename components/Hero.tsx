@@ -54,7 +54,7 @@ export default function Hero() {
           items-center
           justify-center
           px-6
-          py-12
+          py-4
           sm:px-8
           sm:py-24
           lg:px-12
@@ -71,9 +71,9 @@ export default function Hero() {
         >
           <p
             className="
-              text-[10px]
+              text-[11px]
               uppercase
-              tracking-[0.28em]
+              tracking-[0.34em]
               text-yellow-400
 
               sm:text-xs
@@ -107,10 +107,10 @@ export default function Hero() {
               mx-auto
               mt-4
               max-w-3xl
-              text-[0.95rem]
+              text-[1.02rem]
               font-semibold
               leading-tight
-              tracking-[0.16em]
+              tracking-[0.18em]
               text-yellow-400
               sm:mt-5
               sm:text-3xl
@@ -127,9 +127,9 @@ export default function Hero() {
             className="
               mx-auto
               mt-5
-              max-w-[17.25rem]
-              text-[0.93rem]
-              leading-6
+              max-w-[16.5rem]
+              text-[0.95rem]
+              leading-6.5
               text-white
               sm:mt-6
               sm:max-w-2xl
@@ -144,7 +144,7 @@ export default function Hero() {
 
           <div
             className="
-              mt-9
+              mt-10
               flex
               justify-center
               sm:mt-10
@@ -154,13 +154,13 @@ export default function Hero() {
               href="#collection"
               className="
                 inline-flex
-                min-h-[3.4rem]
+                min-h-[3.5rem]
                 items-center
                 justify-center
                 rounded-full
                 border
                 border-yellow-500
-                px-11
+                px-[1.35rem]
                 py-3.5
                 text-sm
                 font-semibold
