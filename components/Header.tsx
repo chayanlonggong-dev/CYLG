@@ -42,8 +42,10 @@ export default function Header() {
             items-center
             justify-between
             px-4
+            py-1
             sm:min-h-[5rem]
             sm:px-6
+            sm:py-0
             lg:min-h-[6rem]
             lg:px-8
           "
@@ -56,7 +58,7 @@ export default function Header() {
               width={140}
               height={56}
               priority
-              className="h-auto w-[220px]"
+              className="h-auto w-55"
             />
           </div>
 

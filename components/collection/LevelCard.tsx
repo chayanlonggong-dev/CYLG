@@ -41,7 +41,7 @@ export default function LevelCard({
         rounded-3xl
         border
         border-yellow-500/20
-        bg-gradient-to-br
+        bg-linear-to-br
         from-[#111111]
         to-[#1b1b1b]
         p-5

@@ -92,7 +92,7 @@ export default function Hero() {
               text-[2.55rem]
               font-semibold
               leading-none
-              text-yellow-400
+              text-white
               sm:hidden
             "
             style={{
@@ -144,7 +144,7 @@ export default function Hero() {
             className="
               mx-auto
               mt-5
-              max-w-[16.5rem]
+              max-w-66
               text-[0.95rem]
               leading-6.5
               text-white
