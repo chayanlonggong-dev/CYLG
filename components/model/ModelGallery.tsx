@@ -104,8 +104,6 @@ export default function ModelGallery({
       y:e.clientY,
     };
 
-    e.currentTarget.setPointerCapture(e.pointerId);
-
   }
 
   function endSwipe(
@@ -143,47 +141,6 @@ export default function ModelGallery({
     }
 
   }
-
-  function startTouchSwipe(
-    e: React.TouchEvent<HTMLDivElement>
-  ){
-    const touch = e.touches[0];
-
-    swipeStart.current = {
-      pointerId: -1,
-      x: touch.clientX,
-      y: touch.clientY,
-    };
-  }
-
-  function endTouchSwipe(
-    e: React.TouchEvent<HTMLDivElement>
-  ){
-    const start = swipeStart.current;
-
-    swipeStart.current = null;
-
-    if(!start)
-      return;
-
-    const touch = e.changedTouches[0];
-    const distance = start.x - touch.clientX;
-    const verticalDistance = Math.abs(start.y - touch.clientY);
-
-    if(
-      Math.abs(distance) < 48 ||
-      verticalDistance >= Math.abs(distance)
-    )
-      return;
-
-    if(distance > 0){
-      next();
-    }else{
-      previous();
-    }
-  }
-
-
 
   function resetView(){
 
@@ -793,14 +750,14 @@ onPointerDown={(e)=>{
   startSwipe(e);
 }}
 
-onTouchStart={startTouchSwipe}
-
-onTouchEnd={endTouchSwipe}
-
-onPointerUp={endSwipe}
+onPointerUp={(e) => {
+  endSwipe(e);
+  swipeStart.current = null;
+}}
 
 onPointerCancel={() => {
   swipeStart.current = null;
+  dragging.current = false;
 }}
 
 onWheel={wheelZoom}
