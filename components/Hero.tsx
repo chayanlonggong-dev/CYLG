@@ -54,7 +54,7 @@ export default function Hero() {
           items-center
           justify-center
           px-6
-          py-20
+          py-12
           sm:px-8
           sm:py-24
           lg:px-12
@@ -87,11 +87,11 @@ export default function Hero() {
 
           <h1
             className="
-              mt-6
+              mt-5
               whitespace-nowrap
-              text-[3.15rem]
+              text-[2.95rem]
               font-black
-              leading-[0.92]
+              leading-[0.94]
               tracking-[-0.04em]
               text-white
               sm:mt-5
@@ -105,15 +105,16 @@ export default function Hero() {
           <h2
             className="
               mx-auto
-              mt-5
+              mt-4
               max-w-3xl
-              text-[1rem]
-              font-bold
+              text-[0.95rem]
+              font-semibold
               leading-tight
-              tracking-[0.12em]
+              tracking-[0.16em]
               text-yellow-400
               sm:mt-5
               sm:text-3xl
+              sm:font-bold
               sm:tracking-normal
               md:text-4xl
               lg:text-5xl
@@ -126,8 +127,8 @@ export default function Hero() {
             className="
               mx-auto
               mt-5
-              max-w-[18rem]
-              text-[0.92rem]
+              max-w-[17.25rem]
+              text-[0.93rem]
               leading-6
               text-white
               sm:mt-6
@@ -143,7 +144,7 @@ export default function Hero() {
 
           <div
             className="
-              mt-8
+              mt-9
               flex
               justify-center
               sm:mt-10
@@ -153,13 +154,13 @@ export default function Hero() {
               href="#collection"
               className="
                 inline-flex
-                min-h-[3.2rem]
+                min-h-[3.4rem]
                 items-center
                 justify-center
                 rounded-full
                 border
                 border-yellow-500
-                px-10
+                px-11
                 py-3.5
                 text-sm
                 font-semibold

@@ -37,7 +37,7 @@ export default function Header() {
           className="
             mx-auto
             flex
-            min-h-[4rem]
+            min-h-[4.5rem]
             max-w-7xl
             items-center
             justify-between
@@ -56,7 +56,7 @@ export default function Header() {
               width={140}
               height={56}
               priority
-              className="h-auto w-[120px]"
+              className="h-auto w-[150px]"
             />
           </div>
 
