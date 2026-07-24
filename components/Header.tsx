@@ -110,24 +110,24 @@ export default function Header() {
             "
           >
             <a href="#">
-              {messages.nav.home}
-            </a>
+  Home
+</a>
 
-            <a href="#collection">
-              {messages.nav.collection}
-            </a>
+<a href="#collection">
+  Collection
+</a>
 
-            <a href="#">
-              VIP
-            </a>
+<a href="#">
+  Lifestyle
+</a>
 
-            <a href="#">
-              {messages.nav.gallery}
-            </a>
+<a href="#">
+  Services
+</a>
 
-            <a href="#">
-              {messages.nav.contact}
-            </a>
+<a href="#">
+  Experience
+</a>
           </nav>
 
           {/* Mobile Right */}
