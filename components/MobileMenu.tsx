@@ -74,16 +74,16 @@ export default function MobileMenu({
           </a>
 
           <a href="#" onClick={onClose}>
-            VIP
-          </a>
+  Lifestyle
+</a>
 
-          <a href="#" onClick={onClose}>
-            Gallery
-          </a>
+<a href="#" onClick={onClose}>
+  Services
+</a>
 
-          <a href="#" onClick={onClose}>
-            Contact
-          </a>
+<a href="#" onClick={onClose}>
+  Experience
+</a>
         </nav>
       </aside>
     </>
