@@ -71,10 +71,11 @@ export default function Hero() {
         >
           <p
             className="
-              text-[11px]
+              text-[13px]
               uppercase
               tracking-[0.34em]
               text-yellow-400
+              font-semibold
 
               sm:text-xs
 
@@ -88,10 +89,10 @@ export default function Hero() {
           <p
             className="
               mt-4
-              text-[1.7rem]
-              font-medium
+              text-[2.55rem]
+              font-semibold
               leading-none
-              text-white
+              text-yellow-400
               sm:hidden
             "
             style={{
