@@ -37,12 +37,12 @@ export default function Header() {
           className="
             mx-auto
             flex
-            min-h-[3.2rem]
+            min-h-[2.6rem]
             max-w-7xl
             items-center
             justify-between
             px-4
-            py-1
+            py-0
             sm:min-h-[5rem]
             sm:px-6
             sm:py-0

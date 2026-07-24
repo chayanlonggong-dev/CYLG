@@ -173,7 +173,7 @@ export default function Hero() {
                 inline-flex
                 min-h-[3.5rem]
                 items-center
-                justify-center
+                justify-start
                 rounded-full
                 border
                 border-yellow-500
