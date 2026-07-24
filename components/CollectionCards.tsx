@@ -75,7 +75,7 @@ export default function CollectionCards() {
               mt-4
               text-3xl
               font-black
-              tracking-[0.05em]
+              tracking-wide
               text-white
               sm:text-4xl
               md:text-5xl

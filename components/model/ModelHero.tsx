@@ -135,7 +135,7 @@ export default function ModelHero({
       className="
         relative
         flex
-        min-h-[700px]
+        min-h-175
         items-center
         justify-center
         overflow-hidden
@@ -315,7 +315,7 @@ export default function ModelHero({
           className="
             mx-auto
             mt-10
-            h-[2px]
+            h-0.5
             w-32
             bg-yellow-500
           "

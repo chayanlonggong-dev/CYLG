@@ -43,10 +43,10 @@ export default function Header() {
             justify-between
             px-4
             py-0
-            sm:min-h-[5rem]
+            sm:min-h-20
             sm:px-6
             sm:py-0
-            lg:min-h-[6rem]
+            lg:min-h-24
             lg:px-8
           "
         >

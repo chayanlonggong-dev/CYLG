@@ -122,7 +122,7 @@ export default function WechatQrModal({
       className="
         fixed
         inset-0
-        z-[10000]
+        z-10000
         flex
         items-center
         justify-center
@@ -252,8 +252,8 @@ export default function WechatQrModal({
 
               <div className="
                 relative
-                h-[320px]
-                w-[280px]
+                h-80
+                w-70
                 overflow-hidden
                 rounded-xl
               ">
@@ -285,9 +285,9 @@ export default function WechatQrModal({
 
               <div className="
                 flex
-                h-[280px]
+                h-70
                 w-full
-                max-w-[280px]
+                max-w-70
                 items-center
                 justify-center
                 rounded-xl

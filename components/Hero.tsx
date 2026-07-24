@@ -171,7 +171,7 @@ export default function Hero() {
               href="#collection"
               className="
                 inline-flex
-                min-h-[3.5rem]
+                min-h-14
                 items-center
                 justify-start
                 rounded-full

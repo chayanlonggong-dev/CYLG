@@ -105,10 +105,10 @@ export default function ImageSlider({
     <div
 
       className="
-        relative
-        h-[520px]
-        overflow-hidden
-      "
+  relative
+  h-130
+  overflow-hidden
+"
 
       onMouseEnter={() =>
         setHover(true)

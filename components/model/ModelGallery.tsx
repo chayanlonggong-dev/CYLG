@@ -573,7 +573,7 @@ setOpen(true)
 className="
 relative
 mx-auto
-aspect-[4/5]
+aspect-4/5
 max-w-2xl
 cursor-pointer
 overflow-hidden
