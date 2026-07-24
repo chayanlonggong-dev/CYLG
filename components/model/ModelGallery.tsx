@@ -85,11 +85,19 @@ export default function ModelGallery({
     } | null>(null);
 
   const closeGallery =
-    useCallback(()=>{
+  useCallback(()=>{
 
-      setOpen(false);
+    swipeStart.current = null;
 
-    },[]);
+    dragging.current = false;
+
+    resetView();
+
+    setLoaded(false);
+
+    setOpen(false);
+
+  },[]);
 
   function startSwipe(
     e: React.PointerEvent<HTMLDivElement>
@@ -684,11 +692,6 @@ bg-black/95
 type="button"
 
 aria-label="Close gallery"
-
-onPointerDown={(e)=>{
-  e.stopPropagation();
-  closeGallery();
-}}
 
 onClick={(e)=>{
 
