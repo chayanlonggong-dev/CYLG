@@ -51,14 +51,17 @@ export default function Header() {
           "
         >
           {/* Mobile */}
-          <div className="flex h-12 items-center lg:hidden">
+<div
+  className="flex items-center overflow-hidden lg:hidden"
+  style={{ height: "40px" }}
+>
   <Image
     src="/logo.png"
     alt="ChaYanLongGong"
     width={140}
     height={56}
     priority
-    className="h-full w-auto object-contain"
+    className="h-auto w-55"
   />
 </div>
 
