@@ -11,6 +11,8 @@ interface CollectionCardProps {
 
   images: string[];
 
+  onNavigate?: (modelId: string) => void;
+
 }
 
 
@@ -21,6 +23,8 @@ export default function CollectionCard({
 
   images,
 
+  onNavigate,
+
 }: CollectionCardProps) {
 
 
@@ -29,6 +33,12 @@ export default function CollectionCard({
     <Link
 
       href={`/models/${id}`}
+
+      onClick={() =>
+        onNavigate?.(id)
+      }
+
+      data-model-code={id}
 
       className="
         group

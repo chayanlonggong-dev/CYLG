@@ -102,16 +102,10 @@ export default function ModelTitle({
               pointer-events-none
             "
             style={{
-
-              WebkitTextStroke:
-                "2px #D4AF37",
-
-              textShadow:
-                `
-                0 0 5px rgba(212,175,55,.9),
-                0 0 15px rgba(212,175,55,.45)
-                `,
-
+              fontFamily: "var(--font-cinzel)",
+              WebkitTextStroke: "2px #B38A2B",
+              paintOrder: "stroke fill",
+              textShadow: "none",
             }}
           >
 
@@ -130,8 +124,13 @@ export default function ModelTitle({
               font-black
               uppercase
               tracking-[0.18em]
-              text-black
             "
+            style={{
+              fontFamily: "var(--font-cinzel)",
+              color: "#0a0a0a",
+              WebkitTextStroke: "0.5px rgba(179, 138, 43, 0.45)",
+              textShadow: "none",
+            }}
           >
 
             {title.text}

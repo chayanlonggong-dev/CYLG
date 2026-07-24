@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useSearchParams } from "next/navigation";
 import CollectionCard from "@/components/collection/CollectionCard";
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
@@ -22,10 +27,13 @@ export default function LevelPage({
   params,
 }: PageProps) {
   const { messages } = useLanguage();
+  const searchParams = useSearchParams();
 
   const [level, setLevel] = useState("");
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
+  const restoredNavigation = useRef(false);
+  const restoreStorageKey = "cylg-collection-restore";
 
   useEffect(() => {
     async function loadData() {
@@ -58,6 +66,88 @@ export default function LevelPage({
     loadData();
   }, [params]);
 
+  useEffect(() => {
+    if (loading || restoredNavigation.current) {
+      return;
+    }
+
+    const modelCode =
+      searchParams.get("returnModel") ||
+      (typeof window !== "undefined"
+        ? sessionStorage.getItem(`${restoreStorageKey}-model`)
+        : null);
+
+    const scrollY = Number(
+      searchParams.get("returnScroll") ||
+        (typeof window !== "undefined"
+          ? sessionStorage.getItem(`${restoreStorageKey}-scroll`)
+          : null)
+    );
+
+    if (
+      !modelCode ||
+      !Number.isFinite(scrollY) ||
+      scrollY < 0
+    ) {
+      return;
+    }
+
+    const card = document.querySelector(
+      `[data-model-code="${CSS.escape(modelCode)}"]`
+    );
+
+    if (!card) {
+      return;
+    }
+
+    restoredNavigation.current = true;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollY,
+          behavior: "auto",
+        });
+      });
+    });
+  }, [loading, searchParams, restoreStorageKey]);
+
+  function preserveCollectionPosition(
+    modelCode: string
+  ) {
+    const returnUrl = new URL(window.location.href);
+    const scrollY = window.scrollY || 0;
+
+    returnUrl.searchParams.set(
+      "returnModel",
+      modelCode
+    );
+
+    returnUrl.searchParams.set(
+      "returnScroll",
+      String(scrollY)
+    );
+
+    sessionStorage.setItem(
+      `${restoreStorageKey}-model`,
+      modelCode
+    );
+    sessionStorage.setItem(
+      `${restoreStorageKey}-scroll`,
+      String(scrollY)
+    );
+
+    window.history.replaceState(
+      {
+        ...window.history.state,
+        returnModel: modelCode,
+        returnScroll: scrollY,
+      },
+      "",
+      returnUrl
+    );
+  }
+
   const titleMap = {
     CROWN: `👑 ${messages.collection.crown}`,
     SSS: messages.collection.sss,
@@ -89,11 +179,16 @@ export default function LevelPage({
             {messages.collection.noModels}
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3"
+          >
             {models.map((model) => (
               <CollectionCard
                 key={model.id}
                 id={model.code}
+                onNavigate={
+                  preserveCollectionPosition
+                }
                 images={[
                   model.avatar,
                   ...(model.gallery

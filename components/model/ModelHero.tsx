@@ -233,47 +233,74 @@ export default function ModelHero({
 
 
 
-        <h1
-
+        <div
           className="
-            text-5xl
-            font-black
-            uppercase
-            tracking-[0.15em]
-            text-black
-            sm:text-7xl
-            md:text-9xl
+            flex
+            items-center
+            justify-center
+            gap-2
           "
-
-
-          style={{
-
-
-            WebkitTextStroke:
-              "4px #D4AF37",
-
-
-            textShadow:
-              "0 0 25px rgba(212,175,55,.8)",
-
-
-          }}
-
         >
 
-
           {
-            display.crown &&
-            "👑 "
+            display.crown && (
+              <span
+                className="
+                  text-[clamp(2.5rem,9vw,5rem)]
+                  leading-none
+                "
+              >
+                👑
+              </span>
+            )
           }
 
+          <div
+            className="
+              relative
+              inline-block
+            "
+          >
+            <span
+              className="
+                absolute
+                inset-0
+                text-[clamp(3rem,12vw,7rem)]
+                font-black
+                uppercase
+                tracking-[0.18em]
+                text-transparent
+                pointer-events-none
+              "
+              style={{
+                fontFamily: "var(--font-cinzel)",
+                WebkitTextStroke: "2px #B38A2B",
+                paintOrder: "stroke fill",
+                textShadow: "none",
+              }}
+            >
+              {display.title}
+            </span>
 
-          {
-            display.title
-          }
-
-
-        </h1>
+            <span
+              className="
+                relative
+                text-[clamp(3rem,12vw,7rem)]
+                font-black
+                uppercase
+                tracking-[0.18em]
+              "
+              style={{
+                fontFamily: "var(--font-cinzel)",
+                color: "#0a0a0a",
+                WebkitTextStroke: "0.5px rgba(179, 138, 43, 0.5)",
+                textShadow: "none",
+              }}
+            >
+              {display.title}
+            </span>
+          </div>
+        </div>
 
 
 

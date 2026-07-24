@@ -31,10 +31,15 @@ export default function Loading() {
 
         <h1
           className="
-            mt-6
-            text-5xl
+            mt-3
+            whitespace-nowrap
+            text-[1.25rem]
             font-black
-            tracking-[0.08em]
+            leading-none
+            tracking-[0.02em]
+            sm:mt-6
+            sm:text-5xl
+            sm:tracking-[0.08em]
           "
         >
           ChaYanLongGong

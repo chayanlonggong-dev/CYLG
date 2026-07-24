@@ -77,45 +77,111 @@ export default function ModelGallery({
 
 
 
-  const touchStartX =
-    useRef(0);
+  const swipeStart =
+    useRef<{
+      pointerId:number;
+      x:number;
+      y:number;
+    } | null>(null);
 
+  const closeGallery =
+    useCallback(()=>{
 
-  const touchEndX =
-    useRef(0);
-function handleTouchStart(
-  e: React.TouchEvent
-){
+      setOpen(false);
 
-  touchStartX.current =
-    e.touches[0].clientX;
+    },[]);
 
-}
-function handleTouchEnd(
-  e: React.TouchEvent
-){
+  function startSwipe(
+    e: React.PointerEvent<HTMLDivElement>
+  ){
 
-  touchEndX.current =
-    e.changedTouches[0].clientX;
+    if(e.pointerType!=="touch")
+      return;
 
-  const distance =
-    touchStartX.current -
-    touchEndX.current;
+    swipeStart.current={
+      pointerId:e.pointerId,
+      x:e.clientX,
+      y:e.clientY,
+    };
 
-  if (Math.abs(distance) < 50)
-    return;
-
-  if (distance > 0) {
-
-    next();
-
-  } else {
-
-    previous();
+    e.currentTarget.setPointerCapture(e.pointerId);
 
   }
 
-}
+  function endSwipe(
+    e: React.PointerEvent<HTMLDivElement>
+  ){
+
+    const start = swipeStart.current;
+
+    swipeStart.current=null;
+
+    if(
+      e.pointerType!=="touch" ||
+      !start ||
+      start.pointerId!==e.pointerId
+    )
+      return;
+
+    const distance = start.x-e.clientX;
+    const verticalDistance = Math.abs(start.y-e.clientY);
+
+    if(
+      Math.abs(distance)<48 ||
+      verticalDistance>=Math.abs(distance)
+    )
+      return;
+
+    if(distance>0){
+
+      next();
+
+    }else{
+
+      previous();
+
+    }
+
+  }
+
+  function startTouchSwipe(
+    e: React.TouchEvent<HTMLDivElement>
+  ){
+    const touch = e.touches[0];
+
+    swipeStart.current = {
+      pointerId: -1,
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  }
+
+  function endTouchSwipe(
+    e: React.TouchEvent<HTMLDivElement>
+  ){
+    const start = swipeStart.current;
+
+    swipeStart.current = null;
+
+    if(!start)
+      return;
+
+    const touch = e.changedTouches[0];
+    const distance = start.x - touch.clientX;
+    const verticalDistance = Math.abs(start.y - touch.clientY);
+
+    if(
+      Math.abs(distance) < 48 ||
+      verticalDistance >= Math.abs(distance)
+    )
+      return;
+
+    if(distance > 0){
+      next();
+    }else{
+      previous();
+    }
+  }
 
 
 
@@ -132,8 +198,6 @@ function handleTouchEnd(
     });
 
   }
-
-
 
 
 
@@ -264,7 +328,7 @@ function handleTouchEnd(
 
 
       if(e.key==="Escape")
-        setOpen(false);
+        closeGallery();
 
 
 
@@ -301,6 +365,7 @@ function handleTouchEnd(
 
   },[
     open,
+    closeGallery,
     next,
     previous,
   ]);
@@ -633,9 +698,25 @@ justify-center
 bg-black/95
 "
 
-onClick={()=>
-setOpen(false)
-}
+        onPointerDown={(e)=>{
+
+          if(e.target===e.currentTarget){
+
+            closeGallery();
+
+          }
+
+        }}
+
+        onClick={(e)=>{
+
+          if(e.target===e.currentTarget){
+
+            closeGallery();
+
+          }
+
+        }}
 
 >
 
@@ -643,17 +724,45 @@ setOpen(false)
 
 <button
 
-onClick={()=>
-setOpen(false)
-}
+type="button"
+
+aria-label="Close gallery"
+
+onPointerDown={(e)=>{
+  e.stopPropagation();
+  closeGallery();
+}}
+
+onClick={(e)=>{
+
+e.stopPropagation();
+
+closeGallery();
+
+}}
 
 className="
 absolute
 right-8
 top-8
+z-20
+flex
+h-12
+w-12
+items-center
+justify-center
+touch-manipulation
 text-5xl
 text-white
 "
+
+style={{
+
+top:"calc(env(safe-area-inset-top, 0px) + 1rem)",
+
+right:"max(1rem, env(safe-area-inset-right, 0px))",
+
+}}
 
 >
 
@@ -672,11 +781,27 @@ relative
 h-[85vh]
 w-[90vw]
 overflow-hidden
+touch-none
 "
 
 onClick={(e)=>
-e.stopPropagation()
+  e.stopPropagation()
 }
+
+onPointerDown={(e)=>{
+  e.stopPropagation();
+  startSwipe(e);
+}}
+
+onTouchStart={startTouchSwipe}
+
+onTouchEnd={endTouchSwipe}
+
+onPointerUp={endSwipe}
+
+onPointerCancel={() => {
+  swipeStart.current = null;
+}}
 
 onWheel={wheelZoom}
 
@@ -687,10 +812,7 @@ onMouseDown={startDrag}
 onMouseMove={moveDrag}
 
 onMouseUp={stopDrag}
-
-
 >
-
 
 <Image
 
@@ -704,8 +826,8 @@ priority
 
 sizes="90vw"
 
-onLoad={()=>
-setLoaded(true)
+onLoad={() =>
+  setLoaded(true)
 }
 
 draggable={false}
@@ -746,6 +868,10 @@ object-contain
 
 <button
 
+type="button"
+
+aria-label="Previous image"
+
 onClick={(e)=>{
 
 e.stopPropagation();
@@ -757,6 +883,8 @@ previous();
 className="
 absolute
 left-6
+z-10
+touch-manipulation
 text-6xl
 text-yellow-400
 "
@@ -772,6 +900,10 @@ text-yellow-400
 
 <button
 
+type="button"
+
+aria-label="Next image"
+
 onClick={(e)=>{
 
 e.stopPropagation();
@@ -783,6 +915,8 @@ next();
 className="
 absolute
 right-6
+z-10
+touch-manipulation
 text-6xl
 text-yellow-400
 "
