@@ -117,7 +117,7 @@ export default function Header() {
   Collection
 </a>
 
-<a href="#">
+<a href="#lifestyle">
   Lifestyle
 </a>
 
