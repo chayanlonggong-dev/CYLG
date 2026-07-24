@@ -87,16 +87,16 @@ export default function Hero() {
 
           <h1
             className="
-              mt-5
-              text-3xl
+              mt-6
+              whitespace-nowrap
+              text-[3.15rem]
               font-black
-              leading-[1.05]
+              leading-[0.92]
+              tracking-[-0.04em]
               text-white
-              sm:text-5xl
-              md:text-6xl
-              lg:text-7xl
-              xl:text-8xl
-              break-words
+              sm:mt-5
+              sm:text-[clamp(2.8rem,8vw,5.8rem)]
+              sm:tracking-[-0.02em]
             "
           >
             ChaYanLongGong
@@ -106,15 +106,15 @@ export default function Hero() {
             className="
               mx-auto
               mt-5
-
               max-w-3xl
-
-              text-xl
+              text-[1rem]
               font-bold
               leading-tight
+              tracking-[0.12em]
               text-yellow-400
-
+              sm:mt-5
               sm:text-3xl
+              sm:tracking-normal
               md:text-4xl
               lg:text-5xl
             "
@@ -125,21 +125,17 @@ export default function Hero() {
           <p
             className="
               mx-auto
-
-              mt-6
-
-              max-w-xl
-
-              text-sm
-              leading-7
+              mt-5
+              max-w-[18rem]
+              text-[0.92rem]
+              leading-6
               text-white
-
+              sm:mt-6
               sm:max-w-2xl
               sm:text-lg
-
+              sm:leading-9
               lg:max-w-4xl
               lg:text-xl
-              lg:leading-9
             "
           >
             {messages.hero.description}
@@ -157,19 +153,21 @@ export default function Hero() {
               href="#collection"
               className="
                 inline-flex
+                min-h-[3.2rem]
                 items-center
                 justify-center
                 rounded-full
                 border
                 border-yellow-500
-                px-8
-                py-3
+                px-10
+                py-3.5
                 text-sm
                 font-semibold
                 text-yellow-400
                 transition
                 hover:bg-yellow-500
                 hover:text-black
+                sm:min-h-auto
                 sm:px-10
                 sm:py-4
                 sm:text-lg
