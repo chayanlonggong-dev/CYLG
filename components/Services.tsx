@@ -17,10 +17,10 @@ const services = [
       "Exclusive parties, luxury events and premium entertainment.",
   },
   {
-    title: "Private Dining",
-    description:
-      "Fine dining experiences in complete privacy.",
-  },
+  title: "Supreme Experience",
+  description:
+    "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
+},
 ];
 
 export default function Services() {
