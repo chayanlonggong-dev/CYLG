@@ -37,18 +37,11 @@ export default function Services() {
             <div
               key={service.title}
               className="
-                group
                 rounded-3xl
                 border
                 border-yellow-500/20
                 bg-[#111111]
                 p-10
-                transition-all
-                duration-500
-                hover:-translate-y-2
-                hover:scale-[1.02]
-                hover:border-yellow-400
-                hover:shadow-[0_0_40px_rgba(212,175,55,0.25)]
               "
             >
               <h3
@@ -56,9 +49,6 @@ export default function Services() {
                   text-2xl
                   font-bold
                   text-yellow-400
-                  transition-colors
-                  duration-300
-                  group-hover:text-yellow-300
                 "
               >
                 {service.title}

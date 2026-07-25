@@ -112,7 +112,15 @@ export async function createModel(data: {
 
   videos?: string;
 
-  introduction?: string;
+  introductionEn?: string;
+
+  introductionZhTW?: string;
+
+  introductionZhCN?: string;
+
+  introductionJa?: string;
+
+  introductionKo?: string;
 
   online?: boolean;
 
