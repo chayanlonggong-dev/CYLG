@@ -58,9 +58,9 @@ export default function Lifestyle() {
 
           <div className="relative z-10 flex h-full items-center justify-center px-6">
             <div className="max-w-4xl text-center">
-              <p className="text-sm uppercase tracking-[0.6em] text-yellow-400">
-                {messages.lifestyle.label}
-              </p>
+              <p className="text-sm uppercase tracking-[0.6em] text-red-500">
+  TEST 123
+</p>
 
               <h2
                 className="mt-6 text-4xl font-black text-white sm:text-6xl"
