@@ -7,9 +7,8 @@ export default function LuxuryExperience() {
 
   return (
   <section
-    id="lifestyle"
-    className="bg-black px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
-  >
+  className="bg-black px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+>
       <div className="mx-auto max-w-6xl text-center">
         <p className="mb-4 uppercase tracking-[0.35em] text-yellow-500">
           WHY CHOOSE CYLG
