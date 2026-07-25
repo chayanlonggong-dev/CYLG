@@ -1,38 +1,13 @@
 "use client";
 
 import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
   useLanguage,
 } from "@/app/providers/LanguageProvider";
 
 export default function Hero() {
   const { messages } = useLanguage();
 
-  const videos = [
-    "/video/hero.mp4",
-    "/video/champagne.mp4",
-    "/video/lounge.mp4",
-    "/video/penthouse.mp4",
-  ];
-
-  const [currentVideo, setCurrentVideo] = useState(0);
-const [loaded, setLoaded] = useState(true);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setLoaded(false);
-
-setCurrentVideo((prev) =>
-  (prev + 1) % videos.length
-);
-    }, 12000);
-
-    return () => clearInterval(timer);
-  }, []);
+  const video = "/video/hero.mp4";
 
   return (
     <section
@@ -51,22 +26,17 @@ setCurrentVideo((prev) =>
     w-full
     object-cover
   "
-  style={{
-  opacity: loaded ? 1 : 0,
-  transition: "opacity .6s ease",
-}}
         autoPlay
         muted
         loop
         playsInline
         preload="auto"
       onLoadedData={(e) => {
-  setLoaded(true);
   e.currentTarget.play().catch(() => {});
 }}
       >
         <source
-  src={videos[currentVideo]}
+  src={video}
   type="video/mp4"
 />
       </video>
