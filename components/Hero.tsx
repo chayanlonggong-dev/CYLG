@@ -1,11 +1,35 @@
 "use client";
 
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   useLanguage,
 } from "@/app/providers/LanguageProvider";
 
 export default function Hero() {
   const { messages } = useLanguage();
+
+  const videos = [
+    "/video/hero.mp4",
+    "/video/champagne.mp4",
+    "/video/lounge.mp4",
+    "/video/penthouse.mp4",
+  ];
+
+  const [currentVideo, setCurrentVideo] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentVideo((prev) =>
+        (prev + 1) % videos.length
+      );
+    }, 12000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <section
@@ -17,13 +41,14 @@ export default function Hero() {
       "
     >
       <video
-        className="
-          absolute
-          inset-0
-          h-full
-          w-full
-          object-cover
-        "
+  key={videos[currentVideo]}
+  className="
+    absolute
+    inset-0
+    h-full
+    w-full
+    object-cover
+  "
         autoPlay
         muted
         loop
@@ -32,9 +57,9 @@ export default function Hero() {
         poster="/logo.png"
       >
         <source
-          src="/video/hero.mp4"
-          type="video/mp4"
-        />
+  src={videos[currentVideo]}
+  type="video/mp4"
+/>
       </video>
 
       <div
