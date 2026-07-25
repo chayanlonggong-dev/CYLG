@@ -4,47 +4,79 @@ export default function Lifestyle() {
   return (
     <section
       id="lifestyle"
-      className="
-        bg-[#050505]
-        px-6
-        py-32
-      "
+      className="relative h-screen overflow-hidden"
     >
-      <div className="mx-auto max-w-7xl text-center">
-        <p
-          className="
-            text-sm
-            uppercase
-            tracking-[0.6em]
-            text-yellow-400
-          "
-        >
-          LIFESTYLE
-        </p>
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source
+          src="/video/champagne.mp4"
+          type="video/mp4"
+        />
+      </video>
 
-        <h2
-          className="
-            mt-6
-            text-5xl
-            font-black
-            text-white
-          "
-        >
-          Luxury Lifestyle
-        </h2>
+      <div className="absolute inset-0 bg-black/60" />
 
-        <p
-          className="
-            mx-auto
-            mt-8
-            max-w-3xl
-            text-lg
-            leading-9
-            text-gray-300
-          "
-        >
-          Coming Soon
-        </p>
+      <div
+        className="
+          relative
+          z-10
+          flex
+          h-full
+          items-center
+          justify-center
+          px-6
+        "
+      >
+        <div className="max-w-4xl text-center">
+          <p
+            className="
+              text-sm
+              uppercase
+              tracking-[0.6em]
+              text-yellow-400
+            "
+          >
+            LIFESTYLE
+          </p>
+
+          <h2
+            className="
+              mt-6
+              text-4xl
+              font-black
+              text-white
+              sm:text-6xl
+            "
+            style={{
+              fontFamily: "var(--font-cinzel)",
+            }}
+          >
+            Luxury Lifestyle
+          </h2>
+
+          <p
+            className="
+              mx-auto
+              mt-8
+              max-w-2xl
+              text-base
+              leading-8
+              text-gray-300
+              sm:text-xl
+              sm:leading-9
+            "
+          >
+            Champagne. Elegance. Privacy.
+            <br />
+            Every moment is crafted for an unforgettable luxury experience.
+          </p>
+        </div>
       </div>
     </section>
   );
