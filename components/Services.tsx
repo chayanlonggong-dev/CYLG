@@ -2,25 +2,21 @@
 
 const services = [
   {
-    icon: "👑",
     title: "Companion Booking",
     description:
       "Private luxury companion arrangements tailored for every occasion.",
   },
   {
-    icon: "✈️",
     title: "Travel Companion",
     description:
       "Business trips, vacations and international travel experiences.",
   },
   {
-    icon: "🥂",
     title: "VIP Events",
     description:
       "Exclusive parties, luxury events and premium entertainment.",
   },
   {
-    icon: "💎",
     title: "Supreme Experience",
     description:
       "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
@@ -44,7 +40,8 @@ export default function Services() {
           </h2>
 
           <p className="mx-auto mt-8 max-w-3xl text-lg leading-9 text-gray-300">
-            Personalized premium experiences with absolute privacy and world-class service.
+            Personalized premium experiences with absolute privacy and world-class
+            service.
           </p>
         </div>
 
@@ -67,13 +64,8 @@ export default function Services() {
                 hover:shadow-[0_0_40px_rgba(212,175,55,0.25)]
               "
             >
-              <div className="text-5xl">
-                {service.icon}
-              </div>
-
               <h3
                 className="
-                  mt-6
                   text-2xl
                   font-bold
                   text-yellow-400
