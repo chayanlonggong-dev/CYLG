@@ -20,12 +20,15 @@ export default function Hero() {
   ];
 
   const [currentVideo, setCurrentVideo] = useState(0);
+const [loaded, setLoaded] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentVideo((prev) =>
-        (prev + 1) % videos.length
-      );
+      setLoaded(false);
+
+setCurrentVideo((prev) =>
+  (prev + 1) % videos.length
+);
     }, 12000);
 
     return () => clearInterval(timer);
@@ -41,7 +44,6 @@ export default function Hero() {
       "
     >
       <video
-  key={currentVideo}
   className="
     absolute
     inset-0
@@ -49,12 +51,17 @@ export default function Hero() {
     w-full
     object-cover
   "
+  style={{
+  opacity: loaded ? 1 : 0,
+  transition: "opacity .6s ease",
+}}
         autoPlay
         muted
         loop
         playsInline
         preload="auto"
       onLoadedData={(e) => {
+  setLoaded(true);
   e.currentTarget.play().catch(() => {});
 }}
       >
