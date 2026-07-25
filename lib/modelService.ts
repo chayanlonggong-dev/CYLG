@@ -181,7 +181,15 @@ export async function updateModel(
 
     videos?: string;
 
-    introduction?: string;
+    introductionEn?: string;
+
+introductionZhTW?: string;
+
+introductionZhCN?: string;
+
+introductionJa?: string;
+
+introductionKo?: string;
 
     online?: boolean;
 

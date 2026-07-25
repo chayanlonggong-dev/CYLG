@@ -89,7 +89,11 @@ model Model {
 
 
 
-  introduction String @default("")
+  introductionEn     String @default("")
+introductionZhTW   String @default("")
+introductionZhCN   String @default("")
+introductionJa     String @default("")
+introductionKo     String @default("")
 
 
 

@@ -50,8 +50,20 @@ export default function AddModelForm({
 
 
 
-  const [introduction,setIntroduction] =
-    useState("");
+  const [introductionEn, setIntroductionEn] =
+  useState("");
+
+const [introductionZhTW, setIntroductionZhTW] =
+  useState("");
+
+const [introductionZhCN, setIntroductionZhCN] =
+  useState("");
+
+const [introductionJa, setIntroductionJa] =
+  useState("");
+
+const [introductionKo, setIntroductionKo] =
+  useState("");
 
 
 
@@ -117,7 +129,15 @@ export default function AddModelForm({
 
 
 
-              introduction,
+              introductionEn,
+
+introductionZhTW,
+
+introductionZhCN,
+
+introductionJa,
+
+introductionKo,
 
             }),
 
@@ -242,7 +262,15 @@ export default function AddModelForm({
 
 
 
-    setIntroduction("");
+    setIntroductionEn("");
+
+setIntroductionZhTW("");
+
+setIntroductionZhCN("");
+
+setIntroductionJa("");
+
+setIntroductionKo("");
 
 
 
@@ -259,19 +287,7 @@ export default function AddModelForm({
 
 
 
-<div
-
-className="
-w-full
-max-w-6xl
-rounded-3xl
-border
-border-yellow-500/20
-bg-[#101010]
-p-10
-"
-
->
+<div className="w-full max-w-6xl rounded-3xl border border-yellow-500/20 bg-[#101010] p-10">
 
 
 
@@ -534,46 +550,39 @@ onChange={setGallery}
 
 
 <div className="mt-12">
+  <h3 className="mb-4 text-lg font-bold text-yellow-500">
+    English Introduction
+  </h3>
 
-
-<VideoUpload
-
-
-value={videos}
-
-
-onChange={setVideos}
-
-
-/>
-
-
+  <IntroductionEditor
+    value={introductionEn}
+    onChange={setIntroductionEn}
+  />
 </div>
-
-
-
-
-
-
-
-
 
 <div className="mt-12">
+  <h3 className="mb-4 text-lg font-bold text-yellow-500">
+    Traditional Chinese Introduction
+  </h3>
 
-
-<IntroductionEditor
-
-
-value={introduction}
-
-
-onChange={setIntroduction}
-
-
-/>
-
-
+  <IntroductionEditor
+    value={introductionZhTW}
+    onChange={setIntroductionZhTW}
+  />
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

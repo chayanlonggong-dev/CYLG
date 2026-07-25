@@ -174,8 +174,20 @@ export async function POST(
           body.videos ?? "",
 
 
-        introduction:
-          body.introduction ?? "",
+        introductionEn:
+  body.introductionEn ?? "",
+
+introductionZhTW:
+  body.introductionZhTW ?? "",
+
+introductionZhCN:
+  body.introductionZhCN ?? "",
+
+introductionJa:
+  body.introductionJa ?? "",
+
+introductionKo:
+  body.introductionKo ?? "",
 
 
         online:
