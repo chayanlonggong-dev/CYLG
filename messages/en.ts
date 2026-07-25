@@ -14,7 +14,53 @@ const en = {
       "Exclusive companion experiences with worldwide private arrangements. Discreet. Elegant. Personalized.",
     button: "View Collection",
   },
+  lifestyle: {
+    label: "Lifestyle",
 
+    slides: {
+      luxuryLifestyle: {
+        title: "Luxury Lifestyle",
+        description:
+          "Champagne. Elegance. Privacy. Every moment is crafted for an unforgettable luxury experience.",
+      },
+
+      privateLounge: {
+        title: "Private Lounge",
+        description:
+          "Exclusive atmosphere designed for distinguished guests seeking comfort, discretion and refinement.",
+      },
+
+      luxuryPenthouse: {
+        title: "Luxury Penthouse",
+        description:
+          "Breathtaking skyline views with world-class luxury and absolute privacy.",
+      },
+
+      skylinePool: {
+        title: "Skyline Pool",
+        description:
+          "Relax above the city with an unforgettable infinity pool experience.",
+      },
+
+      elegantArrival: {
+        title: "Elegant Arrival",
+        description:
+          "Confidence, elegance and irresistible charm in every step.",
+      },
+
+      privateMoments: {
+        title: "Private Moments",
+        description:
+          "Quiet luxury surrounded by breathtaking city lights.",
+      },
+
+      luxuryNight: {
+        title: "Luxury Night",
+        description:
+          "Premium whisky, refined atmosphere and unforgettable evenings.",
+      },
+    },
+  },
   luxury: {
     title: "Luxury Beyond Expectations",
     subtitle:

@@ -14,7 +14,53 @@ const ko = {
       "전 세계 고객을 위한 안전하고 프라이빗한 최고급 컴패니언 서비스를 제공합니다.",
     button: "모델 보기",
   },
+lifestyle: {
+  label: "라이프스타일",
 
+  slides: {
+    luxuryLifestyle: {
+      title: "럭셔리 라이프스타일",
+      description:
+        "샴페인, 우아함, 프라이버시. 모든 순간이 잊을 수 없는 럭셔리 경험을 위해 준비됩니다.",
+    },
+
+    privateLounge: {
+      title: "프라이빗 라운지",
+      description:
+        "품격 있는 고객을 위한 프라이빗 공간으로 편안함과 우아함을 제공합니다.",
+    },
+
+    luxuryPenthouse: {
+      title: "럭셔리 펜트하우스",
+      description:
+        "도시의 스카이라인을 내려다보며 최고의 럭셔리와 완벽한 프라이버시를 경험하세요.",
+    },
+
+    skylinePool: {
+      title: "스카이라인 풀",
+      description:
+        "도시 위에서 즐기는 잊지 못할 인피니티 풀 경험.",
+    },
+
+    elegantArrival: {
+      title: "우아한 등장",
+      description:
+        "모든 발걸음에서 자신감과 우아함, 그리고 매력을 보여줍니다.",
+    },
+
+    privateMoments: {
+      title: "프라이빗 모먼트",
+      description:
+        "아름다운 야경 속에서 조용한 럭셔리를 만끽하세요.",
+    },
+
+    luxuryNight: {
+      title: "럭셔리 나이트",
+      description:
+        "최고급 위스키와 품격 있는 분위기가 잊지 못할 밤을 선사합니다.",
+    },
+  },
+},
   luxury: {
     title: "기대를 뛰어넘는 럭셔리",
     subtitle:

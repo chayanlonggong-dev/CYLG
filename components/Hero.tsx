@@ -41,7 +41,7 @@ export default function Hero() {
       "
     >
       <video
-  key={videos[currentVideo]}
+  key={currentVideo}
   className="
     absolute
     inset-0
@@ -53,8 +53,10 @@ export default function Hero() {
         muted
         loop
         playsInline
-        preload="metadata"
-      
+        preload="auto"
+      onLoadedData={(e) => {
+  e.currentTarget.play().catch(() => {});
+}}
       >
         <source
   src={videos[currentVideo]}

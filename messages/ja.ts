@@ -14,7 +14,53 @@ const ja = {
       "世界中のお客様へ、安全で上質、そして完全プライベートなコンパニオンサービスをご提供します。",
     button: "モデルを見る",
   },
+lifestyle: {
+  label: "ライフスタイル",
 
+  slides: {
+    luxuryLifestyle: {
+      title: "ラグジュアリーライフ",
+      description:
+        "シャンパン、優雅さ、プライバシー。すべての瞬間が忘れられないラグジュアリー体験のために。",
+    },
+
+    privateLounge: {
+      title: "プライベートラウンジ",
+      description:
+        "快適さ、品格、プライバシーを兼ね備えた特別なお客様のための空間。",
+    },
+
+    luxuryPenthouse: {
+      title: "ラグジュアリーペントハウス",
+      description:
+        "世界最高級のラグジュアリーと絶対的なプライバシーを備えた絶景の空間。",
+    },
+
+    skylinePool: {
+      title: "スカイラインプール",
+      description:
+        "街並みを一望できるインフィニティプールで特別な時間を。",
+    },
+
+    elegantArrival: {
+      title: "エレガントな登場",
+      description:
+        "一歩一歩に自信と優雅さ、そして魅力を。",
+    },
+
+    privateMoments: {
+      title: "プライベートモーメント",
+      description:
+        "美しい夜景に包まれた静かなラグジュアリー。",
+    },
+
+    luxuryNight: {
+      title: "ラグジュアリーナイト",
+      description:
+        "最高級ウイスキーと洗練された空間が忘れられない夜を演出します。",
+    },
+  },
+},
   luxury: {
     title: "期待を超えるラグジュアリー",
     subtitle:

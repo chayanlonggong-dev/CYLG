@@ -14,7 +14,53 @@ const zhTW = {
       "專為高端客戶打造的私人伴遊服務，提供安全、尊貴且高度保密的專屬安排。",
     button: "查看佳麗",
   },
+lifestyle: {
+  label: "尊享生活",
 
+  slides: {
+    luxuryLifestyle: {
+      title: "奢華生活",
+      description:
+        "香檳、美學、私密，每一刻都為您打造難忘的頂級奢華體驗。",
+    },
+
+    privateLounge: {
+      title: "私人會所",
+      description:
+        "專為尊貴賓客打造的私密空間，融合舒適、尊榮與優雅。",
+    },
+
+    luxuryPenthouse: {
+      title: "奢華頂層公寓",
+      description:
+        "俯瞰城市天際線，享受世界級奢華與絕對私密。",
+    },
+
+    skylinePool: {
+      title: "天際泳池",
+      description:
+        "於城市之巔，體驗令人難忘的無邊際泳池。",
+    },
+
+    elegantArrival: {
+      title: "優雅登場",
+      description:
+        "每一步都展現自信、優雅與迷人魅力。",
+    },
+
+    privateMoments: {
+      title: "私享時光",
+      description:
+        "在璀璨夜景環繞下，享受靜謐奢華的專屬時刻。",
+    },
+
+    luxuryNight: {
+      title: "奢華之夜",
+      description:
+        "頂級威士忌、尊貴氛圍，締造難忘夜晚。",
+    },
+  },
+},
   luxury: {
     title: "超越期待的奢華體驗",
     subtitle:

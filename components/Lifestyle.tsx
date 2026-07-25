@@ -1,50 +1,41 @@
 "use client";
 
-const sections = [
-  {
-    video: "/video/champagne.mp4",
-    title: "Luxury Lifestyle",
-    description:
-      "Champagne. Elegance. Privacy. Every moment is crafted for an unforgettable luxury experience.",
-  },
-  {
-    video: "/video/lounge.mp4",
-    title: "Private Lounge",
-    description:
-      "Exclusive atmosphere designed for distinguished guests seeking comfort, discretion and refinement.",
-  },  {
-    video: "/video/penthouse.mp4",
-    title: "Luxury Penthouse",
-    description:
-      "Breathtaking skyline views with world-class luxury and absolute privacy.",
-  },
-  {
-    video: "/video/skyline-pool.mp4",
-    title: "Skyline Pool",
-    description:
-      "Relax above the city with an unforgettable infinity pool experience.",
-  },
-  {
-    video: "/video/woman-walk.mp4",
-    title: "Elegant Arrival",
-    description:
-      "Confidence, elegance and irresistible charm in every step.",
-  },
-  {
-    video: "/video/woman-window.mp4",
-    title: "Private Moments",
-    description:
-      "Quiet luxury surrounded by breathtaking city lights.",
-  },
-  {
-    video: "/video/whisky.mp4",
-    title: "Luxury Night",
-    description:
-      "Premium whisky, refined atmosphere and unforgettable evenings.",
-  },
-];
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 export default function Lifestyle() {
+  const { messages } = useLanguage();
+
+  const sections = [
+    {
+      video: "/video/champagne.mp4",
+      ...messages.lifestyle.slides.luxuryLifestyle,
+    },
+    {
+      video: "/video/lounge.mp4",
+      ...messages.lifestyle.slides.privateLounge,
+    },
+    {
+      video: "/video/penthouse.mp4",
+      ...messages.lifestyle.slides.luxuryPenthouse,
+    },
+    {
+      video: "/video/skyline-pool.mp4",
+      ...messages.lifestyle.slides.skylinePool,
+    },
+    {
+      video: "/video/woman-walk.mp4",
+      ...messages.lifestyle.slides.elegantArrival,
+    },
+    {
+      video: "/video/woman-window.mp4",
+      ...messages.lifestyle.slides.privateMoments,
+    },
+    {
+      video: "/video/whisky.mp4",
+      ...messages.lifestyle.slides.luxuryNight,
+    },
+  ];
+
   return (
     <section id="lifestyle" className="bg-[#050505]">
       {sections.map((item) => (
@@ -68,7 +59,7 @@ export default function Lifestyle() {
           <div className="relative z-10 flex h-full items-center justify-center px-6">
             <div className="max-w-4xl text-center">
               <p className="text-sm uppercase tracking-[0.6em] text-yellow-400">
-                LIFESTYLE
+                {messages.lifestyle.label}
               </p>
 
               <h2
