@@ -54,7 +54,7 @@ export default function Hero() {
         loop
         playsInline
         preload="metadata"
-        poster="/logo.png"
+      
       >
         <source
   src={videos[currentVideo]}

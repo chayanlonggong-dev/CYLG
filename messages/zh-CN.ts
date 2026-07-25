@@ -1,11 +1,11 @@
 const zhCN = {
   nav: {
-    home: "首页",
-    collection: "名单",
-    models: "佳丽",
-    gallery: "相册",
-    contact: "联系",
-  },
+  home: "首页",
+  collection: "佳丽",
+  lifestyle: "生活方式",
+  services: "服务",
+  experience: "尊贵体验",
+},
 
   hero: {
     title: "顶级私人伴游服务",

@@ -1,11 +1,11 @@
 const zhTW = {
   nav: {
-    home: "首頁",
-    collection: "名單",
-    models: "佳麗",
-    gallery: "相簿",
-    contact: "聯絡",
-  },
+  home: "首頁",
+  collection: "佳麗",
+  lifestyle: "生活風格",
+  services: "服務",
+  experience: "尊榮體驗",
+},
 
   hero: {
     title: "頂級私人伴遊服務",

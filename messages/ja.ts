@@ -1,11 +1,11 @@
 const ja = {
   nav: {
-    home: "ホーム",
-    collection: "コレクション",
-    models: "モデル",
-    gallery: "ギャラリー",
-    contact: "お問い合わせ",
-  },
+  home: "ホーム",
+  collection: "コレクション",
+  lifestyle: "ライフスタイル",
+  services: "サービス",
+  experience: "最高級体験",
+},
 
   hero: {
     title: "最高級プライベートコンパニオンサービス",

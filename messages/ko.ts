@@ -1,11 +1,11 @@
 const ko = {
   nav: {
-    home: "홈",
-    collection: "컬렉션",
-    models: "모델",
-    gallery: "갤러리",
-    contact: "문의",
-  },
+  home: "홈",
+  collection: "컬렉션",
+  lifestyle: "라이프스타일",
+  services: "서비스",
+  experience: "프리미엄 경험",
+},
 
   hero: {
     title: "최고급 프라이빗 컴패니언 서비스",

@@ -1,11 +1,11 @@
 const en = {
   nav: {
-    home: "Home",
-    collection: "Collection",
-    models: "Models",
-    gallery: "Gallery",
-    contact: "Contact",
-  },
+  home: "Home",
+  collection: "Collection",
+  lifestyle: "Lifestyle",
+  services: "Services",
+  experience: "Experience",
+},
 
   hero: {
     title: "Luxury Elite Companion Service",

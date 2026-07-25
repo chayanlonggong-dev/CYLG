@@ -110,23 +110,23 @@ export default function Header() {
             "
           >
             <a href="#">
-  Home
+  {messages.nav.home}
 </a>
 
 <a href="#collection">
-  Collection
+  {messages.nav.collection}
 </a>
 
 <a href="#lifestyle">
-  Lifestyle
+  {messages.nav.lifestyle}
 </a>
 
 <a href="#services">
-  Services
+  {messages.nav.services}
 </a>
 
 <a href="#experience">
-  Experience
+  {messages.nav.experience}
 </a>
           </nav>
 
