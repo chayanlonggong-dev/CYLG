@@ -1,11 +1,11 @@
 const en = {
   nav: {
-  home: "Home",
-  collection: "Collection",
-  lifestyle: "Lifestyle",
-  services: "Services",
-  experience: "Experience",
-},
+    home: "Home",
+    collection: "Collection",
+    lifestyle: "Lifestyle",
+    services: "Services",
+    experience: "Experience",
+  },
 
   hero: {
     title: "Luxury Elite Companion Service",
@@ -14,6 +14,7 @@ const en = {
       "Exclusive companion experiences with worldwide private arrangements. Discreet. Elegant. Personalized.",
     button: "View Collection",
   },
+
   lifestyle: {
     label: "Lifestyle",
 
@@ -61,6 +62,42 @@ const en = {
       },
     },
   },
+
+  services: {
+    label: "SERVICES",
+
+    title: "Luxury Services",
+
+    description:
+      "Personalized premium experiences with absolute privacy and world-class service.",
+
+    items: {
+      booking: {
+        title: "Companion Booking",
+        description:
+          "Private luxury companion arrangements tailored for every occasion.",
+      },
+
+      travel: {
+        title: "Travel Companion",
+        description:
+          "Business trips, vacations and international travel experiences.",
+      },
+
+      vip: {
+        title: "VIP Events",
+        description:
+          "Exclusive parties, luxury events and premium entertainment.",
+      },
+
+      supreme: {
+        title: "Supreme Experience",
+        description:
+          "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
+      },
+    },
+  },
+
   luxury: {
     title: "Luxury Beyond Expectations",
     subtitle:

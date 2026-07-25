@@ -61,6 +61,41 @@ lifestyle: {
     },
   },
 },
+
+services: {
+  label: "サービス",
+
+  title: "ラグジュアリーサービス",
+
+  description:
+    "完全なプライバシーと世界最高水準のサービスを提供するプレミアム体験。",
+
+  items: {
+    booking: {
+      title: "コンパニオン予約",
+      description:
+        "あらゆるシーンに合わせた高級プライベートコンパニオンサービス。",
+    },
+
+    travel: {
+      title: "トラベルコンパニオン",
+      description:
+        "出張、旅行、海外滞在まで専属でサポートします。",
+    },
+
+    vip: {
+      title: "VIPイベント",
+      description:
+        "高級パーティーや限定イベントへのエレガントな同行。",
+    },
+
+    supreme: {
+      title: "最高級エクスペリエンス",
+      description:
+        "ラグジュアリー・プライバシー・専属サービスの最高峰をご体験ください。",
+    },
+  },
+},
   luxury: {
     title: "期待を超えるラグジュアリー",
     subtitle:

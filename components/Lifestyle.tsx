@@ -58,8 +58,8 @@ export default function Lifestyle() {
 
           <div className="relative z-10 flex h-full items-center justify-center px-6">
             <div className="max-w-4xl text-center">
-              <p className="text-sm uppercase tracking-[0.6em] text-red-500">
-  TEST 123
+              <p className="text-sm uppercase tracking-[0.6em] text-yellow-400">
+  {messages.lifestyle.label}
 </p>
 
               <h2
@@ -68,7 +68,7 @@ export default function Lifestyle() {
                   fontFamily: "var(--font-cinzel)",
                 }}
               >
-                {messages.hero.title}
+                {item.title}
               </h2>
 
               <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-gray-300 sm:text-xl sm:leading-9">

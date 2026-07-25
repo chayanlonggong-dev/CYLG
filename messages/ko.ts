@@ -61,6 +61,41 @@ lifestyle: {
     },
   },
 },
+
+services: {
+  label: "서비스",
+
+  title: "럭셔리 서비스",
+
+  description:
+    "완벽한 프라이버시와 세계 최고 수준의 서비스를 제공하는 프리미엄 경험.",
+
+  items: {
+    booking: {
+      title: "컴패니언 예약",
+      description:
+        "모든 상황에 맞춘 프리미엄 프라이빗 컴패니언 서비스.",
+    },
+
+    travel: {
+      title: "여행 컴패니언",
+      description:
+        "출장, 여행, 해외 일정까지 전담으로 함께합니다.",
+    },
+
+    vip: {
+      title: "VIP 이벤트",
+      description:
+        "프리미엄 파티와 특별한 행사에 우아하게 동행합니다.",
+    },
+
+    supreme: {
+      title: "최고급 경험",
+      description:
+        "럭셔리, 프라이버시 그리고 전담 서비스를 최고의 수준으로 경험하세요.",
+    },
+  },
+},
   luxury: {
     title: "기대를 뛰어넘는 럭셔리",
     subtitle:

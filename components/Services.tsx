@@ -1,29 +1,17 @@
 "use client";
 
-const services = [
-  {
-    title: "Companion Booking",
-    description:
-      "Private luxury companion arrangements tailored for every occasion.",
-  },
-  {
-    title: "Travel Companion",
-    description:
-      "Business trips, vacations and international travel experiences.",
-  },
-  {
-    title: "VIP Events",
-    description:
-      "Exclusive parties, luxury events and premium entertainment.",
-  },
-  {
-    title: "Supreme Experience",
-    description:
-      "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
-  },
-];
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 export default function Services() {
+  const { messages } = useLanguage();
+
+  const services = [
+    messages.services.items.booking,
+    messages.services.items.travel,
+    messages.services.items.vip,
+    messages.services.items.supreme,
+  ];
+
   return (
     <section
       id="services"
@@ -32,16 +20,15 @@ export default function Services() {
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.6em] text-yellow-400">
-            SERVICES
+            {messages.services.label}
           </p>
 
           <h2 className="mt-6 text-5xl font-black text-white">
-            Luxury Services
+            {messages.services.title}
           </h2>
 
           <p className="mx-auto mt-8 max-w-3xl text-lg leading-9 text-gray-300">
-            Personalized premium experiences with absolute privacy and world-class
-            service.
+            {messages.services.description}
           </p>
         </div>
 

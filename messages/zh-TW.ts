@@ -61,6 +61,41 @@ lifestyle: {
     },
   },
 },
+
+services: {
+  label: "服務",
+
+  title: "尊榮服務",
+
+  description:
+    "提供絕對私密與世界級品質的專屬高端服務體驗。",
+
+  items: {
+    booking: {
+      title: "私人伴遊預約",
+      description:
+        "依照不同場合提供專屬高端私人伴遊服務。",
+    },
+
+    travel: {
+      title: "旅遊伴遊",
+      description:
+        "商務出差、度假及海外行程全程陪同。",
+    },
+
+    vip: {
+      title: "VIP 活動",
+      description:
+        "陪同出席高端派對、商務宴會及尊榮活動。",
+    },
+
+    supreme: {
+      title: "至尊體驗",
+      description:
+        "體驗奢華、私密與專屬服務帶來的極致享受。",
+    },
+  },
+},
   luxury: {
     title: "超越期待的奢華體驗",
     subtitle:
