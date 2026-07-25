@@ -12,7 +12,7 @@ import LuxuryExperience from "../components/LuxuryExperience";
 import CollectionCards from "../components/CollectionCards";
 import FloatingContact from "../components/FloatingContact";
 import HomeContactPopup from "../components/HomeContactPopup";
-
+import Footer from "../components/Footer";
 
 
 interface HomeClientProps {
