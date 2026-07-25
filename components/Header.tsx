@@ -121,7 +121,7 @@ export default function Header() {
   Lifestyle
 </a>
 
-<a href="#">
+<a href="#services">
   Services
 </a>
 
