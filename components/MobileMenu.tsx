@@ -73,17 +73,17 @@ export default function MobileMenu({
             Collection
           </a>
 
-          <a href="#" onClick={onClose}>
-  Lifestyle
-</a>
+          <a href="#lifestyle" onClick={onClose}>
+            Lifestyle
+          </a>
 
-<a href="#" onClick={onClose}>
-  Services
-</a>
+          <a href="#services" onClick={onClose}>
+            Services
+          </a>
 
-<a href="#" onClick={onClose}>
-  Experience
-</a>
+          <a href="#experience" onClick={onClose}>
+            Experience
+          </a>
         </nav>
       </aside>
     </>
