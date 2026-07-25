@@ -48,9 +48,10 @@ export default function LevelCard({
         transition-all
         duration-500
         hover:-translate-y-2
+hover:scale-[1.03]
         hover:border-yellow-400
         hover:bg-[#181818]
-        hover:shadow-[0_0_50px_rgba(255,215,0,.18)]
+        hover:shadow-[0_0_80px_rgba(212,175,55,.35)]
         sm:p-7
         lg:p-8
       "
@@ -86,7 +87,10 @@ export default function LevelCard({
             text-2xl
             font-bold
             text-yellow-500
-            sm:text-3xl
+transition-all
+duration-300
+group-hover:text-yellow-300
+sm:text-3xl
           "
         >
           {titleMap[level]}
@@ -127,6 +131,23 @@ export default function LevelCard({
             {messages.collection.profiles}
           </span>
         </div>
+        
+        <div
+  className="
+    pt-6
+    text-sm
+    font-semibold
+    uppercase
+    tracking-[0.25em]
+    text-yellow-400
+    opacity-0
+    transition-all
+    duration-300
+    group-hover:opacity-100
+  "
+>
+  View Collection →
+</div>
       </div>
     </Link>  
   );
