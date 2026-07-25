@@ -68,7 +68,7 @@ export default function Lifestyle() {
                   fontFamily: "var(--font-cinzel)",
                 }}
               >
-                {item.title}
+                {messages.hero.title}
               </h2>
 
               <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-gray-300 sm:text-xl sm:leading-9">
