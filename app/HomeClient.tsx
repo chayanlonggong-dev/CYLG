@@ -7,6 +7,7 @@ import {
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Lifestyle from "../components/Lifestyle";
+import Services from "../components/Services";
 import LuxuryExperience from "../components/LuxuryExperience";
 import CollectionCards from "../components/CollectionCards";
 import FloatingContact from "../components/FloatingContact";
@@ -71,7 +72,7 @@ export default function HomeClient({
         <Hero />
 
 <Lifestyle />
-
+<Services />
 <LuxuryExperience />
 
 <CollectionCards />
