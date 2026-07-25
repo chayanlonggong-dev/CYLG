@@ -2,25 +2,29 @@
 
 const services = [
   {
+    icon: "👑",
     title: "Companion Booking",
     description:
       "Private luxury companion arrangements tailored for every occasion.",
   },
   {
+    icon: "✈️",
     title: "Travel Companion",
     description:
       "Business trips, vacations and international travel experiences.",
   },
   {
+    icon: "🥂",
     title: "VIP Events",
     description:
       "Exclusive parties, luxury events and premium entertainment.",
   },
   {
-  title: "Supreme Experience",
-  description:
-    "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
-},
+    icon: "💎",
+    title: "Supreme Experience",
+    description:
+      "Experience the highest standard of luxury, privacy and personalized companionship beyond expectations.",
+  },
 ];
 
 export default function Services() {
@@ -49,21 +53,45 @@ export default function Services() {
             <div
               key={service.title}
               className="
+                group
                 rounded-3xl
                 border
                 border-yellow-500/20
                 bg-[#111111]
                 p-10
-                transition
-                duration-300
+                transition-all
+                duration-500
+                hover:-translate-y-2
+                hover:scale-[1.02]
                 hover:border-yellow-400
+                hover:shadow-[0_0_40px_rgba(212,175,55,0.25)]
               "
             >
-              <h3 className="text-2xl font-bold text-yellow-400">
+              <div className="text-5xl">
+                {service.icon}
+              </div>
+
+              <h3
+                className="
+                  mt-6
+                  text-2xl
+                  font-bold
+                  text-yellow-400
+                  transition-colors
+                  duration-300
+                  group-hover:text-yellow-300
+                "
+              >
                 {service.title}
               </h3>
 
-              <p className="mt-6 leading-8 text-gray-300">
+              <p
+                className="
+                  mt-6
+                  leading-8
+                  text-gray-300
+                "
+              >
                 {service.description}
               </p>
             </div>
