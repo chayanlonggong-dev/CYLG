@@ -6,6 +6,7 @@ import {
 
 import AvatarUpload from "./AvatarUpload";
 import GalleryUpload from "./GalleryUpload";
+import VideoUpload from "./VideoUpload";
 import IntroductionEditor from "./IntroductionEditor";
 
 import { LEVELS } from "@/app/data/options";
@@ -39,25 +40,16 @@ export default function AddModelForm({
     useState<string[]>([]);
 
 
-  const [introductionEn,setIntroductionEn] =
-    useState("");
+  const [videos,setVideos] =
+    useState<string[]>([]);
 
 
-  const [introductionZhCN,setIntroductionZhCN] =
-    useState("");
-
-
-  const [introductionJa,setIntroductionJa] =
-    useState("");
-
-
-  const [introductionKo,setIntroductionKo] =
+  const [introduction,setIntroduction] =
     useState("");
 
 
   const [loading,setLoading] =
     useState(false);
-
 
 
 
@@ -103,20 +95,27 @@ export default function AddModelForm({
 
 
               videos:
+                videos.join(","),
+
+
+              introductionEn:
+                introduction,
+
+
+              introductionZhTW:
                 "",
 
 
-              introductionEn,
+              introductionZhCN:
+                "",
 
 
-              introductionZhCN,
+              introductionJa:
+                "",
 
 
-              introductionJa,
-
-
-              introductionKo,
-
+              introductionKo:
+                "",
 
             }),
 
@@ -125,19 +124,17 @@ export default function AddModelForm({
 
 
 
+
       const result =
         await response.json();
-
 
 
 
       if(!response.ok){
 
         throw new Error(
-
           result.message ||
           "Create model failed."
-
         );
 
       }
@@ -146,9 +143,7 @@ export default function AddModelForm({
 
 
       alert(
-
         `Model Created: ${result.code}`
-
       );
 
 
@@ -156,8 +151,8 @@ export default function AddModelForm({
       resetForm();
 
 
-      onSuccess?.();
 
+      onSuccess?.();
 
 
 
@@ -171,11 +166,12 @@ export default function AddModelForm({
       alert(
 
         error instanceof Error
+
         ? error.message
+
         : String(error)
 
       );
-
 
 
     }finally{
@@ -192,37 +188,22 @@ export default function AddModelForm({
 
 
 
-
-
   function resetForm(){
 
 
     setLevel("CROWN");
 
-
     setTitle("");
-
 
     setAvatar("");
 
-
     setGallery([]);
 
+    setVideos([]);
 
-    setIntroductionEn("");
-
-
-    setIntroductionZhCN("");
-
-
-    setIntroductionJa("");
-
-
-    setIntroductionKo("");
+    setIntroduction("");
 
   }
-
-
 
 
 
@@ -273,8 +254,6 @@ Add New Model
 
 
 
-
-
 <div className="mt-10 max-w-md">
 
 
@@ -298,9 +277,7 @@ Level
 value={level}
 
 onChange={(e)=>
-setLevel(
-e.target.value
-)
+setLevel(e.target.value)
 }
 
 
@@ -321,11 +298,17 @@ text-white
 LEVELS.map(item=>(
 
 <option
+
 key={item}
+
 value={item}
+
 >
+
 {item}
+
 </option>
+
 
 ))
 }
@@ -335,8 +318,6 @@ value={item}
 
 
 </div>
-
-
 
 
 
@@ -355,9 +336,10 @@ tracking-[0.2em]
 text-yellow-500
 "
 >
-Title
-</label>
 
+Title
+
+</label>
 
 
 <input
@@ -365,9 +347,7 @@ Title
 value={title}
 
 onChange={(e)=>
-setTitle(
-e.target.value
-)
+setTitle(e.target.value)
 }
 
 
@@ -394,7 +374,6 @@ text-white
 
 
 
-
 <div className="mt-12">
 
 <AvatarUpload
@@ -406,7 +385,6 @@ onChange={setAvatar}
 />
 
 </div>
-
 
 
 
@@ -430,22 +408,35 @@ onChange={setGallery}
 
 
 
+<div className="mt-12">
 
-{/* ONLY ONE INTRODUCTION */}
+<VideoUpload
+
+value={videos}
+
+onChange={setVideos}
+
+/>
+
+</div>
+
+
+
+
+
+
 
 <div className="mt-12">
 
 <IntroductionEditor
 
-value={introductionEn}
+value={introduction}
 
-onChange={setIntroductionEn}
+onChange={setIntroduction}
 
 />
 
-
 </div>
-
 
 
 
@@ -465,19 +456,16 @@ gap-4
 >
 
 
-
 <button
 
 type="button"
 
-onClick={()=>{
 
+onClick={()=>{
 
 resetForm();
 
-
 onSuccess?.();
-
 
 }}
 
@@ -504,13 +492,12 @@ Cancel
 
 
 
-
-
 <button
 
 type="button"
 
 onClick={handleSave}
+
 
 disabled={loading}
 
@@ -532,17 +519,11 @@ text-black
 
 
 {
-
 loading
-
 ?
-
 "Saving..."
-
 :
-
 "Save Model"
-
 }
 
 
@@ -556,6 +537,7 @@ loading
 
 
 </div>
+
 
   );
 
