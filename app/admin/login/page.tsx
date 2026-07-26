@@ -297,17 +297,19 @@ useEffect(() => {
 
         <input
 
-          placeholder="Username"
+  placeholder="Username"
 
-          value={username}
+  autoComplete="off"
 
-          onChange={(e)=>
-            setUsername(
-              e.target.value
-            )
-          }
+  value={username}
 
-          className="
+  onChange={(e)=>
+    setUsername(
+      e.target.value
+    )
+  }
+
+  className="
             mb-5
             w-full
             rounded-xl
@@ -333,6 +335,8 @@ useEffect(() => {
             type={showPassword ? "text" : "password"}
 
             placeholder="Password"
+
+autoComplete="current-password"
 
             value={password}
 

@@ -205,22 +205,19 @@ export default function DashboardPage() {
 
 
 
-  async function logout(){
+  async function logout() {
 
+  await fetch("/api/admin/logout", {
+    method: "POST",
+  });
 
-    await fetch(
-      "/api/admin/logout",
-      {
-        method:"POST",
-      }
-    );
+  localStorage.clear();
 
+  sessionStorage.clear();
 
-    window.location.href =
-      "/admin/login";
+  window.location.replace("/admin/login");
 
-
-  }
+}
 
 
 
