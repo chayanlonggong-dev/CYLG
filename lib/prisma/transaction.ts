@@ -1,17 +1,27 @@
-import { PrismaClient } from "@prisma/client";
+import {
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
 
-const prisma = new PrismaClient();
+import {
+  prisma,
+} from "./index";
 
-export async function runTransaction<T>(
-  callback: (tx: PrismaClient) => Promise<T>
+
+export async function transaction<T>(
+  callback: (
+    tx: Prisma.TransactionClient
+  ) => Promise<T>
 ): Promise<T> {
-  return prisma.$transaction(async (tx) => {
-    return callback(tx as PrismaClient);
-  });
-}
 
-export async function runBatch(
-  operations: Parameters<PrismaClient["$transaction"]>[0]
-) {
-  return prisma.$transaction(operations);
+  return prisma.$transaction(
+    async (
+      tx: Prisma.TransactionClient
+    ) => {
+
+      return callback(tx);
+
+    }
+  );
+
 }

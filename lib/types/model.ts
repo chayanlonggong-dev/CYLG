@@ -1,4 +1,9 @@
-import type { ModelLevel } from "@prisma/client";
+export type ModelLevel =
+  | "CROWN"
+  | "SSS"
+  | "SS"
+  | "S"
+  | "A";
 
 export interface ModelBasic {
   id: number;

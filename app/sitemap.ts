@@ -49,7 +49,7 @@ export default async function sitemap()
 
 
   const modelUrls =
-    models.map((model)=>({
+    models.map((model: any)=>({
 
       url:
         `${baseUrl}/models/${model.code}`,

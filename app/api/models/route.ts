@@ -39,7 +39,7 @@ export async function GET(
 
 
     const filtered =
-      models.filter((model)=>{
+  models.filter((model: any)=>{
 
 
         const matchLevel =

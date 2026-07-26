@@ -18,6 +18,18 @@ import {
 } from "crypto";
 
 
+import {
+  verifySync,
+} from "otplib";
+
+
+
+const MAX_LOGIN_ATTEMPTS = 5;
+
+const LOCK_TIME =
+  15 * 60 * 1000;
+
+
 
 export async function POST(
   request: Request
@@ -37,7 +49,6 @@ export async function POST(
 
     const password =
       body.password;
-
 
 
     const twoFactorToken =
@@ -91,6 +102,30 @@ export async function POST(
 
 
 
+    // =========================
+    // Account Lock Check
+    // =========================
+
+    if (
+      adminUser.lockedUntil
+      &&
+      adminUser.lockedUntil > new Date()
+    ) {
+
+      return NextResponse.json(
+        {
+          message:
+            "Account temporarily locked. Try again later.",
+        },
+        {
+          status:423,
+        }
+      );
+
+    }
+
+
+
     const valid =
       verifyPassword(
         password,
@@ -99,7 +134,57 @@ export async function POST(
 
 
 
+    // =========================
+    // Failed Login Handling
+    // =========================
+
     if (!valid) {
+
+
+      const attempts =
+        adminUser.failedLoginAttempts + 1;
+
+
+
+      const shouldLock =
+        attempts >= MAX_LOGIN_ATTEMPTS;
+
+
+
+      await prisma.adminUser.update({
+
+        where:{
+          id:
+            adminUser.id,
+        },
+
+
+        data:{
+
+          failedLoginAttempts:
+            shouldLock
+            ?
+            0
+            :
+            attempts,
+
+
+          lockedUntil:
+            shouldLock
+            ?
+            new Date(
+              Date.now()
+              +
+              LOCK_TIME
+            )
+            :
+            null,
+
+        },
+
+      });
+
+
 
       return NextResponse.json(
         {
@@ -116,6 +201,40 @@ export async function POST(
 
 
     // =========================
+    // Reset Failed Attempts
+    // =========================
+
+    if (
+      adminUser.failedLoginAttempts > 0
+      ||
+      adminUser.lockedUntil
+    ) {
+
+      await prisma.adminUser.update({
+
+        where:{
+          id:
+            adminUser.id,
+        },
+
+
+        data:{
+
+          failedLoginAttempts:
+            0,
+
+          lockedUntil:
+            null,
+
+        },
+
+      });
+
+    }
+
+
+
+    // =========================
     // 2FA Check
     // =========================
 
@@ -124,9 +243,9 @@ export async function POST(
     ) {
 
 
-      if (
+      if(
         !twoFactorToken
-      ) {
+      ){
 
         return NextResponse.json(
           {
@@ -144,9 +263,9 @@ export async function POST(
 
 
 
-      if (
+      if(
         !adminUser.twoFactorSecret
-      ) {
+      ){
 
         return NextResponse.json(
           {
@@ -161,27 +280,22 @@ export async function POST(
       }
 
 
-      const {
-        verifySync,
-      } = await import(
-        "otplib"
-      );
-
 
       const verified =
-  verifySync({
+        verifySync({
 
-    token:
-      twoFactorToken,
-
-    secret:
-      adminUser.twoFactorSecret,
-
-  });
+          token:
+            twoFactorToken,
 
 
+          secret:
+            adminUser.twoFactorSecret,
 
-      if (!verified) {
+        });
+
+
+
+      if(!verified){
 
         return NextResponse.json(
           {
@@ -206,7 +320,7 @@ export async function POST(
 
     const token =
       randomBytes(32)
-        .toString("hex");
+      .toString("hex");
 
 
 
@@ -225,9 +339,9 @@ export async function POST(
 
     const ip =
       request.headers
-        .get("x-forwarded-for")
-        ?.split(",")[0]
-        ?.trim()
+      .get("x-forwarded-for")
+      ?.split(",")[0]
+      ?.trim()
       ||
       request.headers.get("x-real-ip")
       ||
@@ -270,16 +384,13 @@ export async function POST(
 
     const response =
       NextResponse.json(
-
         {
           message:
             "Login successful.",
         },
-
         {
           status:200,
         }
-
       );
 
 
@@ -328,18 +439,14 @@ export async function POST(
     );
 
 
-
     return NextResponse.json(
-
       {
         message:
           "Internal server error.",
       },
-
       {
         status:500,
       }
-
     );
 
   }

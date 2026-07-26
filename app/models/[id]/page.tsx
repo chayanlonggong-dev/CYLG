@@ -8,53 +8,41 @@ import ModelVideos from "@/components/model/ModelVideos";
 
 
 interface PageProps {
-
   params: Promise<{
-    id:string;
+    id: string;
   }>;
-
 }
 
 
-
 export default async function ModelPage({
-
   params,
+}: PageProps) {
 
-}:PageProps){
 
-
-  const { id } =
-    await params;
-
+  const { id } = await params;
 
 
   const model =
     await prisma.model.findFirst({
 
-      where:{
-        code:id,
+      where: {
+        code: id,
       },
 
     });
 
 
-
-  if(!model){
-
+  if (!model) {
     notFound();
-
   }
-
-
 
 
 
   const settings =
     await prisma.websiteSettings.findUnique({
 
-      where:{
-        id:1,
+      where: {
+        id: 1,
       },
 
     });
@@ -63,16 +51,14 @@ export default async function ModelPage({
 
 
 
-
-
-  const gallery =
+  const gallery: string[] =
 
     model.gallery
 
       ? model.gallery
           .split(",")
           .map(
-            item=>item.trim()
+            (item: string) => item.trim()
           )
           .filter(Boolean)
 
@@ -82,16 +68,14 @@ export default async function ModelPage({
 
 
 
-
-
-  const languages =
+  const languages: string[] =
 
     model.languages
 
       ? model.languages
           .split(",")
           .map(
-            item=>item.trim()
+            (item: string) => item.trim()
           )
           .filter(Boolean)
 
@@ -102,62 +86,31 @@ export default async function ModelPage({
 
 
 
+  const videos: string[] =
+
+    model.videos
+
+      ? model.videos
+          .split(",")
+          .map(
+            (item: string) => item.trim()
+          )
+          .filter(Boolean)
+
+      : [];
 
 
 
-  const images = [
+
+
+
+  const images: string[] = [
 
     model.avatar,
 
     ...gallery,
 
   ].filter(Boolean);
-
-
-
-
-
-
-
-
-  // ============================
-  // DEBUG
-  // ============================
-
-  console.log(
-    "========== MODEL DEBUG =========="
-  );
-
-
-  console.log(
-    "MODEL CODE:",
-    model.code
-  );
-
-
-  console.log(
-    "MODEL AVATAR:",
-    model.avatar
-  );
-
-
-  console.log(
-    "MODEL GALLERY:",
-    gallery
-  );
-
-
-  console.log(
-    "FINAL IMAGES:",
-    images
-  );
-
-
-  console.log(
-    "================================="
-  );
-
-
 
 
 
@@ -187,7 +140,6 @@ export default async function ModelPage({
         }
 
 
-
         whatsapp={
           settings?.whatsapp ?? ""
         }
@@ -211,7 +163,6 @@ export default async function ModelPage({
         wechatQr={
           settings?.wechatQr ?? ""
         }
-
 
 
         enableWhatsapp={
@@ -238,10 +189,7 @@ export default async function ModelPage({
           settings?.enableWechat ?? false
         }
 
-
       />
-
-
 
 
 
@@ -258,9 +206,7 @@ export default async function ModelPage({
           images
         }
 
-
       />
-
 
 
 
@@ -270,18 +216,7 @@ export default async function ModelPage({
       <ModelVideos
 
         videos={
-
-          model.videos
-
-            ? model.videos
-                .split(",")
-                .map(
-                  item=>item.trim()
-                )
-                .filter(Boolean)
-
-            : []
-
+          videos
         }
 
       />
@@ -291,10 +226,7 @@ export default async function ModelPage({
 
 
 
-
-
       <ModelInfo
-
 
         age={
           model.age
@@ -330,9 +262,7 @@ export default async function ModelPage({
           model.introduction || ""
         }
 
-
       />
-
 
 
 
