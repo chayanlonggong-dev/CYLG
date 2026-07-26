@@ -1,25 +1,15 @@
 "use client";
 
-
 interface IntroductionEditorProps {
   value?: string;
   onChange?: (value: string) => void;
-  placeholder?: string;
 }
 
 
-
 export default function IntroductionEditor({
-
   value = "",
-
   onChange,
-
-  placeholder = "Write profile introduction...",
-
-
 }: IntroductionEditorProps) {
-
 
 
   function handleChange(
@@ -49,11 +39,8 @@ export default function IntroductionEditor({
           text-yellow-500
         "
       >
-
         Introduction
-
       </label>
-
 
 
 
@@ -67,7 +54,29 @@ export default function IntroductionEditor({
 
         maxLength={5000}
 
-        placeholder={placeholder}
+
+        placeholder={`Paste the complete profile...
+
+Example
+
+Age : 22
+
+Height : 168 cm
+
+Nationality : Japanese
+
+Languages
+English
+Japanese
+
+Introduction...
+
+Services...
+
+Notes...
+
+`}
+
 
         className="
           w-full
@@ -89,7 +98,6 @@ export default function IntroductionEditor({
 
 
 
-
       <div
         className="
           mt-4
@@ -106,9 +114,7 @@ export default function IntroductionEditor({
             text-gray-500
           "
         >
-
           Supports multi-line text. Formatting will be preserved.
-
         </p>
 
 
@@ -118,15 +124,12 @@ export default function IntroductionEditor({
             text-yellow-500
           "
         >
-
           {value.length} / 5000 Characters
-
         </span>
 
 
 
       </div>
-
 
 
 
