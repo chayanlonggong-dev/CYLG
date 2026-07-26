@@ -1,11 +1,13 @@
 import { prisma } from "./prisma";
 
+
 type ModelLevel =
   | "CROWN"
   | "SSS"
   | "SS"
   | "S"
   | "A";
+
 
 
 const LEVEL_ORDER: ModelLevel[] = [
@@ -17,49 +19,86 @@ const LEVEL_ORDER: ModelLevel[] = [
 ];
 
 
+
+
+
+// =======================
+// GET ALL MODELS
+// =======================
+
 export async function getAllModels() {
+
   return prisma.model.findMany({
+
     orderBy: [
+
       {
         level: "asc",
       },
+
       {
         number: "asc",
       },
+
     ],
+
   });
+
 }
 
 
-export async function getModelById(id: number) {
+
+
+
+
+
+// =======================
+// GET MODEL BY ID
+// =======================
+
+export async function getModelById(
+  id:number
+) {
+
   return prisma.model.findUnique({
-    where: {
+
+    where:{
       id,
     },
+
   });
+
 }
 
 
 
-/**
- * Auto generate model number
- *
- * SS001
- * SS002
- */
+
+
+
+
+// =======================
+// GENERATE MODEL CODE
+// =======================
+
 export async function generateModelCode(
-  level: ModelLevel
+  level:ModelLevel
 ) {
+
 
   const latest =
     await prisma.model.findFirst({
-      where: {
+
+      where:{
         level,
       },
-      orderBy: {
-        number: "desc",
+
+
+      orderBy:{
+        number:"desc",
       },
+
     });
+
 
 
   const nextNumber =
@@ -68,65 +107,80 @@ export async function generateModelCode(
       : 1;
 
 
-  const code =
-    `${level}${String(nextNumber).padStart(3, "0")}`;
-
 
   return {
-    number: nextNumber,
-    code,
+
+    number:
+      nextNumber,
+
+
+    code:
+      `${level}${String(nextNumber).padStart(3,"0")}`,
+
   };
 
 }
 
 
 
-/**
- * Create Model
- *
- * Auto number + code
- */
-export async function createModel(data: {
 
-  level: ModelLevel;
 
-  title?: string;
 
-  nationality?: string;
 
-  city?: string;
 
-  age?: number;
 
-  height?: number;
+// =======================
+// CREATE MODEL
+// =======================
 
-  weight?: number;
+export async function createModel(
 
-  languages?: string;
+data:{
 
-  services?: string;
+  level:ModelLevel;
 
-  avatar?: string;
+  title?:string;
 
-  gallery?: string;
+  nationality?:string;
 
-  videos?: string;
+  city?:string;
 
-  introductionEn?: string;
+  age?:number;
 
-  introductionZhTW?: string;
+  height?:number;
 
-  introductionZhCN?: string;
+  weight?:number;
 
-  introductionJa?: string;
+  languages?:string;
 
-  introductionKo?: string;
+  services?:string;
 
-  online?: boolean;
+  avatar?:string;
 
-  featured?: boolean;
+  gallery?:string;
 
-}) {
+  videos?:string;
+
+
+  introductionEn?:string;
+
+  introductionZhTW?:string;
+
+  introductionZhCN?:string;
+
+  introductionJa?:string;
+
+  introductionKo?:string;
+
+
+  online?:boolean;
+
+  featured?:boolean;
+
+}
+
+){
+
 
 
   const generated =
@@ -135,18 +189,117 @@ export async function createModel(data: {
     );
 
 
+
+
   return prisma.model.create({
 
-    data: {
+    data:{
 
-      ...data,
+
+      level:
+        data.level,
+
 
       number:
         generated.number,
 
+
       code:
         generated.code,
 
+
+
+      title:
+        data.title ?? "",
+
+
+
+      nationality:
+        data.nationality ?? "",
+
+
+
+      city:
+        data.city ?? "",
+
+
+
+      age:
+        data.age ?? 18,
+
+
+
+      height:
+        data.height ?? 160,
+
+
+
+      weight:
+        data.weight ?? 50,
+
+
+
+      languages:
+        data.languages ?? "",
+
+
+
+      services:
+        data.services ?? "",
+
+
+
+      avatar:
+        data.avatar ?? "",
+
+
+
+      gallery:
+        data.gallery ?? "",
+
+
+
+      videos:
+        data.videos ?? "",
+
+
+
+
+      introductionEn:
+        data.introductionEn ?? "",
+
+
+
+      introductionZhTW:
+        data.introductionZhTW ?? "",
+
+
+
+      introductionZhCN:
+        data.introductionZhCN ?? "",
+
+
+
+      introductionJa:
+        data.introductionJa ?? "",
+
+
+
+      introductionKo:
+        data.introductionKo ?? "",
+
+
+
+
+      online:
+        data.online ?? true,
+
+
+
+      featured:
+        data.featured ?? false,
+
+
     },
 
   });
@@ -157,62 +310,166 @@ export async function createModel(data: {
 
 
 
+
+
+
+
+// =======================
+// UPDATE MODEL
+// =======================
+
 export async function updateModel(
-  id: number,
-  data: {
 
-    level?: ModelLevel;
+id:number,
 
-    number?: number;
+data:{
 
-    code?: string;
+  level?:ModelLevel;
 
-    title?: string;
+  number?:number;
 
-    nationality?: string;
+  code?:string;
 
-    city?: string;
+  title?:string;
 
-    age?: number;
+  nationality?:string;
 
-    height?: number;
+  city?:string;
 
-    weight?: number;
+  age?:number;
 
-    languages?: string;
+  height?:number;
 
-    services?: string;
+  weight?:number;
 
-    avatar?: string;
+  languages?:string;
 
-    gallery?: string;
+  services?:string;
 
-    videos?: string;
+  avatar?:string;
 
-    introductionEn?: string;
+  gallery?:string;
 
-introductionZhTW?: string;
+  videos?:string;
 
-introductionZhCN?: string;
 
-introductionJa?: string;
+  introductionEn?:string;
 
-introductionKo?: string;
+  introductionZhTW?:string;
 
-    online?: boolean;
+  introductionZhCN?:string;
 
-    featured?: boolean;
+  introductionJa?:string;
 
-  }
-) {
+  introductionKo?:string;
+
+
+  online?:boolean;
+
+  featured?:boolean;
+
+}
+
+){
+
 
   return prisma.model.update({
 
-    where: {
+    where:{
       id,
     },
 
-    data,
+
+    data:{
+
+
+      level:
+        data.level,
+
+
+      number:
+        data.number,
+
+
+      code:
+        data.code,
+
+
+      title:
+        data.title,
+
+
+      nationality:
+        data.nationality,
+
+
+      city:
+        data.city,
+
+
+      age:
+        data.age,
+
+
+      height:
+        data.height,
+
+
+      weight:
+        data.weight,
+
+
+      languages:
+        data.languages,
+
+
+      services:
+        data.services,
+
+
+      avatar:
+        data.avatar,
+
+
+      gallery:
+        data.gallery,
+
+
+      videos:
+        data.videos,
+
+
+
+      introductionEn:
+        data.introductionEn,
+
+
+      introductionZhTW:
+        data.introductionZhTW,
+
+
+      introductionZhCN:
+        data.introductionZhCN,
+
+
+      introductionJa:
+        data.introductionJa,
+
+
+      introductionKo:
+        data.introductionKo,
+
+
+
+      online:
+        data.online,
+
+
+      featured:
+        data.featured,
+
+
+    },
 
   });
 
@@ -222,13 +479,21 @@ introductionKo?: string;
 
 
 
+
+
+
+
+// =======================
+// DELETE MODEL
+// =======================
+
 export async function deleteModel(
-  id: number
-) {
+id:number
+){
 
   return prisma.model.delete({
 
-    where: {
+    where:{
       id,
     },
 
