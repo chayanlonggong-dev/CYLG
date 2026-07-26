@@ -6,7 +6,6 @@ import {
 
 import AvatarUpload from "./AvatarUpload";
 import GalleryUpload from "./GalleryUpload";
-import VideoUpload from "./VideoUpload";
 import IntroductionEditor from "./IntroductionEditor";
 
 import { LEVELS } from "@/app/data/options";
@@ -17,13 +16,11 @@ interface AddModelFormProps {
 }
 
 
-
 export default function AddModelForm({
 
   onSuccess,
 
 }: AddModelFormProps) {
-
 
 
   const [level,setLevel] =
@@ -34,44 +31,32 @@ export default function AddModelForm({
     useState("");
 
 
-
   const [avatar,setAvatar] =
     useState("");
-
 
 
   const [gallery,setGallery] =
     useState<string[]>([]);
 
 
-
-  const [videos,setVideos] =
-    useState<string[]>([]);
-
+  const [introductionEn,setIntroductionEn] =
+    useState("");
 
 
-  const [introductionEn, setIntroductionEn] =
-  useState("");
+  const [introductionZhCN,setIntroductionZhCN] =
+    useState("");
 
-const [introductionZhTW, setIntroductionZhTW] =
-  useState("");
 
-const [introductionZhCN, setIntroductionZhCN] =
-  useState("");
+  const [introductionJa,setIntroductionJa] =
+    useState("");
 
-const [introductionJa, setIntroductionJa] =
-  useState("");
 
-const [introductionKo, setIntroductionKo] =
-  useState("");
-
+  const [introductionKo,setIntroductionKo] =
+    useState("");
 
 
   const [loading,setLoading] =
     useState(false);
-
-
-
 
 
 
@@ -83,12 +68,10 @@ const [introductionKo, setIntroductionKo] =
       return;
 
 
-
     try{
 
 
       setLoading(true);
-
 
 
 
@@ -99,19 +82,15 @@ const [introductionKo, setIntroductionKo] =
 
             method:"POST",
 
-
             headers:{
-
               "Content-Type":
                 "application/json",
-
             },
 
 
             body:JSON.stringify({
 
               level,
-
 
               title,
 
@@ -123,31 +102,26 @@ const [introductionKo, setIntroductionKo] =
                 gallery.join(","),
 
 
-
               videos:
-                videos.join(","),
-
+                "",
 
 
               introductionEn,
 
-introductionZhTW,
 
-introductionZhCN,
+              introductionZhCN,
 
-introductionJa,
 
-introductionKo,
+              introductionJa,
+
+
+              introductionKo,
+
 
             }),
 
-
           }
         );
-
-
-
-
 
 
 
@@ -157,10 +131,7 @@ introductionKo,
 
 
 
-
-
       if(!response.ok){
-
 
         throw new Error(
 
@@ -169,11 +140,7 @@ introductionKo,
 
         );
 
-
       }
-
-
-
 
 
 
@@ -186,11 +153,7 @@ introductionKo,
 
 
 
-
-
       resetForm();
-
-
 
 
       onSuccess?.();
@@ -198,9 +161,7 @@ introductionKo,
 
 
 
-
     }catch(error){
-
 
 
       console.error(error);
@@ -210,13 +171,10 @@ introductionKo,
       alert(
 
         error instanceof Error
-
         ? error.message
-
         : String(error)
 
       );
-
 
 
 
@@ -236,11 +194,7 @@ introductionKo,
 
 
 
-
-
-
   function resetForm(){
-
 
 
     setLevel("CROWN");
@@ -249,30 +203,22 @@ introductionKo,
     setTitle("");
 
 
-
     setAvatar("");
-
 
 
     setGallery([]);
 
 
-
-    setVideos([]);
-
-
-
     setIntroductionEn("");
 
-setIntroductionZhTW("");
 
-setIntroductionZhCN("");
-
-setIntroductionJa("");
-
-setIntroductionKo("");
+    setIntroductionZhCN("");
 
 
+    setIntroductionJa("");
+
+
+    setIntroductionKo("");
 
   }
 
@@ -281,49 +227,43 @@ setIntroductionKo("");
 
 
 
-
-
   return (
 
-
-
-<div className="w-full max-w-6xl rounded-3xl border border-yellow-500/20 bg-[#101010] p-10">
-
+<div className="
+w-full
+max-w-6xl
+rounded-3xl
+border
+border-yellow-500/20
+bg-[#101010]
+p-10
+">
 
 
 <div>
 
-
 <p
-
 className="
 uppercase
 tracking-[0.35em]
 text-sm
 text-yellow-500
 "
-
 >
-
 CYLG CMS
-
 </p>
 
 
 
 <h2
-
 className="
 mt-2
 text-4xl
 font-black
 text-white
 "
-
 >
-
 Add New Model
-
 </h2>
 
 
@@ -335,13 +275,10 @@ Add New Model
 
 
 
-
 <div className="mt-10 max-w-md">
 
 
-
 <label
-
 className="
 mb-3
 block
@@ -350,29 +287,20 @@ uppercase
 tracking-[0.2em]
 text-yellow-500
 "
-
 >
-
 Level
-
 </label>
-
-
 
 
 
 <select
 
-
 value={level}
 
-
 onChange={(e)=>
-
 setLevel(
 e.target.value
 )
-
 }
 
 
@@ -386,46 +314,27 @@ p-4
 text-white
 "
 
-
 >
-
 
 
 {
-
 LEVELS.map(item=>(
 
-
 <option
-
 key={item}
-
 value={item}
-
 >
-
-
 {item}
-
-
 </option>
 
-
-
 ))
-
-
 }
-
 
 
 </select>
 
 
-
 </div>
-
-
 
 
 
@@ -437,7 +346,6 @@ value={item}
 
 
 <label
-
 className="
 mb-3
 block
@@ -446,29 +354,21 @@ uppercase
 tracking-[0.2em]
 text-yellow-500
 "
-
 >
-
 Title
-
 </label>
 
 
 
 <input
 
-
 value={title}
 
-
 onChange={(e)=>
-
 setTitle(
 e.target.value
 )
-
 }
-
 
 
 placeholder="Model title"
@@ -484,9 +384,7 @@ p-4
 text-white
 "
 
-
 />
-
 
 
 </div>
@@ -497,22 +395,15 @@ text-white
 
 
 
-
-
 <div className="mt-12">
-
 
 <AvatarUpload
 
-
 value={avatar}
-
 
 onChange={setAvatar}
 
-
 />
-
 
 </div>
 
@@ -522,68 +413,38 @@ onChange={setAvatar}
 
 
 
-
-
 <div className="mt-12">
-
 
 <GalleryUpload
 
-
 value={gallery}
-
 
 onChange={setGallery}
 
+/>
+
+</div>
+
+
+
+
+
+
+
+{/* ONLY ONE INTRODUCTION */}
+
+<div className="mt-12">
+
+<IntroductionEditor
+
+value={introductionEn}
+
+onChange={setIntroductionEn}
 
 />
 
 
 </div>
-
-
-
-
-
-
-
-
-
-<div className="mt-12">
-  <h3 className="mb-4 text-lg font-bold text-yellow-500">
-    English Introduction
-  </h3>
-
-  <IntroductionEditor
-    value={introductionEn}
-    onChange={setIntroductionEn}
-  />
-</div>
-
-<div className="mt-12">
-  <h3 className="mb-4 text-lg font-bold text-yellow-500">
-    Traditional Chinese Introduction
-  </h3>
-
-  <IntroductionEditor
-    value={introductionZhTW}
-    onChange={setIntroductionZhTW}
-  />
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -605,12 +466,9 @@ gap-4
 
 
 
-
 <button
 
-
 type="button"
-
 
 onClick={()=>{
 
@@ -636,7 +494,6 @@ py-4
 text-white
 "
 
-
 >
 
 Cancel
@@ -649,15 +506,11 @@ Cancel
 
 
 
-
 <button
-
 
 type="button"
 
-
 onClick={handleSave}
-
 
 disabled={loading}
 
@@ -674,7 +527,6 @@ uppercase
 tracking-[0.25em]
 text-black
 "
-
 
 >
 
@@ -698,17 +550,12 @@ loading
 
 
 
-
-
 </div>
 
 
 
 
-
 </div>
-
-
 
   );
 

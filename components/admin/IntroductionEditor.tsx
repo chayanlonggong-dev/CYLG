@@ -4,13 +4,20 @@
 interface IntroductionEditorProps {
   value?: string;
   onChange?: (value: string) => void;
+  placeholder?: string;
 }
 
 
 
 export default function IntroductionEditor({
+
   value = "",
+
   onChange,
+
+  placeholder = "Write profile introduction...",
+
+
 }: IntroductionEditorProps) {
 
 
@@ -27,20 +34,21 @@ export default function IntroductionEditor({
 
 
 
-
   return (
 
     <div>
 
 
-      <label className="
-        mb-4
-        block
-        text-sm
-        uppercase
-        tracking-[0.25em]
-        text-yellow-500
-      ">
+      <label
+        className="
+          mb-4
+          block
+          text-sm
+          uppercase
+          tracking-[0.25em]
+          text-yellow-500
+        "
+      >
 
         Introduction
 
@@ -53,38 +61,13 @@ export default function IntroductionEditor({
 
         rows={18}
 
-
         value={value}
-
 
         onChange={handleChange}
 
-
         maxLength={5000}
 
-
-        placeholder={`Paste the complete profile...
-
-Example
-
-Age : 22
-
-Height : 168 cm
-
-Nationality : Japanese
-
-Languages
-English
-Japanese
-
-Introduction...
-
-Services...
-
-Notes...
-
-`}
-
+        placeholder={placeholder}
 
         className="
           w-full
@@ -107,18 +90,22 @@ Notes...
 
 
 
-      <div className="
-        mt-4
-        flex
-        items-center
-        justify-between
-        text-sm
-      ">
+      <div
+        className="
+          mt-4
+          flex
+          items-center
+          justify-between
+          text-sm
+        "
+      >
 
 
-        <p className="
-          text-gray-500
-        ">
+        <p
+          className="
+            text-gray-500
+          "
+        >
 
           Supports multi-line text. Formatting will be preserved.
 
@@ -126,9 +113,11 @@ Notes...
 
 
 
-        <span className="
-          text-yellow-500
-        ">
+        <span
+          className="
+            text-yellow-500
+          "
+        >
 
           {value.length} / 5000 Characters
 
