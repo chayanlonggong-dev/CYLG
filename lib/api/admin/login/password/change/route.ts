@@ -9,8 +9,14 @@ import {
 
 
 import {
-  verifySync,
-} from "otplib";
+  verifyPassword,
+  hashPassword,
+} from "@/lib/auth/password";
+
+
+import {
+  validatePasswordStrength,
+} from "@/lib/auth/passwordPolicy";
 
 
 
@@ -30,20 +36,25 @@ export async function POST(
       body.username;
 
 
-    const token =
-      body.token;
+    const currentPassword =
+      body.currentPassword;
+
+
+    const newPassword =
+      body.newPassword;
 
 
 
     if (
       !username ||
-      !token
+      !currentPassword ||
+      !newPassword
     ) {
 
       return NextResponse.json(
         {
           message:
-            "Username and token are required.",
+            "Missing required fields.",
         },
         {
           status:400,
@@ -81,14 +92,46 @@ export async function POST(
 
 
 
-    if (
-      !adminUser.twoFactorSecret
-    ) {
+    const passwordValid =
+      verifyPassword(
+        currentPassword,
+        adminUser.password
+      );
+
+
+
+    if (!passwordValid) {
 
       return NextResponse.json(
         {
           message:
-            "2FA is not setup.",
+            "Current password is incorrect.",
+        },
+        {
+          status:401,
+        }
+      );
+
+    }
+
+
+
+    const strength =
+      validatePasswordStrength(
+        newPassword
+      );
+
+
+
+    if (!strength.valid) {
+
+      return NextResponse.json(
+        {
+          message:
+            "Password does not meet requirements.",
+          
+          errors:
+            strength.errors,
         },
         {
           status:400,
@@ -99,31 +142,10 @@ export async function POST(
 
 
 
-    const verified =
-  verifySync({
-
-    token,
-
-    secret:
-      adminUser.twoFactorSecret,
-
-  });
-
-
-
-    if (!verified) {
-
-      return NextResponse.json(
-        {
-          message:
-            "Invalid 2FA code.",
-        },
-        {
-          status:401,
-        }
+    const hashedPassword =
+      hashPassword(
+        newPassword
       );
-
-    }
 
 
 
@@ -137,8 +159,8 @@ export async function POST(
 
       data:{
 
-        twoFactorEnabled:
-          true,
+        password:
+          hashedPassword,
 
       },
 
@@ -151,7 +173,7 @@ export async function POST(
       success:true,
 
       message:
-        "2FA verified successfully.",
+        "Password changed successfully.",
 
     });
 
@@ -161,7 +183,7 @@ export async function POST(
 
 
     console.error(
-      "2FA VERIFY ERROR:",
+      "CHANGE PASSWORD ERROR:",
       error
     );
 
@@ -170,7 +192,7 @@ export async function POST(
     return NextResponse.json(
       {
         message:
-          "2FA verification failed.",
+          "Password change failed.",
       },
       {
         status:500,
