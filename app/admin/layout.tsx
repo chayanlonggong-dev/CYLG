@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import SessionManager from "@/components/admin/SessionManager";
+
 const menu = [
   { href: "/admin/dashboard", label: "Dashboard" },
   { href: "/admin/models", label: "Models" },
@@ -22,6 +24,8 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen bg-[#050505] text-white">
+      <SessionManager />
+
       <div className="flex">
         <aside className="sticky top-0 h-screen w-72 border-r border-yellow-500/20 bg-[#0d0d0d]">
           <div className="border-b border-yellow-500/20 p-8">
