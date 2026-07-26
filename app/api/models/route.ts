@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import {
   getAllModels,
   createModel,
@@ -31,12 +32,15 @@ export async function GET(
         ?.trim() || "";
 
 
+
     const models =
       await getAllModels();
 
 
+
     const filtered =
       models.filter((model)=>{
+
 
         const matchLevel =
           !level ||
@@ -44,8 +48,10 @@ export async function GET(
           model.level === level;
 
 
+
         const keyword =
           search.toLowerCase();
+
 
 
         const matchSearch =
@@ -64,6 +70,7 @@ export async function GET(
             .includes(keyword);
 
 
+
         return (
           matchLevel &&
           matchSearch
@@ -72,12 +79,14 @@ export async function GET(
       });
 
 
+
     return NextResponse.json(
       filtered
     );
 
 
   } catch(error){
+
 
     console.error(
       "GET MODELS ERROR:",
@@ -95,9 +104,14 @@ export async function GET(
       }
     );
 
+
   }
 
 }
+
+
+
+
 
 
 
@@ -109,6 +123,7 @@ export async function POST(
   request: NextRequest
 ) {
 
+
   try {
 
 
@@ -117,15 +132,20 @@ export async function POST(
 
 
 
+
     const model =
       await createModel({
+
+
 
         level:
           body.level || "CROWN",
 
 
+
         title:
           body.title ?? "",
+
 
 
         age:
@@ -134,10 +154,12 @@ export async function POST(
           ),
 
 
+
         height:
           Number(
             body.height ?? 160
           ),
+
 
 
         weight:
@@ -146,58 +168,59 @@ export async function POST(
           ),
 
 
+
         nationality:
           body.nationality ?? "",
+
 
 
         city:
           body.city ?? "",
 
 
+
         languages:
           body.languages ?? "",
+
 
 
         services:
           body.services ?? "",
 
 
+
         avatar:
           body.avatar ?? "",
+
 
 
         gallery:
           body.gallery ?? "",
 
 
+
         videos:
           body.videos ?? "",
 
 
-        introductionEn:
-  body.introductionEn ?? "",
 
-introductionZhTW:
-  body.introductionZhTW ?? "",
+        introduction:
+          body.introduction ?? "",
 
-introductionZhCN:
-  body.introductionZhCN ?? "",
-
-introductionJa:
-  body.introductionJa ?? "",
-
-introductionKo:
-  body.introductionKo ?? "",
 
 
         online:
           body.online ?? true,
 
 
+
         featured:
           body.featured ?? false,
 
+
       });
+
+
 
 
 
@@ -209,7 +232,9 @@ introductionKo:
     );
 
 
+
   } catch(error){
+
 
 
     console.error(
@@ -218,10 +243,12 @@ introductionKo:
     );
 
 
+
     return NextResponse.json(
       {
         message:
           "Create model failed.",
+
         error:
           String(error),
       },
@@ -229,6 +256,7 @@ introductionKo:
         status:500,
       }
     );
+
 
   }
 

@@ -10,22 +10,6 @@ type ModelLevel =
 
 
 
-const LEVEL_ORDER: ModelLevel[] = [
-  "CROWN",
-  "SSS",
-  "SS",
-  "S",
-  "A",
-];
-
-
-
-
-
-// =======================
-// GET ALL MODELS
-// =======================
-
 export async function getAllModels() {
 
   return prisma.model.findMany({
@@ -48,14 +32,6 @@ export async function getAllModels() {
 
 
 
-
-
-
-
-// =======================
-// GET MODEL BY ID
-// =======================
-
 export async function getModelById(
   id:number
 ) {
@@ -74,12 +50,6 @@ export async function getModelById(
 
 
 
-
-
-// =======================
-// GENERATE MODEL CODE
-// =======================
-
 export async function generateModelCode(
   level:ModelLevel
 ) {
@@ -91,7 +61,6 @@ export async function generateModelCode(
       where:{
         level,
       },
-
 
       orderBy:{
         number:"desc",
@@ -110,9 +79,7 @@ export async function generateModelCode(
 
   return {
 
-    number:
-      nextNumber,
-
+    number:nextNumber,
 
     code:
       `${level}${String(nextNumber).padStart(3,"0")}`,
@@ -127,14 +94,7 @@ export async function generateModelCode(
 
 
 
-
-
-// =======================
-// CREATE MODEL
-// =======================
-
 export async function createModel(
-
 data:{
 
   level:ModelLevel;
@@ -161,17 +121,7 @@ data:{
 
   videos?:string;
 
-
-  introductionEn?:string;
-
-  introductionZhTW?:string;
-
-  introductionZhCN?:string;
-
-  introductionJa?:string;
-
-  introductionKo?:string;
-
+  introduction?:string;
 
   online?:boolean;
 
@@ -182,7 +132,6 @@ data:{
 ){
 
 
-
   const generated =
     await generateModelCode(
       data.level
@@ -190,11 +139,9 @@ data:{
 
 
 
-
   return prisma.model.create({
 
     data:{
-
 
       level:
         data.level,
@@ -208,92 +155,56 @@ data:{
         generated.code,
 
 
-
       title:
         data.title ?? "",
-
 
 
       nationality:
         data.nationality ?? "",
 
 
-
       city:
         data.city ?? "",
-
 
 
       age:
         data.age ?? 18,
 
 
-
       height:
         data.height ?? 160,
-
 
 
       weight:
         data.weight ?? 50,
 
 
-
       languages:
         data.languages ?? "",
-
 
 
       services:
         data.services ?? "",
 
 
-
       avatar:
         data.avatar ?? "",
-
 
 
       gallery:
         data.gallery ?? "",
 
 
-
       videos:
         data.videos ?? "",
 
 
-
-
-      introductionEn:
-        data.introductionEn ?? "",
-
-
-
-      introductionZhTW:
-        data.introductionZhTW ?? "",
-
-
-
-      introductionZhCN:
-        data.introductionZhCN ?? "",
-
-
-
-      introductionJa:
-        data.introductionJa ?? "",
-
-
-
-      introductionKo:
-        data.introductionKo ?? "",
-
-
+      introduction:
+        data.introduction ?? "",
 
 
       online:
         data.online ?? true,
-
 
 
       featured:
@@ -313,13 +224,7 @@ data:{
 
 
 
-
-// =======================
-// UPDATE MODEL
-// =======================
-
 export async function updateModel(
-
 id:number,
 
 data:{
@@ -352,17 +257,7 @@ data:{
 
   videos?:string;
 
-
-  introductionEn?:string;
-
-  introductionZhTW?:string;
-
-  introductionZhCN?:string;
-
-  introductionJa?:string;
-
-  introductionKo?:string;
-
+  introduction?:string;
 
   online?:boolean;
 
@@ -379,97 +274,7 @@ data:{
       id,
     },
 
-
-    data:{
-
-
-      level:
-        data.level,
-
-
-      number:
-        data.number,
-
-
-      code:
-        data.code,
-
-
-      title:
-        data.title,
-
-
-      nationality:
-        data.nationality,
-
-
-      city:
-        data.city,
-
-
-      age:
-        data.age,
-
-
-      height:
-        data.height,
-
-
-      weight:
-        data.weight,
-
-
-      languages:
-        data.languages,
-
-
-      services:
-        data.services,
-
-
-      avatar:
-        data.avatar,
-
-
-      gallery:
-        data.gallery,
-
-
-      videos:
-        data.videos,
-
-
-
-      introductionEn:
-        data.introductionEn,
-
-
-      introductionZhTW:
-        data.introductionZhTW,
-
-
-      introductionZhCN:
-        data.introductionZhCN,
-
-
-      introductionJa:
-        data.introductionJa,
-
-
-      introductionKo:
-        data.introductionKo,
-
-
-
-      online:
-        data.online,
-
-
-      featured:
-        data.featured,
-
-
-    },
+    data,
 
   });
 
@@ -479,13 +284,6 @@ data:{
 
 
 
-
-
-
-
-// =======================
-// DELETE MODEL
-// =======================
 
 export async function deleteModel(
 id:number
