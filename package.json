@@ -15,8 +15,10 @@
     "formidable": "^3.5.4",
     "fs-extra": "^11.3.6",
     "next": "16.2.10",
+    "otplib": "^13.4.1",
     "prisma": "^6.19.3",
     "prisma-dbml-generator": "^0.12.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -26,6 +28,7 @@
     "@types/formidable": "^3.5.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
