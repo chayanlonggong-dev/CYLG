@@ -2,12 +2,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+
 model Model {
+
   id Int @id @default(autoincrement())
 
   level ModelLevel
@@ -47,9 +50,13 @@ model Model {
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
+
 }
 
+
+
 model WebsiteSettings {
+
   id Int @id @default(1)
 
   siteName String @default("ChaYanLongGong")
@@ -85,9 +92,13 @@ model WebsiteSettings {
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
+
 }
 
+
+
 model AdminUser {
+
   id Int @id @default(autoincrement())
 
   username String @unique
@@ -107,9 +118,13 @@ model AdminUser {
   updatedAt DateTime @updatedAt
 
   sessions Session[]
+
 }
 
+
+
 model Session {
+
   id String @id @default(cuid())
 
   token String @unique
@@ -131,11 +146,47 @@ model Session {
   adminUser AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
 
   @@index([token])
+
   @@index([adminUserId])
+
   @@index([expiresAt])
+
 }
 
+
+
+model AuditLog {
+
+  id String @id @default(cuid())
+
+  action String
+
+  entity String?
+
+  entityId String?
+
+  userId String?
+
+  description String
+
+  metadata String?
+
+  createdAt DateTime @default(now())
+
+  @@index([action])
+
+  @@index([entity])
+
+  @@index([userId])
+
+  @@index([createdAt])
+
+}
+
+
+
 enum ModelLevel {
+
   CROWN
 
   SSS
@@ -145,4 +196,5 @@ enum ModelLevel {
   S
 
   A
+
 }
