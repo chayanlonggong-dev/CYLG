@@ -39,7 +39,6 @@ const cinzel = Cinzel({
 
 
 
-
 export async function generateMetadata(): Promise<Metadata> {
 
 
@@ -72,6 +71,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
     metadataBase:
+
       new URL(
 
         process.env.NEXT_PUBLIC_SITE_URL ||
@@ -85,9 +85,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: {
 
       default:
+
         "ChaYanLongGong | Luxury Elite Companion Agency",
 
       template:
+
         "%s | ChaYanLongGong",
 
     },
@@ -95,8 +97,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
     description:
-      "ChaYanLongGong is a luxury elite companion agency providing a premium private experience.",
 
+      "ChaYanLongGong is a luxury elite companion agency providing a premium private experience.",
 
 
 
@@ -121,6 +123,7 @@ export async function generateMetadata(): Promise<Metadata> {
       {
 
         name:
+
           "ChaYanLongGong",
 
       },
@@ -130,6 +133,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
     creator:
+
       "ChaYanLongGong",
 
 
@@ -137,6 +141,7 @@ export async function generateMetadata(): Promise<Metadata> {
     icons:{
 
       icon:
+
         favicon,
 
     },
@@ -147,31 +152,37 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
       title:
+
         "ChaYanLongGong | Luxury Elite Companion Agency",
 
 
 
       description:
+
         "Luxury private experience with an elite collection.",
 
 
 
       url:
+
         "https://cylg-production.vercel.app",
 
 
 
       siteName:
+
         "ChaYanLongGong",
 
 
 
       locale:
+
         "en_US",
 
 
 
       type:
+
         "website",
 
 
@@ -181,15 +192,19 @@ export async function generateMetadata(): Promise<Metadata> {
         {
 
           url:
+
             "/logo.png",
 
           width:
+
             1200,
 
           height:
+
             630,
 
           alt:
+
             "ChaYanLongGong",
 
         },
@@ -205,16 +220,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
       card:
+
         "summary_large_image",
 
 
 
       title:
+
         "ChaYanLongGong | Luxury Elite Companion Agency",
 
 
 
       description:
+
         "Luxury private experience with an elite collection.",
 
 
@@ -258,14 +276,19 @@ export default function RootLayout({
 
   return (
 
+
     <html
 
       lang="en"
 
       className={`
+
         ${cinzel.variable}
+
         h-full
+
         antialiased
+
       `}
 
     >
@@ -275,15 +298,25 @@ export default function RootLayout({
       <body
 
         className="
+
           min-h-full
+
           flex
+
           flex-col
+
           bg-black
+
           text-white
+
         "
 
       >
 
+
+
+
+        {/* Google Analytics */}
 
         <Script
 
@@ -304,20 +337,22 @@ export default function RootLayout({
         >
 
 {`
-  window.dataLayer = window.dataLayer || [];
 
-  function gtag(){
+window.dataLayer = window.dataLayer || [];
 
-    window.dataLayer.push(arguments);
+function gtag(){
 
-  }
+  window.dataLayer.push(arguments);
 
-  gtag('js', new Date());
+}
 
-  gtag(
-    'config',
-    'G-28KCE5VPMT'
-  );
+gtag('js', new Date());
+
+gtag(
+  'config',
+  'G-28KCE5VPMT'
+);
+
 `}
 
         </Script>
@@ -325,7 +360,13 @@ export default function RootLayout({
 
 
 
-        <script
+
+
+        {/* Organization Schema */}
+
+        <Script
+
+          id="organization-schema"
 
           type="application/ld+json"
 
@@ -336,18 +377,27 @@ export default function RootLayout({
               JSON.stringify({
 
                 "@context":
+
                   "https://schema.org",
 
+
                 "@type":
+
                   "Organization",
 
+
                 name:
+
                   "ChaYanLongGong",
 
+
                 url:
+
                   "https://cylg-production.vercel.app",
 
+
                 logo:
+
                   "https://cylg-production.vercel.app/logo.png",
 
               }),
@@ -355,6 +405,7 @@ export default function RootLayout({
           }}
 
         />
+
 
 
 
@@ -372,6 +423,7 @@ export default function RootLayout({
 
 
     </html>
+
 
   );
 
