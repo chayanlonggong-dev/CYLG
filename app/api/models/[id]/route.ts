@@ -1,25 +1,69 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
+
+
+import {
+  prisma,
+} from "@/lib/prisma";
+
+
+import {
+  requireAdminSession,
+} from "@/lib/auth/session";
+
+
+import {
+  rateLimit,
+} from "@/lib/rateLimit";
+
+
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
+
 
 
 interface Params {
+
   params: Promise<{
-    id: string;
+
+    id:string;
+
   }>;
+
 }
 
 
 
 
-export async function GET(
-  request: NextRequest,
-  { params }: Params
-) {
 
-  try {
+
+
+
+// =========================
+// GET MODEL
+// =========================
+
+export async function GET(
+
+  request:NextRequest,
+
+  { params }:Params
+
+){
+
+
+  try{
+
 
     const { id } =
       await params;
+
+
 
 
     const model =
@@ -33,40 +77,63 @@ export async function GET(
 
 
 
+
+
     if(!model){
 
+
       return NextResponse.json(
+
         {
-          message:"Model not found.",
+          message:
+            "Model not found.",
         },
+
         {
           status:404,
         }
+
       );
+
 
     }
 
 
 
-    return NextResponse.json(model);
+
+
+
+    return NextResponse.json(
+      model
+    );
+
+
 
 
 
   }catch(error){
 
+
     console.error(error);
 
 
+
     return NextResponse.json(
+
       {
-        message:"Failed to fetch model.",
+        message:
+          "Failed to fetch model.",
       },
+
       {
         status:500,
       }
+
     );
 
+
   }
+
 
 }
 
@@ -75,20 +142,90 @@ export async function GET(
 
 
 
+
+
+
+// =========================
+// UPDATE MODEL
+// =========================
+
 export async function PUT(
-  request: NextRequest,
-  { params }: Params
+
+  request:NextRequest,
+
+  { params }:Params
+
 ){
 
+
   try{
+
+
+    const session =
+      await requireAdminSession();
+
+
+
+
+
+    const limit =
+      rateLimit(
+
+        `model-update:${session.adminUserId}`,
+
+        {
+
+          limit:30,
+
+          windowMs:
+            60 * 60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Too many requests.",
+        },
+
+        {
+          status:429,
+        }
+
+      );
+
+
+    }
+
+
+
+
+
 
 
     const { id } =
       await params;
 
 
+
+
+
     const body =
       await request.json();
+
+
+
+
 
 
 
@@ -103,39 +240,62 @@ export async function PUT(
 
 
 
+
+
+
     if(!oldModel){
 
+
       return NextResponse.json(
+
         {
-          message:"Model not found.",
+          message:
+            "Model not found.",
         },
+
         {
           status:404,
         }
+
       );
+
 
     }
 
 
 
 
+
+
+
+
     const level =
-      body.level ?? oldModel.level;
+      body.level ??
+      oldModel.level;
 
 
 
     const number =
       Number(
+
         body.number ??
         oldModel.number
+
       );
+
 
 
 
     const code =
       level +
+
       String(number)
-        .padStart(3,"0");
+        .padStart(
+          3,
+          "0"
+        );
+
+
 
 
 
@@ -159,74 +319,82 @@ export async function PUT(
           code,
 
 
-
           title:
-            body.title ?? "",
-
+            body.title ??
+            oldModel.title,
 
 
           age:
-            Number(body.age ?? 18),
-
+            Number(
+              body.age ??
+              oldModel.age
+            ),
 
 
           height:
-            Number(body.height ?? 160),
-
+            Number(
+              body.height ??
+              oldModel.height
+            ),
 
 
           weight:
-            Number(body.weight ?? 50),
-
+            Number(
+              body.weight ??
+              oldModel.weight
+            ),
 
 
           nationality:
-            body.nationality ?? "",
-
+            body.nationality ??
+            oldModel.nationality,
 
 
           city:
-            body.city ?? "",
-
+            body.city ??
+            oldModel.city,
 
 
           languages:
-            body.languages ?? "",
-
+            body.languages ??
+            oldModel.languages,
 
 
           services:
-            body.services ?? "",
-
+            body.services ??
+            oldModel.services,
 
 
           avatar:
-            body.avatar ?? "",
-
+            body.avatar ??
+            oldModel.avatar,
 
 
           gallery:
-            body.gallery ?? "",
-
+            body.gallery ??
+            oldModel.gallery,
 
 
           videos:
-            body.videos ?? "",
-
+            body.videos ??
+            oldModel.videos,
 
 
           introduction:
-            body.introduction ?? "",
-
+            body.introduction ??
+            oldModel.introduction,
 
 
           online:
-            Boolean(body.online),
-
+            Boolean(
+              body.online
+            ),
 
 
           featured:
-            Boolean(body.featured),
+            Boolean(
+              body.featured
+            ),
 
 
         },
@@ -236,7 +404,48 @@ export async function PUT(
 
 
 
-    return NextResponse.json(model);
+
+
+
+
+    createAuditLog({
+
+      action:
+        "UPDATE",
+
+
+      entity:
+        "Model",
+
+
+      entityId:
+        model.id,
+
+
+      userId:
+        String(
+          session.adminUserId
+        ),
+
+
+      description:
+        "Admin updated model.",
+
+
+    });
+
+
+
+
+
+
+
+
+    return NextResponse.json(
+      model
+    );
+
+
 
 
 
@@ -248,15 +457,21 @@ export async function PUT(
 
 
     return NextResponse.json(
+
       {
-        message:"Update failed.",
+        message:
+          "Update failed.",
       },
+
       {
         status:500,
       }
+
     );
 
+
   }
+
 
 }
 
@@ -266,16 +481,123 @@ export async function PUT(
 
 
 
+
+
+// =========================
+// DELETE MODEL
+// =========================
+
 export async function DELETE(
-  request: NextRequest,
-  { params }: Params
+
+  request:NextRequest,
+
+  { params }:Params
+
 ){
+
 
   try{
 
 
+    const session =
+      await requireAdminSession();
+
+
+
+
+
+    const limit =
+      rateLimit(
+
+        `model-delete:${session.adminUserId}`,
+
+        {
+
+          limit:10,
+
+          windowMs:
+            60 * 60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Too many requests.",
+        },
+
+        {
+          status:429,
+        }
+
+      );
+
+
+    }
+
+
+
+
+
+
+
     const { id } =
       await params;
+
+
+
+
+
+
+
+
+    const model =
+      await prisma.model.findUnique({
+
+        where:{
+          id:Number(id),
+        },
+
+      });
+
+
+
+
+
+
+    if(!model){
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Model not found.",
+        },
+
+        {
+          status:404,
+        }
+
+      );
+
+
+    }
+
+
+
+
 
 
 
@@ -289,11 +611,53 @@ export async function DELETE(
 
 
 
+
+
+
+
+
+    createAuditLog({
+
+      action:
+        "DELETE",
+
+
+      entity:
+        "Model",
+
+
+      entityId:
+        model.id,
+
+
+      userId:
+        String(
+          session.adminUserId
+        ),
+
+
+      description:
+        "Admin deleted model.",
+
+
+    });
+
+
+
+
+
+
+
+
     return NextResponse.json({
 
       success:true,
 
     });
+
+
+
+
 
 
 
@@ -305,14 +669,20 @@ export async function DELETE(
 
 
     return NextResponse.json(
+
       {
-        message:"Delete failed.",
+        message:
+          "Delete failed.",
       },
+
       {
         status:500,
       }
+
     );
 
+
   }
+
 
 }

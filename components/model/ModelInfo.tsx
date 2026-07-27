@@ -51,7 +51,7 @@ export default function ModelInfo({
             {messages.model.title}
           </h2>
 
-          <div className="mx-auto mt-8 h-[2px] w-32 bg-yellow-400" />
+          <div className="mx-auto mt-8 h-0.5 w-32 bg-yellow-400" />
         </div>
 
         <div className="grid gap-20 lg:grid-cols-[360px_1fr]">

@@ -1,11 +1,48 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { unlink } from "fs/promises";
+import {
+  NextResponse,
+} from "next/server";
+
+
+import {
+  prisma,
+} from "@/lib/prisma";
+
+
+import {
+  unlink,
+} from "fs/promises";
+
+
 import path from "path";
 
 
+import {
+  requireAdminSession,
+} from "@/lib/auth/session";
+
+
+import {
+  rateLimit,
+} from "@/lib/rateLimit";
+
+
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
+
+
+
+
+
+
+// =======================
+// GET SETTINGS
+// =======================
 
 export async function GET() {
+
 
   try {
 
@@ -22,51 +59,74 @@ export async function GET() {
 
 
 
+
     if(!settings){
+
 
       settings =
         await prisma.websiteSettings.create({
 
+
           data:{
 
+
             id:1,
+
 
             siteName:
               "ChaYanLongGong",
 
+
             logo:"",
+
 
             favicon:"",
 
+
             whatsapp:"",
+
 
             telegram:"",
 
+
             signal:"",
+
 
             line:"",
 
+
             wechatQr:"",
+
 
             email:"",
 
+
             enableWhatsApp:true,
+
 
             enableTelegram:true,
 
+
             enableSignal:false,
+
 
             enableLine:false,
 
+
             enableWechat:false,
+
 
             enableFeedbackEmail:true,
 
+
           },
+
 
         });
 
+
     }
+
 
 
 
@@ -78,7 +138,9 @@ export async function GET() {
 
 
 
-  } catch(error){
+
+
+  }catch(error){
 
 
     console.error(error);
@@ -88,18 +150,25 @@ export async function GET() {
     return NextResponse.json(
 
       {
+
         success:false,
+
         message:
           "Failed to load website settings.",
+
       },
 
       {
+
         status:500,
+
       }
 
     );
 
+
   }
+
 
 }
 
@@ -109,15 +178,83 @@ export async function GET() {
 
 
 
+
+
+// =======================
+// DELETE FAVICON
+// =======================
+
 export async function DELETE(
+
   request:Request
+
 ){
+
 
   try{
 
 
+    const session =
+      await requireAdminSession();
+
+
+
+
+
+    const limit =
+      rateLimit(
+
+        `settings-delete:${session.adminUserId}`,
+
+        {
+
+          limit:5,
+
+          windowMs:
+            60 * 60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+
+          message:
+            "Too many requests.",
+
+        },
+
+        {
+
+          status:429,
+
+        }
+
+      );
+
+
+    }
+
+
+
+
+
+
+
     const body =
       await request.json();
+
+
 
 
 
@@ -127,6 +264,8 @@ export async function DELETE(
       body.path
       :
       "";
+
+
 
 
 
@@ -144,14 +283,19 @@ export async function DELETE(
 
       const absolutePath =
         path.join(
+
           process.cwd(),
+
           "public",
+
           relativePath
+
         );
 
 
 
       try{
+
 
         await unlink(
           absolutePath
@@ -161,15 +305,22 @@ export async function DELETE(
       }catch(error:any){
 
 
-        if(error?.code !== "ENOENT"){
+        if(
+          error?.code !== "ENOENT"
+        ){
 
           throw error;
 
         }
 
+
       }
 
+
     }
+
+
+
 
 
 
@@ -178,6 +329,7 @@ export async function DELETE(
     const settings =
       await prisma.websiteSettings.update({
 
+
         where:{
           id:1,
         },
@@ -185,9 +337,12 @@ export async function DELETE(
 
         data:{
 
+
           favicon:"",
 
+
         },
+
 
       });
 
@@ -195,13 +350,54 @@ export async function DELETE(
 
 
 
+
+
+    createAuditLog({
+
+      action:
+        "UPDATE",
+
+
+      entity:
+        "WebsiteSettings",
+
+
+      entityId:
+        1,
+
+
+      userId:
+        String(
+          session.adminUserId
+        ),
+
+
+      description:
+        "Admin deleted website favicon.",
+
+
+    });
+
+
+
+
+
+
+
+
     return NextResponse.json({
+
 
       success:true,
 
+
       settings,
 
+
     });
+
+
+
 
 
 
@@ -215,18 +411,25 @@ export async function DELETE(
     return NextResponse.json(
 
       {
+
         success:false,
+
         message:
           "Failed to delete favicon.",
+
       },
 
       {
+
         status:500,
+
       }
 
     );
 
+
   }
+
 
 }
 
@@ -236,16 +439,87 @@ export async function DELETE(
 
 
 
+
+
+// =======================
+// UPDATE SETTINGS
+// =======================
+
 export async function PUT(
+
   request:Request
+
 ){
 
 
   try{
 
 
+    const session =
+      await requireAdminSession();
+
+
+
+
+
+
+
+    const limit =
+      rateLimit(
+
+        `settings-update:${session.adminUserId}`,
+
+        {
+
+          limit:20,
+
+          windowMs:
+            60 * 60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+
+          message:
+            "Too many requests.",
+
+        },
+
+        {
+
+          status:429,
+
+        }
+
+      );
+
+
+    }
+
+
+
+
+
+
+
+
     const body =
       await request.json();
+
+
 
 
 
@@ -258,7 +532,6 @@ export async function PUT(
         where:{
           id:1,
         },
-
 
 
         update:{
@@ -274,7 +547,6 @@ export async function PUT(
 
           favicon:
             body.favicon ?? "",
-
 
 
           whatsapp:
@@ -297,11 +569,8 @@ export async function PUT(
             body.wechatQr ?? "",
 
 
-
           email:
             body.email ?? "",
-
-
 
 
           enableWhatsApp:
@@ -326,6 +595,7 @@ export async function PUT(
 
           enableFeedbackEmail:
             body.enableFeedbackEmail ?? true,
+
 
         },
 
@@ -351,7 +621,6 @@ export async function PUT(
             body.favicon ?? "",
 
 
-
           whatsapp:
             body.whatsapp ?? "",
 
@@ -372,10 +641,8 @@ export async function PUT(
             body.wechatQr ?? "",
 
 
-
           email:
             body.email ?? "",
-
 
 
           enableWhatsApp:
@@ -412,13 +679,53 @@ export async function PUT(
 
 
 
+
+
+    createAuditLog({
+
+      action:
+        "SETTINGS_CHANGE",
+
+
+      entity:
+        "WebsiteSettings",
+
+
+      entityId:
+        1,
+
+
+      userId:
+        String(
+          session.adminUserId
+        ),
+
+
+      description:
+        "Admin updated website settings.",
+
+
+    });
+
+
+
+
+
+
+
+
     return NextResponse.json({
+
 
       success:true,
 
+
       settings,
 
+
     });
+
+
 
 
 
@@ -434,18 +741,24 @@ export async function PUT(
     return NextResponse.json(
 
       {
+
         success:false,
+
         message:
           "Failed to save website settings.",
+
       },
 
       {
+
         status:500,
+
       }
 
     );
 
 
   }
+
 
 }

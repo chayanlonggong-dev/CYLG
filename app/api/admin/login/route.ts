@@ -23,11 +23,26 @@ import {
 } from "otplib";
 
 
+import {
+  rateLimit,
+} from "@/lib/rateLimit";
+
+
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
+
+
 
 const MAX_LOGIN_ATTEMPTS = 5;
 
+
 const LOCK_TIME =
   15 * 60 * 1000;
+
+
 
 
 
@@ -35,11 +50,74 @@ export async function POST(
   request: Request
 ) {
 
+
   try {
+
+
+    const ip =
+      request.headers
+        .get("x-forwarded-for")
+        ?.split(",")[0]
+        ?.trim()
+        ||
+        request.headers.get(
+          "x-real-ip"
+        )
+        ||
+        "unknown";
+
+
+
+
+
+    const limit =
+      rateLimit(
+
+        `admin-login:${ip}`,
+
+        {
+          limit:5,
+
+          windowMs:
+            60 * 1000,
+
+        }
+
+      );
+
+
+
+
+    if (!limit.success) {
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Too many login attempts. Please try again later.",
+        },
+
+        {
+          status:429,
+        }
+
+      );
+
+
+    }
+
+
+
+
+
+
 
 
     const body =
       await request.json();
+
+
 
 
 
@@ -56,87 +134,132 @@ export async function POST(
 
 
 
+
+
+
     if (
       !username ||
       !password
     ) {
 
+
       return NextResponse.json(
+
         {
           message:
             "Username and password are required.",
         },
+
         {
           status:400,
         }
+
       );
 
+
     }
+
+
+
+
+
+
 
 
 
     const adminUser =
       await prisma.adminUser.findUnique({
 
+
         where:{
           username,
         },
+
 
       });
 
 
 
+
+
+
+
     if (!adminUser) {
 
+
       return NextResponse.json(
+
         {
           message:
             "Invalid username or password.",
         },
+
         {
           status:401,
         }
+
       );
+
 
     }
 
 
 
-    // =========================
-    // Account Lock Check
-    // =========================
+
+
+
+
+
 
     if (
+
       adminUser.lockedUntil
+
       &&
+
       adminUser.lockedUntil > new Date()
+
     ) {
 
+
       return NextResponse.json(
+
         {
           message:
             "Account temporarily locked. Try again later.",
         },
+
         {
           status:423,
         }
+
       );
 
+
     }
+
+
+
+
+
 
 
 
     const valid =
       verifyPassword(
+
         password,
+
         adminUser.password
+
       );
 
 
 
-    // =========================
-    // Failed Login Handling
-    // =========================
+
+
+
+
 
     if (!valid) {
 
@@ -151,7 +274,10 @@ export async function POST(
 
 
 
+
+
       await prisma.adminUser.update({
+
 
         where:{
           id:
@@ -160,6 +286,7 @@ export async function POST(
 
 
         data:{
+
 
           failedLoginAttempts:
             shouldLock
@@ -169,48 +296,73 @@ export async function POST(
             attempts,
 
 
+
           lockedUntil:
             shouldLock
             ?
+
             new Date(
+
               Date.now()
+
               +
+
               LOCK_TIME
+
             )
+
             :
+
             null,
 
+
         },
+
 
       });
 
 
 
+
+
+
       return NextResponse.json(
+
         {
           message:
             "Invalid username or password.",
         },
+
         {
           status:401,
         }
+
       );
+
 
     }
 
 
 
-    // =========================
-    // Reset Failed Attempts
-    // =========================
+
+
+
+
+
 
     if (
+
       adminUser.failedLoginAttempts > 0
+
       ||
+
       adminUser.lockedUntil
+
     ) {
 
+
       await prisma.adminUser.update({
+
 
         where:{
           id:
@@ -220,64 +372,94 @@ export async function POST(
 
         data:{
 
+
           failedLoginAttempts:
             0,
+
 
           lockedUntil:
             null,
 
+
         },
 
+
       });
+
 
     }
 
 
 
-    // =========================
-    // 2FA Check
-    // =========================
+
+
+
+
+
 
     if (
+
       adminUser.twoFactorEnabled
+
     ) {
 
 
-      if(
-        !twoFactorToken
-      ){
+
+      if (!twoFactorToken) {
+
 
         return NextResponse.json(
+
           {
+
             requireTwoFactor:true,
+
 
             message:
               "Two factor authentication required.",
+
           },
+
           {
             status:200,
           }
+
         );
+
 
       }
 
 
 
-      if(
+
+
+
+      if (
+
         !adminUser.twoFactorSecret
-      ){
+
+      ) {
+
 
         return NextResponse.json(
+
           {
             message:
               "2FA configuration error.",
           },
+
           {
             status:500,
           }
+
         );
 
+
       }
+
+
+
+
 
 
 
@@ -295,27 +477,37 @@ export async function POST(
 
 
 
-      if(!verified){
+
+
+
+      if (!verified) {
+
 
         return NextResponse.json(
+
           {
             message:
               "Invalid 2FA code.",
           },
+
           {
             status:401,
           }
+
         );
 
+
       }
+
 
     }
 
 
 
-    // =========================
-    // Create Session
-    // =========================
+
+
+
+
 
 
     const token =
@@ -324,28 +516,27 @@ export async function POST(
 
 
 
+
+
+
+
     const expiresAt =
       new Date(
+
         Date.now()
+
         +
+
         1000 *
         60 *
         60 *
         24 *
         7
+
       );
 
 
 
-    const ip =
-      request.headers
-      .get("x-forwarded-for")
-      ?.split(",")[0]
-      ?.trim()
-      ||
-      request.headers.get("x-real-ip")
-      ||
-      "unknown";
 
 
 
@@ -358,19 +549,73 @@ export async function POST(
 
 
 
+
+
+
+
+
     await prisma.session.create({
+
 
       data:{
 
+
         token,
+
 
         adminUserId:
           adminUser.id,
 
+
         expiresAt,
+
 
         lastActivityAt:
           new Date(),
+
+
+
+        ip,
+
+
+        userAgent,
+
+
+
+      },
+
+
+    });
+
+
+
+
+
+
+
+    createAuditLog({
+
+      action:
+        "LOGIN",
+
+
+      entity:
+        "AdminUser",
+
+
+      entityId:
+        adminUser.id,
+
+
+      userId:
+        String(adminUser.id),
+
+
+      description:
+        "Admin login successful.",
+
+
+      metadata:{
 
         ip,
 
@@ -378,20 +623,34 @@ export async function POST(
 
       },
 
+
     });
+
+
+
+
+
 
 
 
     const response =
       NextResponse.json(
+
         {
           message:
             "Login successful.",
         },
+
         {
           status:200,
         }
+
       );
+
+
+
+
+
 
 
 
@@ -403,26 +662,37 @@ export async function POST(
 
       {
 
+
         httpOnly:true,
+
 
         secure:
           process.env.NODE_ENV
           ===
           "production",
 
+
         sameSite:"lax",
 
+
         maxAge:
+
           60 *
           60 *
           24 *
           7,
 
+
         path:"/",
+
 
       }
 
+
     );
+
+
+
 
 
 
@@ -430,25 +700,39 @@ export async function POST(
 
 
 
+
+
+
   } catch(error) {
 
 
     console.error(
+
       "Admin login error:",
+
       error
+
     );
 
 
+
+
+
     return NextResponse.json(
+
       {
         message:
           "Internal server error.",
       },
+
       {
         status:500,
       }
+
     );
 
+
   }
+
 
 }

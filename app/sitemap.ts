@@ -5,12 +5,14 @@ import { prisma } from "@/lib/prisma";
 
 
 const levels = [
-  "CROWN",
-  "SSS",
-  "SS",
-  "S",
-  "A",
+  "crown",
+  "sss",
+  "ss",
+  "s",
+  "a",
 ];
+
+
 
 
 
@@ -19,25 +21,32 @@ export default async function sitemap()
 
 
   const baseUrl =
+
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://chayanlonggong.com";
+
+    "https://cylg-production.vercel.app";
+
 
 
 
 
   const models =
+
     await prisma.model.findMany({
 
-      select:{
+      select: {
 
-        code:true,
+        code: true,
 
-        updatedAt:true,
+        updatedAt: true,
 
       },
 
-      orderBy:{
-        createdAt:"desc",
+
+      orderBy: {
+
+        createdAt: "desc",
+
       },
 
     });
@@ -49,21 +58,39 @@ export default async function sitemap()
 
 
   const modelUrls =
-    models.map((model: any)=>({
+
+    models.map((model: {
+      code: string;
+      updatedAt: Date;
+    }) => ({
+
 
       url:
+
         `${baseUrl}/models/${model.code}`,
 
+
+
       lastModified:
+
         model.updatedAt,
 
+
+
       changeFrequency:
+
         "weekly" as const,
 
+
+
       priority:
+
         0.8,
 
+
     }));
+
+
 
 
 
@@ -72,21 +99,35 @@ export default async function sitemap()
 
 
   const collectionUrls =
-    levels.map((level)=>({
+
+    levels.map((level) => ({
+
 
       url:
+
         `${baseUrl}/collection/${level}`,
 
+
+
       lastModified:
+
         new Date(),
 
+
+
       changeFrequency:
-        "daily" as const,
+
+        "weekly" as const,
+
+
 
       priority:
+
         0.7,
 
+
     }));
+
 
 
 
@@ -97,41 +138,79 @@ export default async function sitemap()
 
   return [
 
-    {
-
-      url:baseUrl,
-
-      lastModified:new Date(),
-
-      changeFrequency:
-        "daily",
-
-      priority:
-        1,
-
-    },
 
 
     {
+
 
       url:
-        `${baseUrl}/models`,
 
-      lastModified:new Date(),
+        baseUrl,
+
+
+
+      lastModified:
+
+        new Date(),
+
+
 
       changeFrequency:
+
         "daily",
 
+
+
       priority:
-        0.9,
+
+        1,
+
 
     },
+
+
+
+
+
+    {
+
+
+      url:
+
+        `${baseUrl}/models`,
+
+
+
+      lastModified:
+
+        new Date(),
+
+
+
+      changeFrequency:
+
+        "daily",
+
+
+
+      priority:
+
+        0.9,
+
+
+    },
+
+
+
 
 
     ...collectionUrls,
 
 
+
     ...modelUrls,
+
+
 
   ];
 

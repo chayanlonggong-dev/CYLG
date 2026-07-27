@@ -13,12 +13,53 @@ import {
 } from "@/lib/auth/session";
 
 
+import {
+  rateLimit,
+} from "@/lib/rateLimit";
+
+
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
+
+
+
+function getClientIp(
+  request: Request
+){
+
+  return (
+
+    request.headers
+      .get("x-forwarded-for")
+      ?.split(",")[0]
+      ?.trim()
+
+    ||
+
+    "unknown"
+
+  );
+
+}
+
+
+
+
+
+
+
 
 // =========================
 // GET ALL ADMIN SESSIONS
 // =========================
 
-export async function GET() {
+export async function GET(
+  request: Request
+) {
+
 
   try {
 
@@ -28,24 +69,86 @@ export async function GET() {
 
 
 
+
     if(!currentSession){
 
+
       return NextResponse.json(
+
         {
           message:
             "Unauthorized.",
         },
+
         {
           status:401,
         }
+
       );
+
 
     }
 
 
 
+
+
+
+
+    const ip =
+      getClientIp(request);
+
+
+
+    const limit =
+      rateLimit(
+
+        `admin-sessions-get:${ip}`,
+
+        {
+
+          limit:60,
+
+          windowMs:
+            60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Too many requests.",
+        },
+
+        {
+          status:429,
+        }
+
+      );
+
+
+    }
+
+
+
+
+
+
+
+
     const sessions =
       await prisma.session.findMany({
+
 
         where:{
           adminUserId:
@@ -53,40 +156,64 @@ export async function GET() {
         },
 
 
+
         orderBy:{
+
           createdAt:
             "desc",
+
         },
+
 
 
         select:{
 
+
           id:true,
+
 
           ip:true,
 
+
           userAgent:true,
+
 
           createdAt:true,
 
+
           lastActivityAt:true,
+
 
           expiresAt:true,
 
+
         },
+
 
       });
 
 
 
+
+
+
+
     return NextResponse.json({
+
 
       sessions,
 
+
       currentSessionId:
+
         currentSession.sessionId,
 
+
     });
+
+
+
+
 
 
 
@@ -94,24 +221,37 @@ export async function GET() {
 
 
     console.error(
+
       "GET ADMIN SESSIONS ERROR:",
+
       error
+
     );
 
 
+
     return NextResponse.json(
+
       {
         message:
           "Failed to fetch sessions.",
       },
+
       {
         status:500,
       }
+
     );
+
 
   }
 
+
 }
+
+
+
+
 
 
 
@@ -125,6 +265,7 @@ export async function DELETE(
   request: Request
 ) {
 
+
   try {
 
 
@@ -133,19 +274,83 @@ export async function DELETE(
 
 
 
+
+
     if(!currentSession){
 
+
       return NextResponse.json(
+
         {
           message:
             "Unauthorized.",
         },
+
         {
           status:401,
         }
+
       );
 
+
     }
+
+
+
+
+
+
+
+
+    const ip =
+      getClientIp(request);
+
+
+
+    const limit =
+      rateLimit(
+
+        `admin-session-delete:${ip}`,
+
+        {
+
+          limit:20,
+
+          windowMs:
+            60 * 60 * 1000,
+
+        }
+
+      );
+
+
+
+
+
+
+    if(!limit.success){
+
+
+      return NextResponse.json(
+
+        {
+          message:
+            "Too many requests.",
+        },
+
+        {
+          status:429,
+        }
+
+      );
+
+
+    }
+
+
+
+
+
 
 
 
@@ -154,94 +359,198 @@ export async function DELETE(
 
 
 
+
+
     const sessionId =
       body.sessionId;
 
 
 
+
+
+
     if(!sessionId){
 
+
       return NextResponse.json(
+
         {
           message:
             "Session ID required.",
         },
+
         {
           status:400,
         }
+
       );
 
+
     }
+
+
+
+
+
 
 
 
     const targetSession =
       await prisma.session.findUnique({
 
+
         where:{
+
           id:
             sessionId,
+
         },
+
 
       });
 
 
 
+
+
+
+
     if(!targetSession){
 
+
       return NextResponse.json(
+
         {
           message:
             "Session not found.",
         },
+
         {
           status:404,
         }
+
       );
 
+
     }
+
+
+
+
+
 
 
 
     if(
+
       targetSession.adminUserId
+
       !==
+
       currentSession.adminUserId
+
     ){
 
+
       return NextResponse.json(
+
         {
           message:
             "Forbidden.",
         },
+
         {
           status:403,
         }
+
       );
 
+
     }
+
+
+
+
+
 
 
 
     await prisma.session.delete({
 
+
       where:{
+
         id:
           sessionId,
+
       },
 
+
     });
+
+
+
+
+
+
+
+
+    createAuditLog({
+
+
+      action:
+        "DELETE",
+
+
+      entity:
+        "Session",
+
+
+      entityId:
+        sessionId,
+
+
+      userId:
+        String(
+          currentSession.adminUserId
+        ),
+
+
+      description:
+        "Admin session revoked.",
+
+
+      metadata:{
+
+        ip,
+
+      },
+
+
+    });
+
+
+
+
+
 
 
 
     return NextResponse.json({
 
+
       success:true,
+
 
       message:
         "Session revoked.",
 
+
     });
+
+
+
+
 
 
 
@@ -249,21 +558,30 @@ export async function DELETE(
 
 
     console.error(
+
       "DELETE ADMIN SESSION ERROR:",
+
       error
+
     );
 
 
+
     return NextResponse.json(
+
       {
         message:
           "Failed to revoke session.",
       },
+
       {
         status:500,
       }
+
     );
 
+
   }
+
 
 }

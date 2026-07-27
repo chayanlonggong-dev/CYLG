@@ -23,7 +23,7 @@ export default function ModelVideos({
             VIDEOS
           </h2>
 
-          <div className="mx-auto mt-8 h-[2px] w-32 bg-yellow-500" />
+          <div className="mx-auto mt-8 h-0.5 w-32 bg-yellow-500" />
         </div>
 
         <div
@@ -47,7 +47,7 @@ playsInline
                 controls
                 preload="metadata"
                 className="
-  aspect-[16/9]
+  aspect-video
   w-full
   object-cover
 "

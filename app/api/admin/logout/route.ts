@@ -3,55 +3,204 @@ import {
   NextResponse,
 } from "next/server";
 
+
 import {
   prisma,
 } from "@/lib/prisma";
 
+
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
+
 export async function POST(
   request: NextRequest
 ) {
-  try {
-    // 取得目前的 session token
-    const token =
-      request.cookies.get("cylg_admin_session")?.value;
 
-    // 如果有 token，就從資料庫刪除對應 Session
-    if (token) {
+
+  try {
+
+
+    const token =
+      request.cookies.get(
+        "cylg_admin_session"
+      )?.value;
+
+
+
+
+
+    let session = null;
+
+
+
+    if(token){
+
+
+      session =
+        await prisma.session.findUnique({
+
+          where:{
+            token,
+          },
+
+          include:{
+            adminUser:true,
+          },
+
+        });
+
+
+
+
       await prisma.session.deleteMany({
-        where: {
+
+        where:{
           token,
         },
+
       });
+
+
     }
 
-    const response = NextResponse.json(
-      {
-        message: "Logout successful.",
-      },
-      {
-        status: 200,
-      }
+
+
+
+
+
+    if(session){
+
+
+      createAuditLog({
+
+        action:
+          "LOGOUT",
+
+
+        entity:
+          "AdminUser",
+
+
+        entityId:
+          session.adminUserId,
+
+
+        userId:
+          String(
+            session.adminUserId
+          ),
+
+
+        description:
+          "Admin logout successful.",
+
+
+        metadata:{
+
+          ip:
+            session.ip,
+
+
+          userAgent:
+            session.userAgent,
+
+
+        },
+
+      });
+
+
+    }
+
+
+
+
+
+
+
+
+    const response =
+      NextResponse.json(
+
+        {
+          message:
+            "Logout successful.",
+        },
+
+        {
+          status:200,
+        }
+
+      );
+
+
+
+
+
+
+    response.cookies.delete(
+      "cylg_admin_session"
     );
 
-    // 清除 Cookie
-    response.cookies.delete("cylg_admin_session");
+
+
+
+
 
     return response;
-  } catch (error) {
-    console.error("Admin logout error:", error);
 
-    // 即使出錯也強制清除 Cookie，確保使用者能登出
-    const response = NextResponse.json(
-      {
-        message: "Logout successful.",
-      },
-      {
-        status: 200,
-      }
+
+
+
+
+
+  } catch(error){
+
+
+
+    console.error(
+      "Admin logout error:",
+      error
     );
 
-    response.cookies.delete("cylg_admin_session");
+
+
+
+
+    const response =
+      NextResponse.json(
+
+        {
+          message:
+            "Logout successful.",
+        },
+
+        {
+          status:200,
+        }
+
+      );
+
+
+
+
+
+
+    response.cookies.delete(
+      "cylg_admin_session"
+    );
+
+
+
+
 
     return response;
+
+
   }
+
+
 }
