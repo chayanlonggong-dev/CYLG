@@ -6,6 +6,7 @@ import {
 } from "react";
 
 
+
 interface Session {
 
   id:string;
@@ -23,12 +24,15 @@ interface Session {
 }
 
 
+
 export default function SecurityPage(){
+
 
   const [
     sessions,
     setSessions,
   ] = useState<Session[]>([]);
+
 
 
   const [
@@ -38,12 +42,46 @@ export default function SecurityPage(){
 
 
 
+  const [
+    qrCode,
+    setQrCode,
+  ] = useState("");
+
+
+
+  const [
+    twoFactorCode,
+    setTwoFactorCode,
+  ] = useState("");
+
+
+
+  const [
+    twoFactorMessage,
+    setTwoFactorMessage,
+  ] = useState("");
+
+
+
+  const [
+    twoFactorEnabled,
+    setTwoFactorEnabled,
+  ] = useState(false);
+
+
+
+
+
+
+
   async function loadSessions(){
+
 
     const res =
       await fetch(
         "/api/admin/sessions"
       );
+
 
 
     if(res.ok){
@@ -68,9 +106,12 @@ export default function SecurityPage(){
 
 
 
+
+
   async function revokeSession(
     id:string
   ){
+
 
     const confirmDelete =
       confirm(
@@ -79,14 +120,18 @@ export default function SecurityPage(){
 
 
     if(!confirmDelete){
+
       return;
+
     }
+
 
 
 
     await fetch(
       "/api/admin/sessions",
       {
+
         method:"DELETE",
 
         headers:{
@@ -95,10 +140,14 @@ export default function SecurityPage(){
         },
 
         body:JSON.stringify({
+
           sessionId:id,
+
         }),
+
       }
     );
+
 
 
     loadSessions();
@@ -109,11 +158,126 @@ export default function SecurityPage(){
 
 
 
+
+
+  async function setup2FA(){
+
+
+    const res =
+      await fetch(
+        "/api/admin/2fa/setup",
+        {
+          method:"POST",
+        }
+      );
+
+
+
+    const data =
+      await res.json();
+
+
+
+
+    if(data.success){
+
+      setQrCode(
+        data.qrCode
+      );
+
+      setTwoFactorMessage(
+        "Scan the QR code with your authenticator app."
+      );
+
+    }
+    else{
+
+      setTwoFactorEnabled(
+        true
+      );
+
+      setTwoFactorMessage(
+        data.message
+      );
+
+    }
+
+  }
+
+
+
+
+
+
+
+
+  async function verify2FA(){
+
+
+    const res =
+      await fetch(
+        "/api/admin/2fa/setup/verify",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+          },
+
+
+          body:JSON.stringify({
+
+            token:
+              twoFactorCode,
+
+          }),
+
+        }
+      );
+
+
+
+    const data =
+      await res.json();
+
+
+
+    setTwoFactorMessage(
+      data.message
+    );
+
+
+
+    if(data.success){
+
+      setTwoFactorEnabled(
+        true
+      );
+
+
+      setQrCode("");
+
+      setTwoFactorCode("");
+
+    }
+
+  }
+
+
+
+
+
+
+
   useEffect(()=>{
 
     loadSessions();
 
   },[]);
+
+
 
 
 
@@ -138,6 +302,8 @@ export default function SecurityPage(){
         "
       >
 
+
+
         <p
           className="
           uppercase
@@ -147,6 +313,7 @@ export default function SecurityPage(){
         >
           CYLG CMS
         </p>
+
 
 
         <h1
@@ -161,14 +328,223 @@ export default function SecurityPage(){
 
 
 
+
         <p
           className="
           mt-4
           text-gray-400
           "
         >
-          Manage administrator security sessions.
+          Manage administrator security.
         </p>
+
+
+
+
+
+
+
+
+        <section
+          className="
+          mt-12
+          rounded-3xl
+          border
+          border-yellow-500/20
+          bg-[#101010]
+          p-8
+          "
+        >
+
+
+          <h2
+            className="
+            text-2xl
+            font-bold
+            text-yellow-400
+            "
+          >
+            Two-Factor Authentication
+          </h2>
+
+
+
+
+
+          {
+            twoFactorEnabled
+
+            ?
+
+            (
+
+              <div
+                className="
+                mt-6
+                rounded-xl
+                border
+                border-green-500/30
+                bg-green-500/10
+                p-5
+                text-green-400
+                "
+              >
+
+                Two-Factor Authentication Enabled ✓
+
+              </div>
+
+            )
+
+
+            :
+
+            (
+
+              <>
+
+              {
+                !qrCode
+                &&
+                (
+
+                  <button
+                    onClick={setup2FA}
+
+                    className="
+                    mt-6
+                    rounded-xl
+                    border
+                    border-yellow-500/40
+                    px-5
+                    py-3
+                    text-yellow-400
+                    "
+                  >
+                    Generate QR Code
+                  </button>
+
+                )
+              }
+
+
+
+
+
+
+              {
+                qrCode
+                &&
+                (
+
+                  <div
+                    className="
+                    mt-8
+                    "
+                  >
+
+
+                    <img
+
+                      src={qrCode}
+
+                      alt="2FA QR Code"
+
+                      className="
+                      w-56
+                      rounded-xl
+                      "
+
+                    />
+
+
+
+                    <input
+
+                      value={
+                        twoFactorCode
+                      }
+
+
+                      onChange={
+                        (e)=>
+                        setTwoFactorCode(
+                          e.target.value
+                        )
+                      }
+
+
+                      placeholder="6 digit code"
+
+
+                      className="
+                      mt-6
+                      rounded-xl
+                      border
+                      border-white/20
+                      bg-black
+                      px-5
+                      py-3
+                      "
+
+                    />
+
+
+
+
+                    <button
+
+                      onClick={verify2FA}
+
+                      className="
+                      ml-4
+                      rounded-xl
+                      bg-yellow-500
+                      px-6
+                      py-3
+                      text-black
+                      "
+
+                    >
+
+                      Verify
+
+                    </button>
+
+
+
+                  </div>
+
+                )
+              }
+
+
+              </>
+
+            )
+
+          }
+
+
+
+
+
+          <p
+            className="
+            mt-5
+            text-gray-400
+            "
+          >
+            {twoFactorMessage}
+          </p>
+
+
+
+        </section>
+
+
+
+
 
 
 
@@ -198,6 +574,8 @@ export default function SecurityPage(){
 
 
 
+
+
           <div
             className="
             mt-8
@@ -205,12 +583,18 @@ export default function SecurityPage(){
             "
           >
 
+
           {
             sessions.map(
               (session)=>(
 
+
                 <div
-                  key={session.id}
+
+                  key={
+                    session.id
+                  }
+
                   className="
                   rounded-2xl
                   border
@@ -218,135 +602,126 @@ export default function SecurityPage(){
                   bg-black
                   p-6
                   "
+
                 >
 
-                  <div
+
+
+                  <p
                     className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-5
+                    text-lg
+                    font-bold
                     "
                   >
 
-                    <div>
-
-
-                      <p
-                        className="
-                        text-lg
-                        font-bold
-                        "
-                      >
-                        {
-                          session.id === currentSessionId
-                          ?
-                          "Current Device"
-                          :
-                          "Logged In Device"
-                        }
-                      </p>
-
-
-
-                      <p
-                        className="
-                        mt-2
-                        text-sm
-                        text-gray-400
-                        "
-                      >
-                        IP:
-                        {" "}
-                        {
-                          session.ip || "Unknown"
-                        }
-                      </p>
-
-
-
-                      <p
-                        className="
-                        mt-2
-                        text-sm
-                        text-gray-400
-                        "
-                      >
-                        Browser:
-                        {" "}
-                        {
-                          session.userAgent || "Unknown"
-                        }
-                      </p>
-
-
-
-                      <p
-                        className="
-                        mt-2
-                        text-sm
-                        text-gray-400
-                        "
-                      >
-                        Last Activity:
-                        {" "}
-                        {
-                          new Date(
-                            session.lastActivityAt
-                          )
-                          .toLocaleString()
-                        }
-                      </p>
-
-
-                    </div>
-
-
-
-
                     {
-                      session.id !== currentSessionId
-                      &&
-                      (
-
-                      <button
-                        onClick={()=>
-                          revokeSession(
-                            session.id
-                          )
-                        }
-
-                        className="
-                        rounded-xl
-                        border
-                        border-red-500/40
-                        px-5
-                        py-3
-                        text-red-400
-                        hover:bg-red-500/10
-                        "
-                      >
-                        Logout
-                      </button>
-
-                      )
+                      session.id === currentSessionId
+                      ?
+                      "Current Device"
+                      :
+                      "Logged In Device"
                     }
 
+                  </p>
 
-                  </div>
+
+
+
+                  <p
+                    className="
+                    mt-2
+                    text-sm
+                    text-gray-400
+                    "
+                  >
+
+                    IP:
+                    {" "}
+                    {
+                      session.ip || "Unknown"
+                    }
+
+                  </p>
+
+
+
+
+
+                  <p
+                    className="
+                    mt-2
+                    text-sm
+                    text-gray-400
+                    "
+                  >
+
+                    Browser:
+                    {" "}
+                    {
+                      session.userAgent || "Unknown"
+                    }
+
+                  </p>
+
+
+
+
+
+
+                  {
+                    session.id !== currentSessionId
+                    &&
+                    (
+
+                    <button
+
+                      onClick={()=>
+                        revokeSession(
+                          session.id
+                        )
+                      }
+
+                      className="
+                      mt-5
+                      rounded-xl
+                      border
+                      border-red-500/40
+                      px-5
+                      py-3
+                      text-red-400
+                      "
+
+                    >
+
+                      Logout
+
+                    </button>
+
+                    )
+                  }
+
+
+
 
 
                 </div>
 
+
               )
+
             )
+
           }
+
 
 
           </div>
 
 
+
         </section>
+
+
 
 
       </div>

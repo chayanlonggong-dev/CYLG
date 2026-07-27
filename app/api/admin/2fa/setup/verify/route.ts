@@ -13,12 +13,44 @@ import {
 } from "otplib";
 
 
+import {
+  getAdminSession,
+} from "@/lib/auth/session";
+
+
+
+
 
 export async function POST(
   request: Request
 ) {
 
+
   try {
+
+
+    const session =
+      await getAdminSession();
+
+
+
+    if(!session){
+
+      return NextResponse.json(
+        {
+          message:
+            "Unauthorized.",
+        },
+        {
+          status:401,
+        }
+      );
+
+    }
+
+
+
+
 
 
     const body =
@@ -26,24 +58,20 @@ export async function POST(
 
 
 
-    const username =
-      body.username;
-
 
     const token =
       body.token;
 
 
 
-    if (
-      !username ||
-      !token
-    ) {
+
+
+    if(!token){
 
       return NextResponse.json(
         {
           message:
-            "Username and token are required.",
+            "Token is required.",
         },
         {
           status:400,
@@ -54,18 +82,25 @@ export async function POST(
 
 
 
+
+
+
     const adminUser =
       await prisma.adminUser.findUnique({
 
         where:{
-          username,
+          id:
+            session.adminUserId,
         },
 
       });
 
 
 
-    if (!adminUser) {
+
+
+
+    if(!adminUser){
 
       return NextResponse.json(
         {
@@ -81,14 +116,18 @@ export async function POST(
 
 
 
-    if (
-      !adminUser.twoFactorSecret
-    ) {
+
+
+
+
+    if(
+      adminUser.twoFactorEnabled
+    ){
 
       return NextResponse.json(
         {
           message:
-            "2FA is not setup.",
+            "Two-factor authentication is already enabled.",
         },
         {
           status:400,
@@ -99,19 +138,50 @@ export async function POST(
 
 
 
+
+
+
+
+
+    if(
+      !adminUser.twoFactorSecret
+    ){
+
+      return NextResponse.json(
+        {
+          message:
+            "2FA setup has not started.",
+        },
+        {
+          status:400,
+        }
+      );
+
+    }
+
+
+
+
+
+
+
     const verified =
-  verifySync({
+      verifySync({
 
-    token,
+        token,
 
-    secret:
-      adminUser.twoFactorSecret,
+        secret:
+          adminUser.twoFactorSecret,
 
-  });
+      });
 
 
 
-    if (!verified) {
+
+
+
+
+    if(!verified){
 
       return NextResponse.json(
         {
@@ -124,6 +194,11 @@ export async function POST(
       );
 
     }
+
+
+
+
+
 
 
 
@@ -146,18 +221,25 @@ export async function POST(
 
 
 
+
+
+
+
     return NextResponse.json({
 
       success:true,
 
       message:
-        "2FA verified successfully.",
+        "2FA enabled successfully.",
 
     });
 
 
 
-  } catch(error) {
+
+
+
+  } catch(error){
 
 
     console.error(

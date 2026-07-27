@@ -1,32 +1,130 @@
-import { NextRequest, NextResponse } from "next/server";
-import QRCode from "qrcode";
-import { generateSecret, generateURI } from "otplib";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 
-import { prisma } from "@/lib/prisma";
+
+import QRCode from "qrcode";
+
+
+import {
+  generateSecret,
+  generateURI,
+} from "otplib";
+
+
+import {
+  prisma,
+} from "@/lib/prisma";
+
+
+import {
+  getAdminSession,
+} from "@/lib/auth/session";
+
+
+
 
 
 export async function POST(
   request: NextRequest
 ) {
 
+
   try {
 
-    const adminUser =
-      await prisma.adminUser.findFirst();
+
+    const session =
+      await getAdminSession();
 
 
-    if (!adminUser) {
+
+    if(!session){
 
       return NextResponse.json(
         {
-          message: "Admin user not found.",
+          message:
+            "Unauthorized.",
         },
         {
-          status: 404,
+          status:401,
         }
       );
 
     }
+
+
+
+
+
+    const adminUser =
+      await prisma.adminUser.findUnique({
+
+        where:{
+          id:
+            session.adminUserId,
+        },
+
+      });
+
+
+
+
+
+    if(!adminUser){
+
+      return NextResponse.json(
+        {
+          message:
+            "Admin user not found.",
+        },
+        {
+          status:404,
+        }
+      );
+
+    }
+
+
+
+
+
+
+
+    // =========================
+    // Already Enabled
+    // =========================
+
+
+    if(
+      adminUser.twoFactorEnabled
+    ){
+
+      return NextResponse.json(
+        {
+          success:false,
+
+          enabled:true,
+
+          message:
+            "Two-factor authentication is already enabled.",
+        },
+        {
+          status:400,
+        }
+      );
+
+    }
+
+
+
+
+
+
+
+    // =========================
+    // Generate Secret
+    // =========================
 
 
     const secret =
@@ -34,12 +132,22 @@ export async function POST(
 
 
 
+
+
     const otpauth =
       generateURI({
-        issuer: "ChaYanLongGong Admin",
-        label: adminUser.username,
+
+        issuer:
+          "ChaYanLongGong Admin",
+
+        label:
+          adminUser.username,
+
         secret,
+
       });
+
+
 
 
 
@@ -50,17 +158,25 @@ export async function POST(
 
 
 
+
+
+
+
     await prisma.adminUser.update({
 
-      where: {
-        id: adminUser.id,
+      where:{
+        id:
+          adminUser.id,
       },
 
-      data: {
 
-        twoFactorSecret: secret,
+      data:{
 
-        twoFactorEnabled: false,
+        twoFactorSecret:
+          secret,
+
+        twoFactorEnabled:
+          false,
 
       },
 
@@ -68,24 +184,30 @@ export async function POST(
 
 
 
+
+
+
+
     return NextResponse.json({
 
-      success: true,
-
-      secret,
+      success:true,
 
       qrCode,
 
     });
 
 
-  } catch(error) {
+
+
+
+  } catch(error){
 
 
     console.error(
       "2FA SETUP ERROR:",
       error
     );
+
 
 
     return NextResponse.json(

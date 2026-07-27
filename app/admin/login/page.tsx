@@ -15,43 +15,102 @@ export default function AdminLoginPage() {
 
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-
-  const [username,setUsername] =
-    useState("");
-
-  const [password,setPassword] =
-    useState("");
-
-  const [showPassword,setShowPassword] =
-    useState(false);
-
-  const [error,setError] =
-    useState("");
-
-  const [loading,setLoading] =
-    useState(false);
+  const searchParams =
+    useSearchParams();
 
 
 
+  const [
+    username,
+    setUsername,
+  ] = useState("");
 
 
-  const [sessionExpiredMessage,setSessionExpiredMessage] =
-    useState("");
-useEffect(() => {
-  if (searchParams.get("expired") === "1") {
-    setSessionExpiredMessage(
-      "Your session has expired. Please log in again."
-    );
-  }
-}, [searchParams]);
+
+  const [
+    password,
+    setPassword,
+  ] = useState("");
+
+
+
+  const [
+    twoFactorToken,
+    setTwoFactorToken,
+  ] = useState("");
+
+
+
+  const [
+    requireTwoFactor,
+    setRequireTwoFactor,
+  ] = useState(false);
+
+
+
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
+
+
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+
+
+  const [
+    sessionExpiredMessage,
+    setSessionExpiredMessage,
+  ] = useState("");
+
+
+
+
+
+  useEffect(() => {
+
+
+    if (
+      searchParams.get("expired")
+      ===
+      "1"
+    ) {
+
+      setSessionExpiredMessage(
+        "Your session has expired. Please log in again."
+      );
+
+    }
+
+
+  }, [
+    searchParams
+  ]);
+
+
+
+
+
+
 
   function showPasswordTemporarily(){
 
     setShowPassword(true);
 
   }
+
 
 
   function hidePasswordTemporarily(){
@@ -61,22 +120,29 @@ useEffect(() => {
   }
 
 
+
+
+
+
   function handlePasswordKeyDown(
     e:React.KeyboardEvent<HTMLButtonElement>
   ){
 
     if(
       e.key === "Enter" ||
-      e.key === " " ||
-      e.key === "Spacebar"
+      e.key === " "
     ){
 
       e.preventDefault();
+
       setShowPassword(true);
 
     }
 
   }
+
+
+
 
 
   function handlePasswordKeyUp(
@@ -85,16 +151,20 @@ useEffect(() => {
 
     if(
       e.key === "Enter" ||
-      e.key === " " ||
-      e.key === "Spacebar"
+      e.key === " "
     ){
 
       e.preventDefault();
+
       setShowPassword(false);
 
     }
 
   }
+
+
+
+
 
 
   async function handleSubmit(
@@ -110,13 +180,14 @@ useEffect(() => {
 
 
 
-    try{
+    try {
 
 
       const response =
         await fetch(
           "/api/admin/login",
           {
+
             method:"POST",
 
             headers:{
@@ -124,11 +195,19 @@ useEffect(() => {
                 "application/json",
             },
 
+
             body:JSON.stringify({
 
               username,
 
               password,
+
+              twoFactorToken:
+                requireTwoFactor
+                ?
+                twoFactorToken
+                :
+                undefined,
 
             }),
 
@@ -140,6 +219,33 @@ useEffect(() => {
 
       const data =
         await response.json();
+
+
+
+
+
+
+      /*
+        第一次密码正确
+        但是开启了2FA
+      */
+
+      if(
+        data.requireTwoFactor
+      ){
+
+        setRequireTwoFactor(true);
+
+        setError(
+          "Please enter your authenticator code."
+        );
+
+        setLoading(false);
+
+        return;
+
+      }
+
 
 
 
@@ -157,6 +263,7 @@ useEffect(() => {
 
 
 
+
       router.push(
         "/admin/dashboard"
       );
@@ -167,19 +274,23 @@ useEffect(() => {
 
 
 
-    }catch(error){
+    }
+    catch(error){
 
 
       setError(
 
         error instanceof Error
-        ? error.message
-        : "Login failed."
+        ?
+        error.message
+        :
+        "Login failed."
 
       );
 
 
-    }finally{
+    }
+    finally{
 
 
       setLoading(false);
@@ -188,15 +299,7 @@ useEffect(() => {
     }
 
 
-  }
-
-
-
-
-
-
-
-  return (
+  }  return (
 
     <main
       className="
@@ -247,7 +350,8 @@ useEffect(() => {
 
 
         {
-          sessionExpiredMessage && (
+          sessionExpiredMessage &&
+          (
 
             <div
               className="
@@ -270,8 +374,12 @@ useEffect(() => {
         }
 
 
+
+
+
         {
-          error && (
+          error &&
+          (
 
             <div
               className="
@@ -295,58 +403,31 @@ useEffect(() => {
 
 
 
-        <input
+        {
+          !requireTwoFactor
+          &&
+          (
 
-  placeholder="Username"
+          <>
 
-  autoComplete="off"
-
-  value={username}
-
-  onChange={(e)=>
-    setUsername(
-      e.target.value
-    )
-  }
-
-  className="
-            mb-5
-            w-full
-            rounded-xl
-            border
-            border-white/20
-            bg-black
-            px-5
-            py-4
-            text-white
-          "
-
-        />
-
-
-
-
-
-
-        <div className="relative mb-8">
 
           <input
 
-            type={showPassword ? "text" : "password"}
+            placeholder="Username"
 
-            placeholder="Password"
+            autoComplete="off"
 
-autoComplete="current-password"
-
-            value={password}
+            value={username}
 
             onChange={(e)=>
-              setPassword(
+              setUsername(
                 e.target.value
               )
             }
 
+
             className="
+              mb-5
               w-full
               rounded-xl
               border
@@ -354,57 +435,216 @@ autoComplete="current-password"
               bg-black
               px-5
               py-4
-              pr-12
               text-white
             "
 
           />
 
 
-          <button
 
-            type="button"
 
-            aria-label={
-              showPassword
-              ? "Hide password"
-              : "Show password"
-            }
 
-            onMouseDown={showPasswordTemporarily}
-            onMouseUp={hidePasswordTemporarily}
-            onMouseLeave={hidePasswordTemporarily}
-            onTouchStart={showPasswordTemporarily}
-            onTouchEnd={hidePasswordTemporarily}
-            onTouchCancel={hidePasswordTemporarily}
-            onPointerDown={showPasswordTemporarily}
-            onPointerUp={hidePasswordTemporarily}
-            onPointerLeave={hidePasswordTemporarily}
-            onKeyDown={handlePasswordKeyDown}
-            onKeyUp={handlePasswordKeyUp}
-            onBlur={hidePasswordTemporarily}
 
-            className="
-              absolute
-              right-3
-              top-1/2
-              -translate-y-1/2
-              text-xl
-              text-yellow-400/80
-              transition
-              hover:text-yellow-300
-              focus:outline-none
-            "
+          <div className="relative mb-8">
 
-          >
 
-            <span aria-hidden="true">
+            <input
+
+              type={
+                showPassword
+                ?
+                "text"
+                :
+                "password"
+              }
+
+
+              placeholder="Password"
+
+
+              autoComplete="current-password"
+
+
+              value={password}
+
+
+              onChange={(e)=>
+                setPassword(
+                  e.target.value
+                )
+              }
+
+
+              className="
+                w-full
+                rounded-xl
+                border
+                border-white/20
+                bg-black
+                px-5
+                py-4
+                pr-12
+                text-white
+              "
+
+            />
+
+
+
+
+            <button
+
+              type="button"
+
+
+              aria-label={
+                showPassword
+                ?
+                "Hide password"
+                :
+                "Show password"
+              }
+
+
+              onMouseDown={
+                showPasswordTemporarily
+              }
+
+              onMouseUp={
+                hidePasswordTemporarily
+              }
+
+              onMouseLeave={
+                hidePasswordTemporarily
+              }
+
+              onTouchStart={
+                showPasswordTemporarily
+              }
+
+              onTouchEnd={
+                hidePasswordTemporarily
+              }
+
+
+              onKeyDown={
+                handlePasswordKeyDown
+              }
+
+
+              onKeyUp={
+                handlePasswordKeyUp
+              }
+
+
+              onBlur={
+                hidePasswordTemporarily
+              }
+
+
+              className="
+                absolute
+                right-3
+                top-1/2
+                -translate-y-1/2
+                text-xl
+                text-yellow-400/80
+              "
+
+            >
+
               👁
-            </span>
 
-          </button>
+            </button>
 
-        </div>
+
+          </div>
+
+
+          </>
+
+          )
+        }
+
+
+
+
+
+
+
+        {
+          requireTwoFactor
+          &&
+          (
+
+            <div
+              className="
+                mb-8
+              "
+            >
+
+
+              <p
+                className="
+                  mb-4
+                  text-center
+                  text-yellow-400
+                  font-bold
+                "
+              >
+
+                Two-Factor Authentication
+
+              </p>
+
+
+
+              <input
+
+
+                placeholder="
+                  Enter 6 digit code
+                "
+
+
+                maxLength={6}
+
+
+                value={
+                  twoFactorToken
+                }
+
+
+                onChange={(e)=>
+                  setTwoFactorToken(
+                    e.target.value
+                  )
+                }
+
+
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-white/20
+                  bg-black
+                  px-5
+                  py-4
+                  text-center
+                  tracking-[0.5em]
+                  text-white
+                "
+
+              />
+
+
+
+            </div>
+
+          )
+        }
+
+
 
 
 
@@ -416,6 +656,7 @@ autoComplete="current-password"
           type="submit"
 
           disabled={loading}
+
 
           className="
             w-full
@@ -430,14 +671,22 @@ autoComplete="current-password"
 
         >
 
+
           {
             loading
-            ? "LOGIN..."
-            : "LOGIN"
+            ?
+            "LOGIN..."
+            :
+            requireTwoFactor
+            ?
+            "VERIFY"
+            :
+            "LOGIN"
           }
 
 
         </button>
+
 
 
 
