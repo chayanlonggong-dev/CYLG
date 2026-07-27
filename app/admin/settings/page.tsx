@@ -8,45 +8,90 @@ import {
 
 
 interface Settings {
+
   siteName:string;
 
+  logo:string;
+
+  favicon:string;
+
+
   whatsapp:string;
+
   telegram:string;
+
   signal:string;
+
   line:string;
+
   wechatQr:string;
+
 
   email:string;
 
+
   enableWhatsapp:boolean;
+
   enableTelegram:boolean;
+
   enableSignal:boolean;
+
   enableLine:boolean;
+
   enableWechat:boolean;
+
+  enableFeedbackEmail:boolean;
+
 }
+
+
 
 
 
 
 const defaultSettings:Settings = {
 
+
   siteName:"",
 
+  logo:"",
+
+  favicon:"",
+
+
+
   whatsapp:"",
+
   telegram:"",
+
   signal:"",
+
   line:"",
+
   wechatQr:"",
+
+
 
   email:"",
 
+
+
   enableWhatsapp:true,
+
   enableTelegram:true,
+
   enableSignal:false,
+
   enableLine:false,
+
   enableWechat:false,
 
+  enableFeedbackEmail:true,
+
+
 };
+
+
 
 
 
@@ -55,26 +100,44 @@ const defaultSettings:Settings = {
 export default function WebsiteSettingsPage(){
 
 
-  const [settings,setSettings] =
-    useState<Settings>(
-      defaultSettings
-    );
+
+  const [
+    settings,
+    setSettings,
+  ] = useState<Settings>(
+    defaultSettings
+  );
 
 
-  const [loading,setLoading] =
-    useState(false);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
 
 
-  const [uploading,setUploading] =
-    useState(false);
+
+  const [
+    uploading,
+    setUploading,
+  ] = useState(false);
 
 
-  const [deleting,setDeleting] =
-    useState(false);
+
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
 
 
-  const [error,setError] =
-    useState("");
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+
 
 
 
@@ -94,6 +157,7 @@ export default function WebsiteSettingsPage(){
           );
 
 
+
         const data =
           await response.json();
 
@@ -101,10 +165,15 @@ export default function WebsiteSettingsPage(){
 
         if(data){
 
+
           setSettings({
+
             ...defaultSettings,
+
             ...data,
+
           });
+
 
         }
 
@@ -112,7 +181,11 @@ export default function WebsiteSettingsPage(){
 
       }catch(error){
 
-        console.error(error);
+
+        console.error(
+          error
+        );
+
 
       }
 
@@ -120,10 +193,15 @@ export default function WebsiteSettingsPage(){
     }
 
 
+
     load();
 
 
+
   },[]);
+
+
+
 
 
 
@@ -134,6 +212,7 @@ export default function WebsiteSettingsPage(){
     value:any
   ){
 
+
     setSettings(prev=>({
 
       ...prev,
@@ -142,7 +221,10 @@ export default function WebsiteSettingsPage(){
 
     }));
 
+
   }
+
+
 
 
 
@@ -158,22 +240,31 @@ export default function WebsiteSettingsPage(){
       setLoading(true);
 
 
+
       const response =
         await fetch(
           "/api/settings",
           {
+
             method:"PUT",
 
+
             headers:{
+
               "Content-Type":
                 "application/json",
+
             },
 
+
             body:
-              JSON.stringify(settings),
+              JSON.stringify(
+                settings
+              ),
 
           }
         );
+
 
 
 
@@ -196,13 +287,17 @@ export default function WebsiteSettingsPage(){
     }catch(error){
 
 
-      console.error(error);
+      console.error(
+        error
+      );
 
 
       alert(
         error instanceof Error
-        ? error.message
-        : "Save failed."
+        ?
+        error.message
+        :
+        "Save failed."
       );
 
 
@@ -223,7 +318,9 @@ export default function WebsiteSettingsPage(){
 
 
 
-  async function uploadWechatQr(
+
+
+  async function uploadFavicon(
     file:File
   ){
 
@@ -241,6 +338,7 @@ export default function WebsiteSettingsPage(){
         new FormData();
 
 
+
       formData.append(
         "file",
         file
@@ -250,10 +348,14 @@ export default function WebsiteSettingsPage(){
 
       const response =
         await fetch(
-          "/api/upload/avatar",
+          "/api/upload/favicon",
           {
+
             method:"POST",
-            body:formData,
+
+            body:
+              formData,
+
           }
         );
 
@@ -276,8 +378,9 @@ export default function WebsiteSettingsPage(){
 
 
 
+
       update(
-        "wechatQr",
+        "favicon",
         data.url
       );
 
@@ -287,9 +390,13 @@ export default function WebsiteSettingsPage(){
 
 
       setError(
+
         error instanceof Error
-        ? error.message
-        : "Upload failed."
+        ?
+        error.message
+        :
+        "Upload failed."
+
       );
 
 
@@ -303,116 +410,20 @@ export default function WebsiteSettingsPage(){
     }
 
 
-  }
+  }  return (
 
-
-
-
-
-
-
-
-
-  async function deleteWechatQr(){
-
-
-    if(!settings.wechatQr){
-
-      return;
-
-    }
-
-
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this WeChat QR?"
-      );
-
-
-    if(!confirmed){
-
-      return;
-
-    }
-
-
-    try{
-
-
-      setDeleting(true);
-      setError("");
-
-
-      const response =
-        await fetch(
-          "/api/settings",
-          {
-            method:"DELETE",
-            headers:{
-              "Content-Type":
-                "application/json",
-            },
-            body:
-              JSON.stringify({
-                path:
-                  settings.wechatQr,
-              }),
-          }
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if(!response.ok){
-
-        throw new Error(
-          data.message ||
-          "Delete failed."
-        );
-
-      }
-
-
-      update(
-        "wechatQr",
-        ""
-      );
-
-
-    }catch(error){
-
-
-      setError(
-        error instanceof Error
-        ? error.message
-        : "Delete failed."
-      );
-
-
-    }finally{
-
-
-      setDeleting(false);
-
-
-    }
-
-
-  }
-
-  return (
-
-    <main className="
+    <main
+      className="
       min-h-screen
       bg-black
       py-20
       text-white
-    ">
+      "
+    >
 
 
-      <div className="
+      <div
+        className="
         mx-auto
         w-full
         max-w-3xl
@@ -421,157 +432,72 @@ export default function WebsiteSettingsPage(){
         border-yellow-500/30
         bg-[#111]
         p-10
-      ">
+        "
+      >
 
 
 
-        <h1 className="
+        <h1
+          className="
           mb-10
           text-4xl
           font-bold
           text-yellow-400
-        ">
-
+          "
+        >
           Website Settings
-
         </h1>
 
 
 
 
+
         <Input
+
           label="Site Name"
-          value={settings.siteName}
-          onChange={(v)=>
+
+          value={
+            settings.siteName
+          }
+
+          onChange={
+            (v)=>
             update(
               "siteName",
               v
             )
           }
-        />
 
-
-
-        <Input
-          label="WhatsApp"
-          value={settings.whatsapp}
-          onChange={(v)=>
-            update(
-              "whatsapp",
-              v
-            )
-          }
-        />
-
-        <Toggle
-          label="Enable WhatsApp"
-          checked={settings.enableWhatsapp}
-          onChange={(v)=>
-            update(
-              "enableWhatsapp",
-              v
-            )
-          }
-        />
-
-
-
-
-        <Input
-          label="Telegram"
-          value={settings.telegram}
-          onChange={(v)=>
-            update(
-              "telegram",
-              v
-            )
-          }
-        />
-
-        <Toggle
-          label="Enable Telegram"
-          checked={settings.enableTelegram}
-          onChange={(v)=>
-            update(
-              "enableTelegram",
-              v
-            )
-          }
-        />
-
-
-
-
-        <Input
-          label="Signal"
-          value={settings.signal}
-          onChange={(v)=>
-            update(
-              "signal",
-              v
-            )
-          }
-        />
-
-        <Toggle
-          label="Enable Signal"
-          checked={settings.enableSignal}
-          onChange={(v)=>
-            update(
-              "enableSignal",
-              v
-            )
-          }
-        />
-
-
-
-
-        <Input
-          label="LINE"
-          value={settings.line}
-          onChange={(v)=>
-            update(
-              "line",
-              v
-            )
-          }
-        />
-
-        <Toggle
-          label="Enable LINE"
-          checked={settings.enableLine}
-          onChange={(v)=>
-            update(
-              "enableLine",
-              v
-            )
-          }
         />
 
 
 
 
 
-        <div className="
+
+
+        <div
+          className="
           mt-8
           rounded-2xl
           border
           border-yellow-500/20
           p-5
-        ">
+          "
+        >
 
 
-          <label className="
+          <label
+            className="
             mb-3
             block
             text-sm
             text-yellow-400
-          ">
-
-            WeChat QR
-
+            "
+          >
+            Favicon
           </label>
+
 
 
 
@@ -579,97 +505,82 @@ export default function WebsiteSettingsPage(){
 
             type="file"
 
-            accept="image/*"
+            accept="image/*,.ico"
 
-            disabled={uploading}
+            disabled={
+              uploading
+            }
 
-            onChange={(e)=>{
 
-              const file =
-                e.target.files?.[0];
+            onChange={
+              (e)=>{
 
-              if(file){
+                const file =
+                  e.target.files?.[0];
 
-                uploadWechatQr(file);
+
+                if(file){
+
+                  uploadFavicon(
+                    file
+                  );
+
+                }
 
               }
+            }
 
-            }}
 
             className="
-              w-full
-              text-white
+            w-full
+            text-white
             "
 
           />
 
 
 
+
+
           {
-            settings.wechatQr && (
+            settings.favicon
+            &&
+            (
 
-              <div className="
+              <img
+
+                src={
+                  settings.favicon
+                }
+
+                alt="Favicon"
+
+                className="
                 mt-5
-                flex
-                flex-col
-                gap-3
-              ">
-
-                <img
-
-                  src={settings.wechatQr}
-
-                  alt="Wechat QR"
-
-                  className="
-                    max-h-64
-                    rounded-xl
-                  "
-
-                />
-
-
-                <button
-
-                  onClick={deleteWechatQr}
-
-                  disabled={deleting}
-
-                  className="
-                    rounded-xl
-                    border
-                    border-red-500/40
-                    bg-red-500/10
-                    px-4
-                    py-3
-                    font-semibold
-                    text-red-400
-                  "
-
-                >
-
-                  {
-                    deleting
-                    ? "DELETING..."
-                    : "Delete QR"
-                  }
-
-                </button>
-
-              </div>
+                h-20
+                w-20
+                rounded-xl
+                "
+              />
 
             )
           }
 
 
 
-          {
-            uploading && (
 
-              <p className="
+
+          {
+            uploading
+            &&
+            (
+
+              <p
+                className="
                 mt-3
                 text-yellow-400
-              ">
+                "
+              >
                 Uploading...
               </p>
 
@@ -677,18 +588,24 @@ export default function WebsiteSettingsPage(){
           }
 
 
-          {
-            error && (
 
-              <p className="
+          {
+            error
+            &&
+            (
+
+              <p
+                className="
                 mt-3
                 text-red-400
-              ">
+                "
+              >
                 {error}
               </p>
 
             )
           }
+
 
 
         </div>
@@ -697,15 +614,41 @@ export default function WebsiteSettingsPage(){
 
 
 
+
+
+
+        <Input
+
+          label="WhatsApp"
+
+          value={
+            settings.whatsapp
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "whatsapp",
+              v
+            )
+          }
+
+        />
+
+
+
         <Toggle
 
-          label="Enable WeChat"
+          label="Enable WhatsApp"
 
-          checked={settings.enableWechat}
+          checked={
+            settings.enableWhatsapp
+          }
 
-          onChange={(v)=>
+          onChange={
+            (v)=>
             update(
-              "enableWechat",
+              "enableWhatsapp",
               v
             )
           }
@@ -716,13 +659,139 @@ export default function WebsiteSettingsPage(){
 
 
 
+
         <Input
+
+          label="Telegram"
+
+          value={
+            settings.telegram
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "telegram",
+              v
+            )
+          }
+
+        />
+
+
+
+        <Toggle
+
+          label="Enable Telegram"
+
+          checked={
+            settings.enableTelegram
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "enableTelegram",
+              v
+            )
+          }
+
+        />
+
+
+
+
+
+
+        <Input
+
+          label="Signal"
+
+          value={
+            settings.signal
+          }
+
+          onChange={
+  (v)=>
+  update(
+    "signal",
+    v
+  )
+}
+
+        />
+
+
+
+        <Toggle
+
+          label="Enable Signal"
+
+          checked={
+            settings.enableSignal
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "enableSignal",
+              v
+            )
+          }
+
+        />
+
+
+
+
+
+
+        <Input
+
+          label="LINE"
+
+          value={
+            settings.line
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "line",
+              v
+            )
+          }
+
+        />
+
+
+
+        <Toggle
+
+          label="Enable LINE"
+
+          checked={
+            settings.enableLine
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "enableLine",
+              v
+            )
+          }
+
+        />        <Input
 
           label="Email"
 
-          value={settings.email}
+          value={
+            settings.email
+          }
 
-          onChange={(v)=>
+          onChange={
+            (v)=>
             update(
               "email",
               v
@@ -735,31 +804,87 @@ export default function WebsiteSettingsPage(){
 
 
 
+        <Toggle
+
+          label="Enable WeChat"
+
+          checked={
+            settings.enableWechat
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "enableWechat",
+              v
+            )
+          }
+
+        />
+
+
+
+
+
+
+        <Toggle
+
+          label="Enable Feedback Email"
+
+          checked={
+            settings.enableFeedbackEmail
+          }
+
+          onChange={
+            (v)=>
+            update(
+              "enableFeedbackEmail",
+              v
+            )
+          }
+
+        />
+
+
+
+
+
+
+
         <button
 
-          onClick={save}
+          onClick={
+            save
+          }
 
-          disabled={loading}
+          disabled={
+            loading
+          }
+
 
           className="
-            mt-10
-            w-full
-            rounded-xl
-            bg-yellow-500
-            py-4
-            font-bold
-            text-black
+          mt-10
+          w-full
+          rounded-xl
+          bg-yellow-500
+          py-4
+          font-bold
+          text-black
           "
 
         >
 
           {
             loading
-            ? "SAVING..."
-            : "SAVE SETTINGS"
+            ?
+            "SAVING..."
+            :
+            "SAVE SETTINGS"
           }
 
+
         </button>
+
 
 
 
@@ -771,7 +896,11 @@ export default function WebsiteSettingsPage(){
 
   );
 
+
 }
+
+
+
 
 
 
@@ -780,67 +909,88 @@ export default function WebsiteSettingsPage(){
 
 function Input({
 
-label,
+  label,
 
-value,
+  value,
 
-onChange,
+  onChange,
 
 }:{
 
-label:string;
+  label:string;
 
-value:string;
+  value:string;
 
-onChange:(v:string)=>void;
+  onChange:(v:string)=>void;
 
 }){
 
 
-return (
+  return (
 
-<div className="mb-5">
-
-<label className="
-block
-mb-2
-text-gray-400
-">
-
-{label}
-
-</label>
+    <div
+      className="
+      mb-5
+      "
+    >
 
 
-<input
+      <label
+        className="
+        mb-2
+        block
+        text-gray-400
+        "
+      >
 
-value={value || ""}
+        {label}
 
-onChange={(e)=>
-onChange(
-e.target.value
-)
+      </label>
+
+
+
+
+
+      <input
+
+        value={
+          value || ""
+        }
+
+
+        onChange={
+          (e)=>
+          onChange(
+            e.target.value
+          )
+        }
+
+
+        className="
+        w-full
+        rounded-xl
+        border
+        border-white/20
+        bg-black
+        px-5
+        py-4
+        text-white
+        "
+
+      />
+
+
+    </div>
+
+  );
+
+
 }
 
-className="
-w-full
-rounded-xl
-border
-border-white/20
-bg-black
-px-5
-py-4
-text-white
-"
-
-/>
-
-</div>
-
-);
 
 
-}
+
+
 
 
 
@@ -848,58 +998,68 @@ text-white
 
 function Toggle({
 
-label,
+  label,
 
-checked,
+  checked,
 
-onChange,
+  onChange,
 
 }:{
 
-label:string;
+  label:string;
 
-checked:boolean;
+  checked:boolean;
 
-onChange:(v:boolean)=>void;
+  onChange:(v:boolean)=>void;
 
 }){
 
 
-return (
+  return (
 
-<div className="
-mb-6
-flex
-items-center
-justify-between
-">
-
-
-<span>
-
-{label}
-
-</span>
+    <div
+      className="
+      mb-6
+      flex
+      items-center
+      justify-between
+      "
+    >
 
 
-<input
+      <span>
 
-type="checkbox"
+        {label}
 
-checked={checked}
-
-onChange={(e)=>
-onChange(
-e.target.checked
-)
-}
-
-/>
+      </span>
 
 
-</div>
 
-);
+
+
+      <input
+
+        type="checkbox"
+
+        checked={
+          checked
+        }
+
+
+        onChange={
+          (e)=>
+          onChange(
+            e.target.checked
+          )
+        }
+
+
+      />
+
+
+    </div>
+
+  );
 
 
 }

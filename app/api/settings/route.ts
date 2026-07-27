@@ -9,42 +9,58 @@ export async function GET() {
 
   try {
 
+
     let settings =
       await prisma.websiteSettings.findUnique({
-        where: {
-          id: 1,
+
+        where:{
+          id:1,
         },
+
       });
 
 
 
-    if (!settings) {
+
+    if(!settings){
 
       settings =
         await prisma.websiteSettings.create({
 
-          data: {
+          data:{
 
-            id: 1,
+            id:1,
 
-            siteName: "ChaYanLongGong",
+            siteName:
+              "ChaYanLongGong",
 
-            logo: "",
+            logo:"",
 
-            whatsapp: "",
-            telegram: "",
-            signal: "",
-            line: "",
-            wechatQr: "",
+            favicon:"",
 
-            email: "",
+            whatsapp:"",
 
+            telegram:"",
 
-            enableWhatsApp: true,
-            enableTelegram: true,
-            enableSignal: false,
-            enableLine: false,
-            enableWechat: false,
+            signal:"",
+
+            line:"",
+
+            wechatQr:"",
+
+            email:"",
+
+            enableWhatsApp:true,
+
+            enableTelegram:true,
+
+            enableSignal:false,
+
+            enableLine:false,
+
+            enableWechat:false,
+
+            enableFeedbackEmail:true,
 
           },
 
@@ -54,23 +70,33 @@ export async function GET() {
 
 
 
-    return NextResponse.json(settings);
+
+
+    return NextResponse.json(
+      settings
+    );
 
 
 
-  } catch (error) {
+  } catch(error){
+
 
     console.error(error);
 
 
+
     return NextResponse.json(
+
       {
-        success: false,
-        message: "Failed to load website settings.",
+        success:false,
+        message:
+          "Failed to load website settings.",
       },
+
       {
-        status: 500,
+        status:500,
       }
+
     );
 
   }
@@ -84,10 +110,10 @@ export async function GET() {
 
 
 export async function DELETE(
-  request: Request
-) {
+  request:Request
+){
 
-  try {
+  try{
 
 
     const body =
@@ -97,16 +123,22 @@ export async function DELETE(
 
     const storedPath =
       typeof body?.path === "string"
-        ? body.path
-        : "";
+      ?
+      body.path
+      :
+      "";
 
 
 
-    if (storedPath) {
+
+    if(storedPath){
 
 
       const relativePath =
-        storedPath.replace(/^\/+/, "");
+        storedPath.replace(
+          /^\/+/,
+          ""
+        );
 
 
 
@@ -119,16 +151,17 @@ export async function DELETE(
 
 
 
-      try {
+      try{
 
         await unlink(
           absolutePath
         );
 
-      } catch (error: any) {
+
+      }catch(error:any){
 
 
-        if (error?.code !== "ENOENT") {
+        if(error?.code !== "ENOENT"){
 
           throw error;
 
@@ -141,17 +174,18 @@ export async function DELETE(
 
 
 
+
     const settings =
       await prisma.websiteSettings.update({
 
-        where: {
-          id: 1,
+        where:{
+          id:1,
         },
 
 
-        data: {
+        data:{
 
-          wechatQr: "",
+          favicon:"",
 
         },
 
@@ -159,9 +193,11 @@ export async function DELETE(
 
 
 
+
+
     return NextResponse.json({
 
-      success: true,
+      success:true,
 
       settings,
 
@@ -169,7 +205,7 @@ export async function DELETE(
 
 
 
-  } catch (error) {
+  }catch(error){
 
 
     console.error(error);
@@ -179,12 +215,13 @@ export async function DELETE(
     return NextResponse.json(
 
       {
-        success: false,
-        message: "Failed to delete WeChat QR.",
+        success:false,
+        message:
+          "Failed to delete favicon.",
       },
 
       {
-        status: 500,
+        status:500,
       }
 
     );
@@ -200,11 +237,11 @@ export async function DELETE(
 
 
 export async function PUT(
-  request: Request
-) {
+  request:Request
+){
 
 
-  try {
+  try{
 
 
     const body =
@@ -213,16 +250,18 @@ export async function PUT(
 
 
 
+
     const settings =
       await prisma.websiteSettings.upsert({
 
-        where: {
-          id: 1,
+
+        where:{
+          id:1,
         },
 
 
 
-        update: {
+        update:{
 
 
           siteName:
@@ -233,6 +272,10 @@ export async function PUT(
             body.logo ?? "",
 
 
+          favicon:
+            body.favicon ?? "",
+
+
 
           whatsapp:
             body.whatsapp ?? "",
@@ -280,16 +323,20 @@ export async function PUT(
           enableWechat:
             body.enableWechat ?? false,
 
+
+          enableFeedbackEmail:
+            body.enableFeedbackEmail ?? true,
+
         },
 
 
 
 
 
-        create: {
+        create:{
 
 
-          id: 1,
+          id:1,
 
 
           siteName:
@@ -300,6 +347,10 @@ export async function PUT(
             body.logo ?? "",
 
 
+          favicon:
+            body.favicon ?? "",
+
+
 
           whatsapp:
             body.whatsapp ?? "",
@@ -327,7 +378,6 @@ export async function PUT(
 
 
 
-
           enableWhatsApp:
             body.enableWhatsApp ?? true,
 
@@ -346,6 +396,10 @@ export async function PUT(
 
           enableWechat:
             body.enableWechat ?? false,
+
+
+          enableFeedbackEmail:
+            body.enableFeedbackEmail ?? true,
 
 
         },
@@ -357,9 +411,10 @@ export async function PUT(
 
 
 
+
     return NextResponse.json({
 
-      success: true,
+      success:true,
 
       settings,
 
@@ -369,7 +424,7 @@ export async function PUT(
 
 
 
-  } catch (error) {
+  }catch(error){
 
 
     console.error(error);
@@ -379,12 +434,13 @@ export async function PUT(
     return NextResponse.json(
 
       {
-        success: false,
-        message: "Failed to save website settings.",
+        success:false,
+        message:
+          "Failed to save website settings.",
       },
 
       {
-        status: 500,
+        status:500,
       }
 
     );
