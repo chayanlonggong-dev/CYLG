@@ -1,154 +1,170 @@
 "use client";
 
-import Link from "next/link";
-import { useLanguage } from "@/app/providers/LanguageProvider";
+interface Model {
 
-interface LevelCardProps {
-  level: "CROWN" | "SSS" | "SS" | "S" | "A";
-  count: number;
+  id:number;
+
+  code:string;
+
+  level:
+    | "CROWN"
+    | "SSS"
+    | "SS"
+    | "S"
+    | "A";
+
+  avatar:string;
+
+  gallery:string | null;
+
+  online:boolean;
+
 }
 
+
+
+interface LevelCardProps {
+
+  model:Model;
+
+  onClick?:
+    (model:Model)=>void;
+
+}
+
+
+
+
 export default function LevelCard({
-  level,
-  count,
-}: LevelCardProps) {
-  const { messages } = useLanguage();
 
-  const titleMap = {
-    CROWN: `👑 ${messages.collection.crown}`,
-    SSS: messages.collection.sss,
-    SS: messages.collection.ss,
-    S: messages.collection.s,
-    A: messages.collection.a,
-  };
+  model,
 
-  const subtitleMap = {
-    CROWN: "Ultimate Exclusive",
-    SSS: "Elite Selection",
-    SS: "Premium Selection",
-    S: "Selected Collection",
-    A: "Classic Selection",
-  };
+  onClick,
+
+}:LevelCardProps){
+
 
   return (
-    <Link
-      href={`/collection/${level}`}
+
+    <div
+
+      onClick={() =>
+        onClick?.(model)
+      }
+
       className="
-        group
-        relative
-        block
+        cursor-pointer
         overflow-hidden
-        rounded-3xl
+        rounded-2xl
         border
-        border-yellow-500/20
-        bg-linear-to-br
-        from-[#111111]
-        to-[#1b1b1b]
-        p-5
-        transition-all
-        duration-500
-        hover:-translate-y-2
-hover:scale-[1.03]
-        hover:border-yellow-400
-        hover:bg-[#181818]
-        hover:shadow-[0_0_80px_rgba(212,175,55,.35)]
-        sm:p-7
-        lg:p-8
+        border-yellow-500/30
+        bg-[#111]
+        transition
+        hover:border-yellow-500
       "
+
     >
-      <div
-        className="
-          absolute
-          -right-24
-          -top-24
-          h-56
-          w-56
-          rounded-full
-          bg-yellow-500/10
-          blur-3xl
-          opacity-0
-          transition-all
-          duration-700
-          group-hover:opacity-100
-        "
-      />
+
 
       <div
+
         className="
-          relative
-          z-10
-          space-y-4
-          sm:space-y-5
-          lg:space-y-6
+          aspect-4/5
+          overflow-hidden
         "
+
       >
-        <h2
+
+        <img
+
+          src={
+            model.avatar ||
+            "/logo.png"
+          }
+
+          alt={
+            model.code
+          }
+
           className="
-            text-2xl
+            h-full
+            w-full
+            object-cover
+          "
+
+        />
+
+      </div>
+
+
+
+
+
+      <div
+
+        className="
+          flex
+          items-center
+          justify-between
+          px-5
+          py-5
+        "
+
+      >
+
+
+        <span
+
+          className="
+            text-xl
             font-bold
             text-yellow-500
-transition-all
-duration-300
-group-hover:text-yellow-300
-sm:text-3xl
           "
-        >
-          {titleMap[level]}
-        </h2>
 
-        <p
-          className="
+        >
+
+          {model.code}
+
+        </span>
+
+
+
+
+        <span
+
+          className={`
+            rounded-full
+            border
+            px-3
+            py-1
             text-xs
-            uppercase
-            tracking-[0.25em]
-            text-gray-400
-            sm:text-sm
-          "
+            ${
+              model.online
+              ?
+              "border-green-500 text-green-400"
+              :
+              "border-gray-500 text-gray-400"
+            }
+          `}
+
         >
-          {subtitleMap[level]}
-        </p>
 
-        <div className="flex items-end gap-2 sm:gap-3">
-          <span
-            className="
-              text-4xl
-              font-black
-              text-white
-              sm:text-5xl
-            "
-          >
-            {count}
-          </span>
+          {
+            model.online
+            ?
+            "Online"
+            :
+            "Offline"
+          }
 
-          <span
-            className="
-              pb-1
-              text-sm
-              text-gray-500
-              sm:pb-2
-            "
-          >
-            {messages.collection.profiles}
-          </span>
-        </div>
-        
-        <div
-  className="
-    pt-6
-    text-sm
-    font-semibold
-    uppercase
-    tracking-[0.25em]
-    text-yellow-400
-    opacity-0
-    transition-all
-    duration-300
-    group-hover:opacity-100
-  "
->
-  View Collection →
-</div>
+        </span>
+
+
       </div>
-    </Link>  
+
+
+    </div>
+
   );
+
 }

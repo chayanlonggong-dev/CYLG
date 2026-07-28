@@ -20,6 +20,11 @@ import {
 } from "@/lib/rateLimit";
 
 
+import {
+  createAuditLog,
+} from "@/lib/audit/audit";
+
+
 
 
 
@@ -328,9 +333,8 @@ export async function POST(
   try {
 
 
-    // Admin Protection
-
-    await requireAdminSession();
+    const session =
+      await requireAdminSession();
 
 
 
@@ -545,6 +549,40 @@ export async function POST(
 
 
       });
+
+
+
+
+
+
+
+
+    createAuditLog({
+
+      action:
+        "CREATE",
+
+
+      entity:
+        "Model",
+
+
+      entityId:
+        model.id,
+
+
+      userId:
+        String(
+          session.adminUserId
+        ),
+
+
+      description:
+        "Admin created new model.",
+
+
+    });
+
 
 
 

@@ -1,3 +1,9 @@
+import {
+  prisma,
+} from "@/lib/prisma";
+
+
+
 export type AuditAction =
   | "CREATE"
   | "UPDATE"
@@ -7,89 +13,370 @@ export type AuditAction =
   | "UPLOAD"
   | "SETTINGS_CHANGE";
 
+
+
 export interface AuditLog {
+
   id: string;
+
   action: AuditAction;
+
   entity?: string;
+
   entityId?: string | number;
+
   userId?: string;
+
   description: string;
+
   metadata?: Record<string, unknown>;
+
   createdAt: Date;
+
 }
 
-const logs: AuditLog[] = [];
 
-function generateId() {
-  return (
-    Date.now().toString(36) +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
+
+
+
+function serializeMetadata(
+  metadata?: Record<string, unknown>
+) {
+
+  if (!metadata) {
+
+    return null;
+
+  }
+
+
+  return JSON.stringify(
+    metadata
   );
+
 }
 
-export function createAuditLog(
+
+
+
+
+
+
+export async function createAuditLog(
+
   data: Omit<
     AuditLog,
     "id" | "createdAt"
   >
+
 ) {
-  const log: AuditLog = {
-    id: generateId(),
-    createdAt: new Date(),
-    ...data,
+
+
+  const log =
+
+    await prisma.auditLog.create({
+
+      data: {
+
+        action:
+          data.action,
+
+
+        entity:
+          data.entity ?? null,
+
+
+        entityId:
+          data.entityId
+          ?
+          String(data.entityId)
+          :
+          null,
+
+
+        userId:
+          data.userId ?? null,
+
+
+        description:
+          data.description,
+
+
+        metadata:
+          serializeMetadata(
+            data.metadata
+          ),
+
+      },
+
+    });
+
+
+
+
+
+  return {
+
+    ...log,
+
+    metadata:
+
+      log.metadata
+
+      ?
+
+      JSON.parse(
+        log.metadata
+      )
+
+      :
+
+      undefined,
+
   };
 
-  logs.unshift(log);
+}
 
-  if (logs.length > 10000) {
-    logs.pop();
+
+
+
+
+
+
+
+export async function getAuditLogs(
+
+  options?: {
+
+    limit?: number;
+
+    skip?: number;
+
+    action?: AuditAction;
+
+    userId?: string;
+
+    entity?: string;
+
   }
 
-  return log;
-}
-
-export function getAuditLogs() {
-  return [...logs];
-}
-
-export function getAuditLogsByUser(
-  userId: string
 ) {
-  return logs.filter(
-    (log) =>
-      log.userId === userId
-  );
-}
 
-export function getAuditLogsByEntity(
-  entity: string,
-  entityId?: string | number
-) {
-  return logs.filter(
-    (log) =>
-      log.entity === entity &&
-      (
-        !entityId ||
-        log.entityId === entityId
+
+  const logs =
+
+    await prisma.auditLog.findMany({
+
+      where: {
+
+        action:
+          options?.action,
+
+
+        userId:
+          options?.userId,
+
+
+        entity:
+          options?.entity,
+
+      },
+
+
+      orderBy: {
+
+        createdAt:
+          "desc",
+
+      },
+
+
+      take:
+
+        options?.limit
+        ??
+        50,
+
+
+      skip:
+
+        options?.skip
+        ??
+        0,
+
+
+    });
+
+
+
+
+
+  return logs.map(
+
+  (log: {
+    id: string;
+    action: string;
+    entity: string | null;
+    entityId: string | null;
+    userId: string | null;
+    description: string;
+    metadata: string | null;
+    createdAt: Date;
+    }) => ({
+
+    ...log,
+
+    metadata:
+
+      log.metadata
+
+      ?
+
+      JSON.parse(
+        log.metadata
       )
-  );
+
+      :
+
+      undefined,
+
+  })
+
+);
+
 }
 
-export function clearAuditLogs() {
-  logs.length = 0;
-}
 
-export function countAuditLogs(
-  action?: AuditAction
+
+
+
+
+
+
+export async function getAuditLogsByUser(
+
+  userId: string
+
 ) {
+
+
+  return prisma.auditLog.findMany({
+
+    where: {
+
+      userId,
+
+    },
+
+
+    orderBy: {
+
+      createdAt:
+        "desc",
+
+    },
+
+  });
+
+}
+
+
+
+
+
+
+
+
+export async function getAuditLogsByEntity(
+
+  entity: string,
+
+  entityId?: string | number
+
+) {
+
+
+  return prisma.auditLog.findMany({
+
+    where: {
+
+      entity,
+
+
+      entityId:
+
+        entityId
+
+        ?
+
+        String(entityId)
+
+        :
+
+        undefined,
+
+    },
+
+
+    orderBy: {
+
+      createdAt:
+        "desc",
+
+    },
+
+  });
+
+}
+
+
+
+
+
+
+
+
+export async function clearAuditLogs() {
+
+
+  return prisma.auditLog.deleteMany({});
+
+}
+
+
+
+
+
+
+
+
+export async function countAuditLogs(
+
+  action?: AuditAction
+
+) {
+
+
   if (!action) {
-    return logs.length;
+
+
+    return prisma.auditLog.count();
+
+
   }
 
-  return logs.filter(
-    (log) =>
-      log.action === action
-  ).length;
+
+
+
+
+  return prisma.auditLog.count({
+
+    where: {
+
+      action,
+
+    },
+
+  });
+
 }

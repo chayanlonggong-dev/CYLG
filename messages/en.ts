@@ -100,18 +100,22 @@ const en = {
 
   luxury: {
     title: "Luxury Beyond Expectations",
+
     subtitle:
       "Every arrangement is carefully curated to deliver elegance, discretion and a truly first-class private experience.",
 
     worldwide: "Worldwide Arrangement",
+
     worldwideDesc:
       "Private luxury companion arrangements tailored for international clients with flexible scheduling and premium service.",
 
     vip: "Elite Standard",
+
     vipDesc:
       "Carefully selected companions with exceptional attention to every detail.",
 
     privacy: "Absolute Privacy",
+
     privacyDesc:
       "Confidential communication and completely private arrangements for every distinguished client.",
   },
@@ -126,35 +130,55 @@ const en = {
     profiles: "Profiles",
     noModels: "No models available.",
     loading: "Loading...",
+
+    offlineTitle:
+      "This model is currently offline.",
+
+    offlineMessage:
+      "Please contact customer service for more details.",
   },
 
   model: {
     title: "Model Details",
+
     age: "Age",
+
     height: "Height",
+
     weight: "Weight",
+
     location: "Location",
+
     nationality: "Nationality",
+
     languages: "Languages",
 
     aboutHer: "About Her",
+
     introduction: "Introduction",
 
     readFullProfile: "Read Full Profile",
+
     collapseProfile: "Collapse Profile",
   },
 
   contact: {
     title: "Contact Us",
+
     bookNow: "Book Now",
 
     feedback: "Feedback",
 
     whatsapp: "WhatsApp",
+
     telegram: "Telegram",
+
     signal: "Signal",
+
     line: "LINE",
+
     wechat: "WeChat",
+
     email: "Email",
   },
 };
