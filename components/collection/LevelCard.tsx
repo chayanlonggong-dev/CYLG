@@ -1,5 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
+
+import OfflineModal from "../OfflineModal";
+
+
 interface Model {
 
   id:number;
@@ -27,10 +33,8 @@ interface LevelCardProps {
 
   model:Model;
 
-  onClick?:
-    (model:Model)=>void;
-
 }
+
 
 
 
@@ -39,18 +43,33 @@ export default function LevelCard({
 
   model,
 
-  onClick,
-
 }:LevelCardProps){
 
 
-  return (
+  const [offlineOpen,setOfflineOpen] =
+    useState(false);
+
+
+
+  function handleClick(
+    e:React.MouseEvent
+  ){
+
+    if(!model.online){
+
+      e.preventDefault();
+
+      setOfflineOpen(true);
+
+    }
+
+  }
+
+
+
+  const card = (
 
     <div
-
-      onClick={() =>
-        onClick?.(model)
-      }
 
       className="
         cursor-pointer
@@ -130,21 +149,35 @@ export default function LevelCard({
 
 
 
+
         <span
 
           className={`
+
             rounded-full
+
             border
+
             px-3
+
             py-1
+
             text-xs
+
+
             ${
               model.online
+
               ?
+
               "border-green-500 text-green-400"
+
               :
+
               "border-gray-500 text-gray-400"
+
             }
+
           `}
 
         >
@@ -157,6 +190,7 @@ export default function LevelCard({
             "Offline"
           }
 
+
         </span>
 
 
@@ -164,6 +198,77 @@ export default function LevelCard({
 
 
     </div>
+
+  );
+
+
+
+
+  return (
+
+    <>
+
+      {
+        model.online
+
+        ?
+
+        <Link
+
+          href={
+            `/models/${model.code}`
+          }
+
+        >
+
+          {card}
+
+        </Link>
+
+
+        :
+
+
+        <button
+
+          type="button"
+
+          onClick={
+            handleClick
+          }
+
+          className="
+            block
+            w-full
+            text-left
+          "
+
+        >
+
+          {card}
+
+        </button>
+
+      }
+
+
+
+
+
+      <OfflineModal
+
+        open={
+          offlineOpen
+        }
+
+        onClose={() =>
+          setOfflineOpen(false)
+        }
+
+      />
+
+
+    </>
 
   );
 

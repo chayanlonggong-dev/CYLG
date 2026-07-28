@@ -12,11 +12,12 @@ import {
 } from "@/app/providers/LanguageProvider";
 
 
+
 interface Model {
 
-  id: number;
+  id:number;
 
-  code: string;
+  code:string;
 
   level:
     | "CROWN"
@@ -25,17 +26,17 @@ interface Model {
     | "S"
     | "A";
 
-  avatar: string;
+  avatar:string;
 
-  gallery: string | null;
+  gallery:string | null;
 
-  online: boolean;
+  online:boolean;
 
 }
 
 
 
-export default function CollectionCards() {
+export default function CollectionCards(){
 
 
   const {
@@ -46,32 +47,26 @@ export default function CollectionCards() {
 
   const [
     models,
-    setModels,
+    setModels
   ] = useState<Model[]>([]);
 
 
 
   const [
     loading,
-    setLoading,
+    setLoading
   ] = useState(true);
 
 
 
-  const [
-    offlineModel,
-    setOfflineModel,
-  ] = useState<Model | null>(null);
+
+  useEffect(()=>{
 
 
+    async function loadModels(){
 
 
-
-  useEffect(() => {
-
-    async function loadModels() {
-
-      try {
+      try{
 
 
         const res =
@@ -80,19 +75,25 @@ export default function CollectionCards() {
           );
 
 
+
         const data =
           await res.json();
 
 
 
         setModels(
+
           Array.isArray(data)
-            ? data
-            : []
+          ?
+          data
+          :
+          []
+
         );
 
 
-      } catch(error) {
+
+      }catch(error){
 
 
         console.error(
@@ -104,7 +105,7 @@ export default function CollectionCards() {
         setModels([]);
 
 
-      } finally {
+      }finally{
 
 
         setLoading(false);
@@ -112,48 +113,15 @@ export default function CollectionCards() {
 
       }
 
+
     }
+
 
 
     loadModels();
 
 
-  }, []);
-
-
-
-
-
-
-
-  function handleModelClick(
-    model: Model
-  ) {
-
-
-    if(!model.online){
-
-
-      setOfflineModel(
-        model
-      );
-
-
-      return;
-
-
-    }
-
-
-
-
-
-    window.location.href =
-      `/models/${model.code}`;
-
-
-  }
-
+  },[]);
 
 
 
@@ -161,6 +129,7 @@ export default function CollectionCards() {
 
 
   return (
+
 
     <section
 
@@ -190,7 +159,16 @@ export default function CollectionCards() {
       >
 
 
-        <div className="mb-12 text-center lg:mb-16">
+
+        <div
+
+          className="
+            mb-12
+            text-center
+            lg:mb-16
+          "
+
+        >
 
 
           <p
@@ -201,15 +179,15 @@ export default function CollectionCards() {
               tracking-[0.3em]
               text-yellow-500
               sm:text-sm
-              sm:tracking-[0.4em]
             "
 
           >
 
-            {messages.nav.collection}
+            {
+              messages.nav.collection
+            }
 
           </p>
-
 
 
 
@@ -223,12 +201,13 @@ export default function CollectionCards() {
               text-white
               sm:text-4xl
               md:text-5xl
-              lg:text-6xl
             "
 
           >
 
-            {messages.nav.collection}
+            {
+              messages.nav.collection
+            }
 
           </h2>
 
@@ -241,13 +220,9 @@ export default function CollectionCards() {
               mx-auto
               mt-5
               max-w-2xl
-              px-2
               text-sm
-              leading-7
               text-gray-400
               sm:text-base
-              md:text-lg
-              md:leading-8
             "
 
           >
@@ -257,6 +232,7 @@ export default function CollectionCards() {
           </p>
 
 
+
         </div>
 
 
@@ -264,194 +240,79 @@ export default function CollectionCards() {
 
 
 
+        {
+          loading && (
 
-        {loading && (
-
-          <p
-
-            className="
-              text-center
-              text-sm
-              text-gray-400
-              sm:text-base
-            "
-
-          >
-
-            {messages.collection.loading}
-
-          </p>
-
-        )}
-
-
-
-
-
-
-
-        {!loading && models.length === 0 && (
-
-          <p
-
-            className="
-              text-center
-              text-sm
-              text-gray-500
-              sm:text-base
-            "
-
-          >
-
-            {messages.collection.noModels}
-
-          </p>
-
-        )}
-
-
-
-
-
-
-
-        {!loading && models.length > 0 && (
-
-
-          <LevelGrid
-
-            models={models}
-
-            onModelClick={
-              handleModelClick
-            }
-
-          />
-
-
-        )}
-
-
-
-
-
-
-
-
-        {offlineModel && (
-
-
-          <div
-
-            className="
-              fixed
-              inset-0
-              z-50
-              flex
-              items-center
-              justify-center
-              bg-black/70
-              px-4
-            "
-
-            onClick={() =>
-              setOfflineModel(null)
-            }
-
-          >
-
-
-            <div
+            <p
 
               className="
-                w-full
-                max-w-sm
-                rounded-xl
-                border
-                border-yellow-500/40
-                bg-[#0b0b0b]
-                p-8
                 text-center
-                shadow-2xl
+                text-gray-400
               "
-
-              onClick={(e)=>
-                e.stopPropagation()
-              }
 
             >
 
+              {
+                messages.collection.loading
+              }
 
-              <h3
+            </p>
 
-                className="
-                  text-lg
-                  font-semibold
-                  text-white
-                "
-
-              >
-
-                {messages.collection.offlineTitle}
-
-              </h3>
-
-
-
-
-              <p
-
-                className="
-                  mt-4
-                  text-sm
-                  leading-7
-                  text-gray-400
-                "
-
-              >
-
-                {messages.collection.offlineMessage}
-
-              </p>
+          )
+        }
 
 
 
 
 
-              <button
-
-                className="
-                  mt-6
-                  rounded-lg
-                  border
-                  border-yellow-500
-                  px-6
-                  py-2
-                  text-sm
-                  text-yellow-500
-                  transition
-                  hover:bg-yellow-500
-                  hover:text-black
-                "
-
-                onClick={() =>
-                  setOfflineModel(null)
-                }
-
-              >
-
-                OK
-
-              </button>
 
 
-            </div>
+        {
+          !loading &&
+          models.length === 0 && (
+
+            <p
+
+              className="
+                text-center
+                text-gray-500
+              "
+
+            >
+
+              {
+                messages.collection.noModels
+              }
+
+            </p>
+
+          )
+        }
 
 
-          </div>
 
 
-        )}
+
+
+
+
+        {
+          !loading &&
+          models.length > 0 && (
+
+
+            <LevelGrid
+
+              models={models}
+
+            />
+
+
+          )
+        }
+
+
+
 
 
       </div>
@@ -459,6 +320,8 @@ export default function CollectionCards() {
 
     </section>
 
+
   );
+
 
 }

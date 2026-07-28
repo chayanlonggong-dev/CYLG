@@ -30,29 +30,17 @@ interface LevelGridProps {
 
   models:Model[];
 
-  onModelClick?:
-    (model:Model)=>void;
-
 }
 
 
 
-
 const levels = [
-
   "CROWN",
-
   "SSS",
-
   "SS",
-
   "S",
-
   "A",
-
 ] as const;
-
-
 
 
 
@@ -60,70 +48,69 @@ export default function LevelGrid({
 
   models,
 
-  onModelClick,
-
 }:LevelGridProps){
-
 
 
   return (
 
     <div
-
       className="
-        space-y-16
+        space-y-20
       "
-
     >
 
-
       {
-
-        levels.map(
-
-          (level)=>(
+        levels.map((level)=>{
 
 
-            <div
+          const filteredModels =
+
+            models.filter(
+              (model)=>
+                model.level === level
+            );
+
+
+
+          if(filteredModels.length === 0){
+
+            return null;
+
+          }
+
+
+
+          return (
+
+            <section
 
               key={level}
 
+              className="
+                space-y-8
+              "
+
             >
 
+              <h3
 
-              {
+                className="
+                  text-3xl
+                  font-bold
+                  text-yellow-500
+                "
 
-                models.filter(
+              >
 
-                  (model)=>
+                {
+                  level === "CROWN"
+                  ?
+                  "👑 Crown Collection"
+                  :
+                  `${level} Collection`
+                }
 
-                    model.level === level
-
-                ).length > 0 && (
-
-
-                  <h3
-
-                    className="
-                      mb-8
-                      text-center
-                      text-2xl
-                      font-bold
-                      text-yellow-500
-                    "
-
-                  >
-
-                    {level}
-
-                  </h3>
-
-
-                )
-
-              }
-
-
+              </h3>
 
 
 
@@ -139,69 +126,43 @@ export default function LevelGrid({
 
               >
 
-
                 {
-
-                  models
-
-                  .filter(
-
-                    (model)=>
-
-                      model.level === level
-
-                  )
-
-                  .map(
+                  filteredModels.map(
 
                     (model)=>(
 
-
                       <LevelCard
-
 
                         key={
                           model.id
                         }
 
-
                         model={
                           model
                         }
 
-
-                        onClick={
-                          onModelClick
-                        }
-
-
                       />
-
 
                     )
 
                   )
-
-
                 }
 
 
               </div>
 
 
-            </div>
+            </section>
+
+          );
 
 
-          )
-
-        )
-
+        })
       }
 
 
     </div>
 
   );
-
 
 }
