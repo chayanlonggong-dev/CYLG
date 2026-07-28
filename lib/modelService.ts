@@ -10,78 +10,31 @@ type ModelLevel =
 
 
 
-const LEVEL_ORDER: ModelLevel[] = [
-
-  "CROWN",
-
-  "SSS",
-
-  "SS",
-
-  "S",
-
-  "A",
-
-];
-
-
-
-
-
 export async function getAllModels() {
 
+  return prisma.model.findMany({
 
-  const models =
-    await prisma.model.findMany({
+    orderBy: [
 
-      orderBy: {
-
-        number: "asc",
-
+      {
+        level: "asc",
       },
 
-    });
+      {
+        number: "asc",
+      },
 
+    ],
 
-
-  return models.sort(
-
-    (a,b)=>{
-
-      return (
-
-        LEVEL_ORDER.indexOf(
-          a.level as ModelLevel
-        )
-
-        -
-
-        LEVEL_ORDER.indexOf(
-          b.level as ModelLevel
-        )
-
-      )
-
-      ||
-
-      a.number - b.number;
-
-    }
-
-  );
+  });
 
 }
-
-
-
-
 
 
 
 export async function getModelById(
   id:number
 ) {
-
 
   return prisma.model.findUnique({
 
@@ -92,8 +45,6 @@ export async function getModelById(
   });
 
 }
-
-
 
 
 
@@ -115,24 +66,20 @@ export async function generateModelCode(
         number:"desc",
       },
 
-      select:{
-        number:true,
-      },
-
     });
 
 
 
   const nextNumber =
-    (latest?.number ?? 0) + 1;
+    latest
+      ? latest.number + 1
+      : 1;
 
 
 
   return {
 
-    number:
-      nextNumber,
-
+    number:nextNumber,
 
     code:
       `${level}${String(nextNumber).padStart(3,"0")}`,
@@ -148,7 +95,6 @@ export async function generateModelCode(
 
 
 export async function createModel(
-
 data:{
 
   level:ModelLevel;
@@ -186,119 +132,88 @@ data:{
 ){
 
 
-  return prisma.$transaction(
-
-    async(tx)=>{
-
-
-      const latest =
-        await tx.model.findFirst({
-
-          where:{
-            level:data.level,
-          },
-
-          orderBy:{
-            number:"desc",
-          },
-
-          select:{
-            number:true,
-          },
-
-        });
+  const generated =
+    await generateModelCode(
+      data.level
+    );
 
 
 
-      const number =
-        (latest?.number ?? 0)+1;
+  return prisma.model.create({
+
+    data:{
+
+      level:
+        data.level,
 
 
-
-      const code =
-        `${data.level}${String(number).padStart(3,"0")}`;
-
+      number:
+        generated.number,
 
 
-      return tx.model.create({
-
-        data:{
-
-
-          level:
-            data.level,
+      code:
+        generated.code,
 
 
-          number,
+      title:
+        data.title ?? "",
 
 
-          code,
+      nationality:
+        data.nationality ?? "",
 
 
-          title:
-            data.title ?? "",
+      city:
+        data.city ?? "",
 
 
-          nationality:
-            data.nationality ?? "",
+      age:
+        data.age ?? 18,
 
 
-          city:
-            data.city ?? "",
+      height:
+        data.height ?? 160,
 
 
-          age:
-            data.age ?? 18,
+      weight:
+        data.weight ?? 50,
 
 
-          height:
-            data.height ?? 160,
+      languages:
+        data.languages ?? "",
 
 
-          weight:
-            data.weight ?? 50,
+      services:
+        data.services ?? "",
 
 
-          languages:
-            data.languages ?? "",
+      avatar:
+        data.avatar ?? "",
 
 
-          services:
-            data.services ?? "",
+      gallery:
+        data.gallery ?? "",
 
 
-          avatar:
-            data.avatar ?? "",
+      videos:
+        data.videos ?? "",
 
 
-          gallery:
-            data.gallery ?? "",
+      introduction:
+        data.introduction ?? "",
 
 
-          videos:
-            data.videos ?? "",
+      online:
+        data.online ?? true,
 
 
-          introduction:
-            data.introduction ?? "",
+      featured:
+        data.featured ?? false,
 
 
-          online:
-            data.online ?? true,
+    },
 
-
-          featured:
-            data.featured ?? false,
-
-
-        },
-
-      });
-
-
-    }
-
-  );
+  });
 
 }
 
@@ -308,13 +223,17 @@ data:{
 
 
 
-export async function updateModel(
 
+export async function updateModel(
 id:number,
 
 data:{
 
   level?:ModelLevel;
+
+  number?:number;
+
+  code?:string;
 
   title?:string;
 
@@ -355,9 +274,7 @@ data:{
       id,
     },
 
-
     data,
-
 
   });
 
@@ -368,12 +285,9 @@ data:{
 
 
 
-
-
 export async function deleteModel(
 id:number
 ){
-
 
   return prisma.model.delete({
 

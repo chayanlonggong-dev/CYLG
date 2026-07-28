@@ -1,19 +1,12 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import CollectionCards from "@/components/CollectionCards";
-
+import { useEffect, useState } from "react";
+import LevelGrid from "@/components/collection/LevelGrid";
 
 
 interface Model {
 
-  id:number;
-
-  code:string;
+  id: number;
 
   level:
     | "CROWN"
@@ -22,81 +15,46 @@ interface Model {
     | "S"
     | "A";
 
-  avatar:string;
-
-  gallery:string | null;
-
-  online:boolean;
-
 }
 
 
 
+export default function CollectionPage() {
+
+
+  const [models, setModels] = useState<Model[]>([]);
+
+  const [loading, setLoading] = useState(true);
 
 
 
-export default function CollectionPage(){
+  useEffect(() => {
 
 
-  const [
-    models,
-    setModels,
-  ] = useState<Model[]>([]);
+    async function loadModels() {
 
 
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+      try {
 
 
+        const res = await fetch("/api/models");
 
 
-
-
-  useEffect(()=>{
-
-
-    async function fetchModels(){
-
-
-      try{
-
-
-        const res =
-          await fetch(
-            "/api/models"
-          );
-
-
-
-        const data =
-          await res.json();
-
+        const data = await res.json();
 
 
         setModels(
-
           Array.isArray(data)
-
-          ?
-
-          data
-
-          :
-
-          []
-
+            ? data
+            : []
         );
 
 
-
-      }catch(error){
+      } catch(error) {
 
 
         console.error(
-          "Failed to load models:",
+          "Load models failed",
           error
         );
 
@@ -104,7 +62,7 @@ export default function CollectionPage(){
         setModels([]);
 
 
-      }finally{
+      } finally {
 
 
         setLoading(false);
@@ -112,69 +70,107 @@ export default function CollectionPage(){
 
       }
 
-
     }
 
 
-
-    fetchModels();
-
+    loadModels();
 
 
-  },[]);
-
-
-
-
+  }, []);
 
 
 
   return (
 
     <main
-
       className="
         min-h-screen
         bg-black
+        px-8
+        py-24
       "
-
     >
 
 
-      {
-        loading
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+        "
+      >
 
-        ?
 
-        (
+        <div
+          className="
+            text-center
+            mb-20
+          "
+        >
 
-          <div
-
+          <p
             className="
-              flex
-              min-h-screen
-              items-center
-              justify-center
-              text-gray-400
+              text-yellow-500
+              tracking-[0.5em]
+              uppercase
             "
-
           >
+            Luxury Collection
+          </p>
 
-            Loading...
 
-          </div>
+          <h1
+            className="
+              mt-5
+              text-5xl
+              font-bold
+              text-white
+            "
+          >
+            Exclusive Models
+          </h1>
 
-        )
 
-        :
+          <p
+            className="
+              mt-5
+              text-gray-500
+            "
+          >
+            Discover our private elite collection.
+          </p>
 
-        (
 
-          <CollectionCards />
+        </div>
 
-        )
 
-      }
+
+        {
+          loading ? (
+
+            <p
+              className="
+                text-center
+                text-gray-400
+              "
+            >
+              Loading...
+            </p>
+
+
+          ) : (
+
+
+            <LevelGrid
+              models={models}
+            />
+
+
+          )
+        }
+
+
+
+      </div>
 
 
     </main>

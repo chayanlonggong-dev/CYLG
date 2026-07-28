@@ -1,275 +1,154 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-
-import OfflineModal from "../OfflineModal";
-
-
-interface Model {
-
-  id:number;
-
-  code:string;
-
-  level:
-    | "CROWN"
-    | "SSS"
-    | "SS"
-    | "S"
-    | "A";
-
-  avatar:string;
-
-  gallery:string | null;
-
-  online:boolean;
-
-}
-
-
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 interface LevelCardProps {
-
-  model:Model;
-
+  level: "CROWN" | "SSS" | "SS" | "S" | "A";
+  count: number;
 }
 
-
-
-
-
 export default function LevelCard({
-
-  model,
-
-}:LevelCardProps){
-
-
-  const [offlineOpen,setOfflineOpen] =
-    useState(false);
-
-
-
-  function handleClick(
-    e:React.MouseEvent
-  ){
-
-    if(!model.online){
-
-      e.preventDefault();
-
-      setOfflineOpen(true);
-
-    }
-
-  }
-
-
-
-  const card = (
-
-    <div
-
-      className="
-        cursor-pointer
-        overflow-hidden
-        rounded-2xl
-        border
-        border-yellow-500/30
-        bg-[#111]
-        transition
-        hover:border-yellow-500
-      "
-
-    >
-
-
-      <div
-
-        className="
-          aspect-4/5
-          overflow-hidden
-        "
-
-      >
-
-        <img
-
-          src={
-            model.avatar ||
-            "/logo.png"
-          }
-
-          alt={
-            model.code
-          }
-
-          className="
-            h-full
-            w-full
-            object-cover
-          "
-
-        />
-
-      </div>
-
-
-
-
-
-      <div
-
-        className="
-          flex
-          items-center
-          justify-between
-          px-5
-          py-5
-        "
-
-      >
-
-
-        <span
-
-          className="
-            text-xl
-            font-bold
-            text-yellow-500
-          "
-
-        >
-
-          {model.code}
-
-        </span>
-
-
-
-
-
-        <span
-
-          className={`
-
-            rounded-full
-
-            border
-
-            px-3
-
-            py-1
-
-            text-xs
-
-
-            ${
-              model.online
-
-              ?
-
-              "border-green-500 text-green-400"
-
-              :
-
-              "border-gray-500 text-gray-400"
-
-            }
-
-          `}
-
-        >
-
-          {
-            model.online
-            ?
-            "Online"
-            :
-            "Offline"
-          }
-
-
-        </span>
-
-
-      </div>
-
-
-    </div>
-
-  );
-
-
-
+  level,
+  count,
+}: LevelCardProps) {
+  const { messages } = useLanguage();
+
+  const titleMap = {
+    CROWN: `👑 ${messages.collection.crown}`,
+    SSS: messages.collection.sss,
+    SS: messages.collection.ss,
+    S: messages.collection.s,
+    A: messages.collection.a,
+  };
+
+  const subtitleMap = {
+    CROWN: "Ultimate Exclusive",
+    SSS: "Elite Selection",
+    SS: "Premium Selection",
+    S: "Selected Collection",
+    A: "Classic Selection",
+  };
 
   return (
-
-    <>
-
-      {
-        model.online
-
-        ?
-
-        <Link
-
-          href={
-            `/models/${model.code}`
-          }
-
-        >
-
-          {card}
-
-        </Link>
-
-
-        :
-
-
-        <button
-
-          type="button"
-
-          onClick={
-            handleClick
-          }
-
-          className="
-            block
-            w-full
-            text-left
-          "
-
-        >
-
-          {card}
-
-        </button>
-
-      }
-
-
-
-
-
-      <OfflineModal
-
-        open={
-          offlineOpen
-        }
-
-        onClose={() =>
-          setOfflineOpen(false)
-        }
-
+    <Link
+      href={`/collection/${level}`}
+      className="
+        group
+        relative
+        block
+        overflow-hidden
+        rounded-3xl
+        border
+        border-yellow-500/20
+        bg-linear-to-br
+        from-[#111111]
+        to-[#1b1b1b]
+        p-5
+        transition-all
+        duration-500
+        hover:-translate-y-2
+hover:scale-[1.03]
+        hover:border-yellow-400
+        hover:bg-[#181818]
+        hover:shadow-[0_0_80px_rgba(212,175,55,.35)]
+        sm:p-7
+        lg:p-8
+      "
+    >
+      <div
+        className="
+          absolute
+          -right-24
+          -top-24
+          h-56
+          w-56
+          rounded-full
+          bg-yellow-500/10
+          blur-3xl
+          opacity-0
+          transition-all
+          duration-700
+          group-hover:opacity-100
+        "
       />
 
+      <div
+        className="
+          relative
+          z-10
+          space-y-4
+          sm:space-y-5
+          lg:space-y-6
+        "
+      >
+        <h2
+          className="
+            text-2xl
+            font-bold
+            text-yellow-500
+transition-all
+duration-300
+group-hover:text-yellow-300
+sm:text-3xl
+          "
+        >
+          {titleMap[level]}
+        </h2>
 
-    </>
+        <p
+          className="
+            text-xs
+            uppercase
+            tracking-[0.25em]
+            text-gray-400
+            sm:text-sm
+          "
+        >
+          {subtitleMap[level]}
+        </p>
 
+        <div className="flex items-end gap-2 sm:gap-3">
+          <span
+            className="
+              text-4xl
+              font-black
+              text-white
+              sm:text-5xl
+            "
+          >
+            {count}
+          </span>
+
+          <span
+            className="
+              pb-1
+              text-sm
+              text-gray-500
+              sm:pb-2
+            "
+          >
+            {messages.collection.profiles}
+          </span>
+        </div>
+        
+        <div
+  className="
+    pt-6
+    text-sm
+    font-semibold
+    uppercase
+    tracking-[0.25em]
+    text-yellow-400
+    opacity-0
+    transition-all
+    duration-300
+    group-hover:opacity-100
+  "
+>
+  View Collection →
+</div>
+      </div>
+    </Link>  
   );
-
 }

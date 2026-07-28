@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+
 
 
 export async function GET() {
-
   try {
 
     const logs =
@@ -19,16 +19,18 @@ export async function GET() {
       });
 
 
-    const result = logs.map((log) => ({
+    const result = logs.map(
+      (log) => ({
 
-      ...log,
+        ...log,
 
-      metadata:
-        log.metadata
-          ? JSON.parse(log.metadata)
-          : null,
+        metadata:
+          log.metadata
+            ? JSON.parse(log.metadata)
+            : null,
 
-    }));
+      })
+    );
 
 
     return NextResponse.json({
@@ -41,7 +43,6 @@ export async function GET() {
 
 
   } catch (error) {
-
 
     console.error(
       "Audit log fetch error:",
@@ -64,5 +65,4 @@ export async function GET() {
     );
 
   }
-
 }
