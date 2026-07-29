@@ -113,9 +113,11 @@ export default function Header() {
   {messages.nav.home}
 </a>
 
-<a href="#collection">
+<button
+  type="button"
+>
   {messages.nav.collection}
-</a>
+</button>
 
 <a href="#lifestyle">
   {messages.nav.lifestyle}
