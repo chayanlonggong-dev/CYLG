@@ -47,47 +47,53 @@ export default function LevelPage({
         setLevel(currentLevel);
 
         // ---------- 优先读取缓存 ----------
-        const cached =
-          sessionStorage.getItem(cacheKey);
+const cached =
+  sessionStorage.getItem(cacheKey);
 
-        if (cached) {
-          try {
-            const cacheModels: Model[] =
-              JSON.parse(cached);
+if (cached) {
+  try {
+    const cacheModels: Model[] =
+      JSON.parse(cached);
 
-            const filtered =
-              cacheModels.filter(
-                (model) =>
-                  model.level === currentLevel
-              );
+    const filtered =
+      cacheModels.filter(
+        (model) =>
+          model.level === currentLevel
+      );
 
-            setModels(filtered);
-            setLoading(false);
-          } catch {}
-        }
+    setModels(filtered);
+    setLoading(false);
 
-        // ---------- 后台刷新 ----------
-        const res = await fetch("/api/models", {
-          cache: "no-store",
-        });
+    // 已有缓存，不再重新请求 API，
+    // 避免返回 Collection 时再次渲染整个 Grid。
+    return;
+  } catch {
+    sessionStorage.removeItem(cacheKey);
+  }
+}
 
-        const data = await res.json();
+// ---------- 首次进入才请求 ----------
+const res = await fetch("/api/models", {
+  cache: "no-store",
+});
 
-        if (Array.isArray(data)) {
-          sessionStorage.setItem(
-            cacheKey,
-            JSON.stringify(data)
-          );
+const data = await res.json();
 
-          const filtered = data.filter(
-            (model: Model) =>
-              model.level === currentLevel
-          );
+if (Array.isArray(data)) {
+  sessionStorage.setItem(
+    cacheKey,
+    JSON.stringify(data)
+  );
 
-          setModels(filtered);
-        } else {
-          setModels([]);
-        }
+  const filtered = data.filter(
+    (model: Model) =>
+      model.level === currentLevel
+  );
+
+  setModels(filtered);
+} else {
+  setModels([]);
+}
       } catch (error) {
         console.error(error);
         setModels([]);
