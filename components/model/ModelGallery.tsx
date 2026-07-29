@@ -43,6 +43,9 @@ export default function ModelGallery({
   const [loaded,setLoaded] =
     useState(false);
 
+  const [preloadedImages,setPreloadedImages] =
+    useState<Set<string>>(new Set());
+
 
   const [zoom,setZoom] =
     useState(1);
@@ -164,6 +167,19 @@ export default function ModelGallery({
 
   }
 
+
+
+  useEffect(() => {
+    const nextIdx =
+      current + 1 >= images.length ? 0 : current + 1;
+    const prevIdx =
+      current === 0 ? images.length - 1 : current - 1;
+    const adjacent = new Set<string>([
+      images[nextIdx],
+      images[prevIdx],
+    ]);
+    setPreloadedImages(adjacent);
+  }, [current, images]);
 
 
   function changeImage(
@@ -560,6 +576,10 @@ fill
 
 priority
 
+quality={90}
+
+fetchPriority="high"
+
 sizes="(max-width:768px) 100vw, 768px"
 
 className="
@@ -570,6 +590,12 @@ hover:scale-105
 "
 
 />
+
+{!loaded && (
+  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+  </div>
+)}
 
 
 </div>
@@ -618,6 +644,12 @@ src={image}
 alt={`${id}-${index}`}
 
 fill
+
+quality={75}
+
+fetchPriority={preloadedImages.has(image) ? "high" : "low"}
+
+loading={preloadedImages.has(image) ? "eager" : "lazy"}
 
 sizes="80px"
 

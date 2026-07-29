@@ -85,6 +85,29 @@ export async function generateMetadata({
 
     `Discover ${model.code} from ChaYanLongGong luxury elite collection. Premium private experience with an exclusive model profile.`;
 
+  const galleryImages =
+
+    model.gallery
+
+      ? model.gallery
+
+          .split(",")
+
+          .map((img: string) => img.trim())
+
+          .filter(Boolean)
+
+      : [];
+
+  const allImages = [model.avatar, ...galleryImages].filter(Boolean);
+
+  const keywords = [
+    "luxury escort",
+    "elite companion",
+    "premium service",
+    model.code,
+  ].join(", ");
+
 
 
 
@@ -97,7 +120,9 @@ export async function generateMetadata({
 
     description,
 
+    keywords,
 
+    robots: "index, follow, max-image-preview:large",
 
     alternates: {
 
@@ -142,35 +167,14 @@ export async function generateMetadata({
 
 
 
-      images: [
-
-
-        {
-
-          url:
-
-            model.avatar,
-
-
-          width:
-
-            1200,
-
-
-          height:
-
-            1600,
-
-
-          alt:
-
-            model.code,
-
-
-        },
-
-
-      ],
+      images: allImages.map((img, idx) => ({
+        url: img,
+        width: 1200,
+        height: idx === 0 ? 1600 : 900,
+        alt: idx === 0 ? model.code : `${model.code} gallery image ${idx}`,
+        secureUrl: img.startsWith("https") ? img : `${baseUrl}${img}`,
+        type: "image/jpeg",
+      })),
 
 
     },
@@ -192,15 +196,9 @@ export async function generateMetadata({
 
       description,
 
+      creator: "@ChaYanLongGong",
 
-
-      images:
-
-        [
-
-          model.avatar,
-
-        ],
+      images: allImages.slice(0, 4),
 
 
     },
