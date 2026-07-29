@@ -69,11 +69,7 @@ export default function LevelPage({
   }, [params]);
 
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      loading ||
-      !window.matchMedia("(max-width: 1023px)").matches
-    ) {
+    if (typeof window === "undefined" || loading) {
       return;
     }
 
@@ -82,11 +78,6 @@ export default function LevelPage({
     if (!savedModelCode) {
       return;
     }
-
-    const previousScrollRestoration =
-      window.history.scrollRestoration;
-
-    window.history.scrollRestoration = "manual";
 
     const restoreCardIntoView = () => {
       const target = document.querySelector<HTMLElement>(
@@ -103,6 +94,37 @@ export default function LevelPage({
 
       return false;
     };
+
+    const isMobile = window.matchMedia(
+      "(max-width: 1023px)"
+    ).matches;
+
+    if (!isMobile) {
+      const tryRestore = (attempt = 0) => {
+        if (restoreCardIntoView()) {
+          return;
+        }
+
+        if (attempt >= 4) {
+          return;
+        }
+
+        window.setTimeout(() => {
+          tryRestore(attempt + 1);
+        }, 150 * (attempt + 1));
+      };
+
+      window.requestAnimationFrame(() => {
+        tryRestore();
+      });
+
+      return;
+    }
+
+    const previousScrollRestoration =
+      window.history.scrollRestoration;
+
+    window.history.scrollRestoration = "manual";
 
     let restoreTimer: number | undefined;
     let cancelled = false;
