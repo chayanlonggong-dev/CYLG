@@ -73,9 +73,7 @@ if (cached) {
 }
 
 // ---------- 首次进入才请求 ----------
-const res = await fetch("/api/models", {
-  cache: "no-store",
-});
+const res = await fetch("/api/models");
 
 const data = await res.json();
 
