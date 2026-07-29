@@ -32,29 +32,62 @@ export default function LevelPage({
   const [level, setLevel] = useState("");
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
+
   const restoredNavigation = useRef(false);
+
   const restoreStorageKey = "cylg-collection-restore";
+  const cacheKey = "cylg-models-cache";
 
   useEffect(() => {
     async function loadData() {
       try {
         const paramsData = await params;
-
         const currentLevel = paramsData.level.toUpperCase();
 
         setLevel(currentLevel);
 
-        const res = await fetch("/api/models");
+        // ---------- 优先读取缓存 ----------
+        const cached =
+          sessionStorage.getItem(cacheKey);
+
+        if (cached) {
+          try {
+            const cacheModels: Model[] =
+              JSON.parse(cached);
+
+            const filtered =
+              cacheModels.filter(
+                (model) =>
+                  model.level === currentLevel
+              );
+
+            setModels(filtered);
+            setLoading(false);
+          } catch {}
+        }
+
+        // ---------- 后台刷新 ----------
+        const res = await fetch("/api/models", {
+          cache: "no-store",
+        });
+
         const data = await res.json();
 
-        const filtered = Array.isArray(data)
-          ? data.filter(
-              (model: Model) =>
-                model.level === currentLevel
-            )
-          : [];
+        if (Array.isArray(data)) {
+          sessionStorage.setItem(
+            cacheKey,
+            JSON.stringify(data)
+          );
 
-        setModels(filtered);
+          const filtered = data.filter(
+            (model: Model) =>
+              model.level === currentLevel
+          );
+
+          setModels(filtered);
+        } else {
+          setModels([]);
+        }
       } catch (error) {
         console.error(error);
         setModels([]);
@@ -73,15 +106,15 @@ export default function LevelPage({
 
     const modelCode =
       searchParams.get("returnModel") ||
-      (typeof window !== "undefined"
-        ? sessionStorage.getItem(`${restoreStorageKey}-model`)
-        : null);
+      sessionStorage.getItem(
+        `${restoreStorageKey}-model`
+      );
 
     const scrollY = Number(
       searchParams.get("returnScroll") ||
-        (typeof window !== "undefined"
-          ? sessionStorage.getItem(`${restoreStorageKey}-scroll`)
-          : null)
+        sessionStorage.getItem(
+          `${restoreStorageKey}-scroll`
+        )
     );
 
     if (
@@ -92,30 +125,21 @@ export default function LevelPage({
       return;
     }
 
-    const card = document.querySelector(
-      `[data-model-code="${CSS.escape(modelCode)}"]`
-    );
-
-    if (!card) {
-      return;
-    }
-
     restoredNavigation.current = true;
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: scrollY,
-          behavior: "auto",
-        });
+      window.scrollTo({
+        top: scrollY,
+        behavior: "auto",
       });
     });
-  }, [loading, searchParams, restoreStorageKey]);
+  }, [loading, searchParams]);
 
   function preserveCollectionPosition(
     modelCode: string
   ) {
     const returnUrl = new URL(window.location.href);
+
     const scrollY = window.scrollY || 0;
 
     returnUrl.searchParams.set(
@@ -132,6 +156,7 @@ export default function LevelPage({
       `${restoreStorageKey}-model`,
       modelCode
     );
+
     sessionStorage.setItem(
       `${restoreStorageKey}-scroll`,
       String(scrollY)
@@ -166,7 +191,8 @@ export default function LevelPage({
           </h1>
 
           <p className="mt-5 text-gray-500">
-            {models.length} {messages.collection.profiles}
+            {models.length}{" "}
+            {messages.collection.profiles}
           </p>
         </div>
 
@@ -179,9 +205,7 @@ export default function LevelPage({
             {messages.collection.noModels}
           </p>
         ) : (
-          <div
-            className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3"
-          >
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
             {models.map((model) => (
               <CollectionCard
                 key={model.id}
