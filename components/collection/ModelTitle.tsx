@@ -1,7 +1,9 @@
+import { useLanguage } from "@/app/providers/LanguageProvider";
+
 interface ModelTitleProps {
   id: string;
+  status?: "online" | "offline";
 }
-
 
 function displayTitle(id: string) {
 
@@ -29,11 +31,15 @@ function displayTitle(id: string) {
 
 export default function ModelTitle({
   id,
+  status = "online",
 }: ModelTitleProps) {
+  const { messages } = useLanguage();
 
-
-  const title =
-    displayTitle(id);
+  const title = displayTitle(id);
+  const statusLabel =
+    status === "offline"
+      ? messages.collection.offline
+      : messages.collection.online;
 
 
 
@@ -141,12 +147,29 @@ export default function ModelTitle({
 
         </div>
 
-
-
+        <span
+          className={`
+            inline-flex
+            items-center
+            gap-1.5
+            rounded-full
+            border
+            px-2.5
+            py-1
+            text-[10px]
+            font-medium
+            uppercase
+            tracking-[0.2em]
+            ${status === "offline" ? "border-red-500/60 text-red-500" : "border-green-500/60 text-green-500"}
+          `}
+          style={{
+            fontFamily: "var(--font-cinzel)",
+          }}
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${status === "offline" ? "bg-red-500" : "bg-green-500"}`} />
+          {statusLabel}
+        </span>
       </div>
-
-
-
     </div>
 
   );

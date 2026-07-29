@@ -140,12 +140,17 @@ const zhTW = {
     loading:
       "載入中...",
 
+    online: "線上",
+
+    offline: "離線",
+
+    close: "關閉",
 
     offlineTitle:
-      "佳麗目前離線",
+      "此佳麗目前無法提供。",
 
     offlineMessage:
-      "此佳麗目前無法預約，請聯絡客服了解更多資訊。",
+      "如需了解更多，請聯絡我們。",
   },
 
   model: {

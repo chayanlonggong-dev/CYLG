@@ -13,6 +13,7 @@ interface Model {
   level: "CROWN" | "SSS" | "SS" | "S" | "A";
   avatar: string;
   gallery: string | null;
+  online: boolean;
 }
 
 interface PageProps {
@@ -28,9 +29,7 @@ export default function LevelPage({
 
   const [level, setLevel] = useState("");
   const [models, setModels] = useState<Model[]>([]);
-  const [isReady, setIsReady] = useState(false);
-
-  const cacheKey = "cylg-models-cache";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -40,57 +39,27 @@ export default function LevelPage({
 
         setLevel(currentLevel);
 
-        // ---------- 优先读取缓存 ----------
-const cached =
-  sessionStorage.getItem(cacheKey);
+        const res = await fetch("/api/models", {
+          cache: "no-store",
+        });
 
-if (cached) {
-  try {
-    const cacheModels: Model[] =
-      JSON.parse(cached);
+        const data = await res.json();
 
-    const filtered =
-      cacheModels.filter(
-        (model) =>
-          model.level === currentLevel
-      );
+        if (Array.isArray(data)) {
+          const filtered = data.filter(
+            (model: Model) =>
+              model.level === currentLevel
+          );
 
-    setModels(filtered);
-    setIsReady(true);
-
-    // 已有缓存，不再重新请求 API，
-    // 避免返回 Collection 时再次渲染整个 Grid。
-    return;
-  } catch {
-    sessionStorage.removeItem(cacheKey);
-  }
-}
-
-// ---------- 首次进入才请求 ----------
-const res = await fetch("/api/models");
-
-const data = await res.json();
-
-if (Array.isArray(data)) {
-  sessionStorage.setItem(
-    cacheKey,
-    JSON.stringify(data)
-  );
-
-  const filtered = data.filter(
-    (model: Model) =>
-      model.level === currentLevel
-  );
-
-  setModels(filtered);
-} else {
-  setModels([]);
-}
+          setModels(filtered);
+        } else {
+          setModels([]);
+        }
       } catch (error) {
         console.error(error);
         setModels([]);
       } finally {
-        setIsReady(true);
+        setLoading(false);
       }
     }
 
@@ -120,7 +89,11 @@ if (Array.isArray(data)) {
           </p>
         </div>
 
-        {!isReady ? null : models.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-400">
+            {messages.collection.loading}
+          </p>
+        ) : models.length === 0 ? (
           <p className="text-center text-gray-500">
             {messages.collection.noModels}
           </p>
@@ -130,6 +103,7 @@ if (Array.isArray(data)) {
               <CollectionCard
                 key={model.id}
                 id={model.code}
+                online={Boolean(model.online)}
                 images={[
                   model.avatar,
                   ...(model.gallery

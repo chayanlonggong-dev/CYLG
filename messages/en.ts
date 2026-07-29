@@ -137,11 +137,17 @@ const en = {
 
     loading: "Loading...",
 
+    online: "Online",
+
+    offline: "Offline",
+
+    close: "Close",
+
     offlineTitle:
-      "Model Offline",
+      "This model is currently unavailable.",
 
     offlineMessage:
-      "This model is currently offline. Please contact us for more information.",
+      "For more information, please contact us.",
   },
 
   model: {

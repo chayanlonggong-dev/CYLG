@@ -69,12 +69,9 @@ export default function MobileMenu({
             Home
           </a>
 
-          <button
-  type="button"
-  onClick={onClose}
->
-  Collection
-</button>
+          <a href="/collection" onClick={onClose}>
+            Collection
+          </a>
 
           <a href="#lifestyle" onClick={onClose}>
             Lifestyle

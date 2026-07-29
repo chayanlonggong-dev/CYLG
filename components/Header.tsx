@@ -113,11 +113,9 @@ export default function Header() {
   {messages.nav.home}
 </a>
 
-<button
-  type="button"
->
+<a href="/collection" className="transition hover:text-yellow-300">
   {messages.nav.collection}
-</button>
+</a>
 
 <a href="#lifestyle">
   {messages.nav.lifestyle}

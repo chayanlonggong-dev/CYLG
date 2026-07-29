@@ -140,12 +140,17 @@ const zhCN = {
     loading:
       "加载中...",
 
+    online: "在线",
+
+    offline: "离线",
+
+    close: "关闭",
 
     offlineTitle:
-      "佳丽当前离线",
+      "该佳丽目前无法提供。",
 
     offlineMessage:
-      "该佳丽目前无法预约，请联系客服了解更多信息。",
+      "如需了解更多，请联系我们。",
   },
 
   model: {

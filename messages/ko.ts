@@ -140,12 +140,17 @@ const ko = {
     loading:
       "불러오는 중...",
 
+    online: "온라인",
+
+    offline: "오프라인",
+
+    close: "닫기",
 
     offlineTitle:
-      "모델 오프라인",
+      "현재 이 모델은 이용할 수 없습니다.",
 
     offlineMessage:
-      "현재 해당 모델은 이용할 수 없습니다. 자세한 내용은 문의해 주세요.",
+      "자세한 내용은 문의해 주세요.",
   },
 
   model: {
