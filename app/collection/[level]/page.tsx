@@ -28,7 +28,7 @@ export default function LevelPage({
 
   const [level, setLevel] = useState("");
   const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
 
   const cacheKey = "cylg-models-cache";
 
@@ -56,7 +56,7 @@ if (cached) {
       );
 
     setModels(filtered);
-    setLoading(false);
+    setIsReady(true);
 
     // 已有缓存，不再重新请求 API，
     // 避免返回 Collection 时再次渲染整个 Grid。
@@ -90,7 +90,7 @@ if (Array.isArray(data)) {
         console.error(error);
         setModels([]);
       } finally {
-        setLoading(false);
+        setIsReady(true);
       }
     }
 
@@ -120,11 +120,7 @@ if (Array.isArray(data)) {
           </p>
         </div>
 
-        {loading ? (
-          <p className="text-center text-gray-400">
-            {messages.collection.loading}
-          </p>
-        ) : models.length === 0 ? (
+        {!isReady ? null : models.length === 0 ? (
           <p className="text-center text-gray-500">
             {messages.collection.noModels}
           </p>
