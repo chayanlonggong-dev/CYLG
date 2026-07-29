@@ -89,60 +89,60 @@ export default function MobileMenu({
             text-yellow-400
           "
         >
-          <a
-            href="#hero"
-            onClick={(event) => {
-              event.preventDefault();
+          <button
+            type="button"
+            onClick={() => {
               onClose();
               scrollToSection("#hero");
             }}
+            className="text-left"
           >
             Home
-          </a>
+          </button>
 
-          <a
-            href="#collection"
-            onClick={(event) => {
-              event.preventDefault();
+          <button
+            type="button"
+            onClick={() => {
               onClose();
               scrollToSection("#collection");
             }}
+            className="text-left"
           >
             Collection
-          </a>
+          </button>
 
-          <a
-            href="#lifestyle"
-            onClick={(event) => {
-              event.preventDefault();
+          <button
+            type="button"
+            onClick={() => {
               onClose();
               scrollToSection("#lifestyle");
             }}
+            className="text-left"
           >
             Lifestyle
-          </a>
+          </button>
 
-          <a
-            href="#services"
-            onClick={(event) => {
-              event.preventDefault();
+          <button
+            type="button"
+            onClick={() => {
               onClose();
               scrollToSection("#services");
             }}
+            className="text-left"
           >
             Services
-          </a>
+          </button>
 
-          <a
-            href="#experience"
-            onClick={(event) => {
-              event.preventDefault();
+          <button
+            type="button"
+            onClick={() => {
               onClose();
               scrollToSection("#experience");
             }}
+            className="text-left"
           >
             Experience
-          </a>
+          </button>
         </nav>
       </aside>
     </>
