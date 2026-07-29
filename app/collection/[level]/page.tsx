@@ -2,10 +2,8 @@
 
 import {
   useEffect,
-  useRef,
   useState,
 } from "react";
-import { useSearchParams } from "next/navigation";
 import CollectionCard from "@/components/collection/CollectionCard";
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
@@ -27,15 +25,11 @@ export default function LevelPage({
   params,
 }: PageProps) {
   const { messages } = useLanguage();
-  const searchParams = useSearchParams();
 
   const [level, setLevel] = useState("");
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const restoredNavigation = useRef(false);
-
-  const restoreStorageKey = "cylg-collection-restore";
   const cacheKey = "cylg-models-cache";
 
   useEffect(() => {
@@ -103,71 +97,6 @@ if (Array.isArray(data)) {
     loadData();
   }, [params]);
 
-  useEffect(() => {
-    if (loading || restoredNavigation.current) {
-      return;
-    }
-
-    const modelCode =
-      searchParams.get("returnModel") ||
-      sessionStorage.getItem(
-        `${restoreStorageKey}-model`
-      );
-
-    const scrollY = Number(
-      searchParams.get("returnScroll") ||
-        sessionStorage.getItem(
-          `${restoreStorageKey}-scroll`
-        )
-    );
-
-    if (
-      !modelCode ||
-      !Number.isFinite(scrollY) ||
-      scrollY < 0
-    ) {
-      return;
-    }
-
-    restoredNavigation.current = true;
-
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: scrollY,
-        behavior: "auto",
-      });
-    });
-  }, [loading, searchParams]);
-
-  function preserveCollectionPosition(
-    modelCode: string
-  ) {
-    const returnUrl = new URL(window.location.href);
-
-    const scrollY = window.scrollY || 0;
-
-    returnUrl.searchParams.set(
-      "returnModel",
-      modelCode
-    );
-
-    returnUrl.searchParams.set(
-      "returnScroll",
-      String(scrollY)
-    );
-
-    sessionStorage.setItem(
-      `${restoreStorageKey}-model`,
-      modelCode
-    );
-
-    sessionStorage.setItem(
-      `${restoreStorageKey}-scroll`,
-      String(scrollY)
-    );
-
-  }
-
   const titleMap = {
     CROWN: `👑 ${messages.collection.crown}`,
     SSS: messages.collection.sss,
@@ -205,9 +134,6 @@ if (Array.isArray(data)) {
               <CollectionCard
                 key={model.id}
                 id={model.code}
-                onNavigate={
-                  preserveCollectionPosition
-                }
                 images={[
                   model.avatar,
                   ...(model.gallery
