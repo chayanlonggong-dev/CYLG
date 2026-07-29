@@ -3,6 +3,30 @@
 import Image from "next/image";
 import { useState } from "react";
 
+function scrollToSection(hash: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const targetId = hash.replace("#", "");
+
+  if (!targetId) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.history.replaceState(null, "", "/");
+    return;
+  }
+
+  const element = document.getElementById(targetId);
+
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  window.history.replaceState(null, "", hash);
+}
+
 import { useLanguage } from "@/app/providers/LanguageProvider";
 import MobileMenu from "./MobileMenu";
 
@@ -109,25 +133,56 @@ export default function Header() {
               lg:flex
             "
           >
-            <a href="#">
-  {messages.nav.home}
-</a>
+            <a
+              href="#hero"
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("#hero");
+              }}
+            >
+              {messages.nav.home}
+            </a>
 
-<a href="/collection" className="transition hover:text-yellow-300">
-  {messages.nav.collection}
-</a>
+            <a
+              href="#collection"
+              className="transition hover:text-yellow-300"
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("#collection");
+              }}
+            >
+              {messages.nav.collection}
+            </a>
 
-<a href="#lifestyle">
-  {messages.nav.lifestyle}
-</a>
+            <a
+              href="#lifestyle"
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("#lifestyle");
+              }}
+            >
+              {messages.nav.lifestyle}
+            </a>
 
-<a href="#services">
-  {messages.nav.services}
-</a>
+            <a
+              href="#services"
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("#services");
+              }}
+            >
+              {messages.nav.services}
+            </a>
 
-<a href="#experience">
-  {messages.nav.experience}
-</a>
+            <a
+              href="#experience"
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("#experience");
+              }}
+            >
+              {messages.nav.experience}
+            </a>
           </nav>
 
           {/* Mobile Right */}

@@ -4,6 +4,8 @@ import {
   useEffect,
   useState,
 } from "react";
+
+const LAST_OPENED_MODEL_KEY = "cylg-last-opened-model";
 import CollectionCard from "@/components/collection/CollectionCard";
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
@@ -66,6 +68,52 @@ export default function LevelPage({
     loadData();
   }, [params]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || loading) {
+      return;
+    }
+
+    const savedModelCode = sessionStorage.getItem(LAST_OPENED_MODEL_KEY);
+
+    if (!savedModelCode) {
+      return;
+    }
+
+    const restoreCardIntoView = () => {
+      const target = document.querySelector<HTMLElement>(
+        `[data-model-code="${savedModelCode}"]`
+      );
+
+      if (target) {
+        target.scrollIntoView({
+          behavior: "auto",
+          block: "center",
+        });
+        return true;
+      }
+
+      return false;
+    };
+
+    const tryRestore = (attempt = 0) => {
+      if (restoreCardIntoView()) {
+        return;
+      }
+
+      if (attempt >= 4) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        tryRestore(attempt + 1);
+      }, 150 * (attempt + 1));
+    };
+
+    window.requestAnimationFrame(() => {
+      tryRestore();
+    });
+  }, [loading, level, models.length]);
+
   const titleMap = {
     CROWN: `👑 ${messages.collection.crown}`,
     SSS: messages.collection.sss,
@@ -104,6 +152,9 @@ export default function LevelPage({
                 key={model.id}
                 id={model.code}
                 online={Boolean(model.online)}
+                onNavigate={(modelCode) => {
+                  sessionStorage.setItem(LAST_OPENED_MODEL_KEY, modelCode);
+                }}
                 images={[
                   model.avatar,
                   ...(model.gallery

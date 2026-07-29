@@ -1,5 +1,29 @@
 "use client";
 
+function scrollToSection(hash: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const targetId = hash.replace("#", "");
+
+  if (!targetId) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.history.replaceState(null, "", "/");
+    return;
+  }
+
+  const element = document.getElementById(targetId);
+
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  window.history.replaceState(null, "", hash);
+}
+
 interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
@@ -65,23 +89,58 @@ export default function MobileMenu({
             text-yellow-400
           "
         >
-          <a href="#" onClick={onClose}>
+          <a
+            href="#hero"
+            onClick={(event) => {
+              event.preventDefault();
+              onClose();
+              scrollToSection("#hero");
+            }}
+          >
             Home
           </a>
 
-          <a href="/collection" onClick={onClose}>
+          <a
+            href="#collection"
+            onClick={(event) => {
+              event.preventDefault();
+              onClose();
+              scrollToSection("#collection");
+            }}
+          >
             Collection
           </a>
 
-          <a href="#lifestyle" onClick={onClose}>
+          <a
+            href="#lifestyle"
+            onClick={(event) => {
+              event.preventDefault();
+              onClose();
+              scrollToSection("#lifestyle");
+            }}
+          >
             Lifestyle
           </a>
 
-          <a href="#services" onClick={onClose}>
+          <a
+            href="#services"
+            onClick={(event) => {
+              event.preventDefault();
+              onClose();
+              scrollToSection("#services");
+            }}
+          >
             Services
           </a>
 
-          <a href="#experience" onClick={onClose}>
+          <a
+            href="#experience"
+            onClick={(event) => {
+              event.preventDefault();
+              onClose();
+              scrollToSection("#experience");
+            }}
+          >
             Experience
           </a>
         </nav>
