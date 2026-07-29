@@ -69,7 +69,11 @@ export default function LevelPage({
   }, [params]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || loading) {
+    if (
+      typeof window === "undefined" ||
+      loading ||
+      !window.matchMedia("(max-width: 1023px)").matches
+    ) {
       return;
     }
 
@@ -78,6 +82,11 @@ export default function LevelPage({
     if (!savedModelCode) {
       return;
     }
+
+    const previousScrollRestoration =
+      window.history.scrollRestoration;
+
+    window.history.scrollRestoration = "manual";
 
     const restoreCardIntoView = () => {
       const target = document.querySelector<HTMLElement>(
@@ -95,23 +104,34 @@ export default function LevelPage({
       return false;
     };
 
-    const tryRestore = (attempt = 0) => {
-      if (restoreCardIntoView()) {
-        return;
-      }
+    let restoreTimer: number | undefined;
+    let cancelled = false;
 
-      if (attempt >= 4) {
-        return;
-      }
+    const restoreAfterLayoutSettles = async () => {
+      await document.fonts.ready;
 
-      window.setTimeout(() => {
-        tryRestore(attempt + 1);
-      }, 150 * (attempt + 1));
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          restoreTimer = window.setTimeout(() => {
+            if (!cancelled) {
+              restoreCardIntoView();
+            }
+          }, 250);
+        });
+      });
     };
 
-    window.requestAnimationFrame(() => {
-      tryRestore();
-    });
+    restoreAfterLayoutSettles();
+
+    return () => {
+      cancelled = true;
+
+      if (restoreTimer !== undefined) {
+        window.clearTimeout(restoreTimer);
+      }
+
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
   }, [loading, level, models.length]);
 
   const titleMap = {
