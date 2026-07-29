@@ -19,22 +19,54 @@ export default function CollectionCards() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadModels() {
-      try {
-        const res = await fetch("/api/models");
-        const data = await res.json();
+  let cancelled = false;
 
+  async function loadModels() {
+    try {
+      const cache =
+        sessionStorage.getItem("cylg-home-models");
+
+      if (cache) {
+        const data = JSON.parse(cache);
+
+        if (!cancelled) {
+          setModels(Array.isArray(data) ? data : []);
+          setLoading(false);
+        }
+
+        return;
+      }
+
+      const res = await fetch("/api/models");
+      const data = await res.json();
+
+      sessionStorage.setItem(
+        "cylg-home-models",
+        JSON.stringify(data)
+      );
+
+      if (!cancelled) {
         setModels(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to load models:", error);
+      }
+    } catch (error) {
+      console.error("Failed to load models:", error);
+
+      if (!cancelled) {
         setModels([]);
-      } finally {
+      }
+    } finally {
+      if (!cancelled) {
         setLoading(false);
       }
     }
+  }
 
-    loadModels();
-  }, []);
+  loadModels();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
 
   return (
     <section
