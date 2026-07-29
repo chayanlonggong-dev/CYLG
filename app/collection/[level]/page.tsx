@@ -166,15 +166,6 @@ if (Array.isArray(data)) {
       String(scrollY)
     );
 
-    window.history.replaceState(
-      {
-        ...window.history.state,
-        returnModel: modelCode,
-        returnScroll: scrollY,
-      },
-      "",
-      returnUrl
-    );
   }
 
   const titleMap = {
