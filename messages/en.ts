@@ -191,6 +191,8 @@ const en = {
 
     line: "LINE",
 
+    choosePlatform: "Choose your preferred contact platform.",
+
     wechat: "WeChat",
 
     email: "Email",

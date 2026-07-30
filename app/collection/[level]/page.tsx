@@ -45,7 +45,12 @@ export default function LevelPage({
           cache: "no-store",
         });
 
-        const data = await res.json();
+        const payload = await res.json();
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+            ? payload
+            : [];
 
         if (Array.isArray(data)) {
           const filtered = data.filter(

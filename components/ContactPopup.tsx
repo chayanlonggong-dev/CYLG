@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLanguage } from "@/app/providers/LanguageProvider";
 
 import WechatQrModal from "./WechatQrModal";
 
@@ -38,19 +39,23 @@ interface ContactPopupProps {
 
 
 function buildContactMessage(
-  modelId?:string
+  modelId: string | undefined,
+  messages: any,
 ){
 
   if(modelId){
 
     return [
-      "Hi,",
+      messages.contact.greeting,
       "",
-      `I'm interested in ${modelId}.`,
+      messages.contact.interestedInModel.replace(
+        "{modelId}",
+        modelId
+      ),
       "",
-      "Could you please provide more information?",
+      messages.contact.requestInfo,
       "",
-      "Thank you.",
+      messages.contact.thankYou,
     ].join("\n");
 
   }
@@ -58,13 +63,13 @@ function buildContactMessage(
 
 
   return [
-    "Hi,",
+    messages.contact.greeting,
     "",
-    "I'm interested in your services.",
+    messages.contact.interestedInServices,
     "",
-    "Could you please provide more information?",
+    messages.contact.requestInfo,
     "",
-    "Thank you.",
+    messages.contact.thankYou,
   ].join("\n");
 
 }
@@ -131,6 +136,7 @@ export default function ContactPopup({
 
 }:ContactPopupProps){
 
+  const { messages } = useLanguage();
 
 
   const [
@@ -143,8 +149,8 @@ export default function ContactPopup({
 
   const message =
     useMemo(
-      ()=>buildContactMessage(modelId),
-      [modelId]
+      ()=>buildContactMessage(modelId, messages),
+      [modelId, messages]
     );
 
 
@@ -397,29 +403,19 @@ export default function ContactPopup({
 
 
 
-          <p className="
-            text-center
-            uppercase
-            tracking-[0.4em]
-            text-yellow-500
-          ">
-
-            CONTACT
-
-          </p>
 
 
 
 
           <h2 className="
-            mt-4
+            mt-2
             text-center
             text-3xl
             font-bold
-            text-white
+            text-yellow-500
           ">
 
-            Contact Us
+            {messages.contact.title}
 
           </h2>
 
@@ -432,7 +428,7 @@ export default function ContactPopup({
             text-gray-400
           ">
 
-            Choose your preferred contact platform.
+            {messages.contact.choosePlatform}
 
           </p>
 

@@ -206,6 +206,9 @@ const zhCN = {
     line:
       "LINE",
 
+    choosePlatform:
+      "请选择您偏好的联系方式。",
+
     wechat:
       "微信",
 

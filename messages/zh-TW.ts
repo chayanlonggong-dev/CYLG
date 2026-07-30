@@ -129,7 +129,7 @@ const zhTW = {
 
     s: "S 系列",
 
-    a: "A 系列",
+    a: "A 系列",  
 
 
     profiles: "位佳麗",
@@ -205,6 +205,9 @@ const zhTW = {
 
     line:
       "LINE",
+
+    choosePlatform:
+      "請選擇您偏好的聯絡方式。",
 
     wechat:
       "微信",

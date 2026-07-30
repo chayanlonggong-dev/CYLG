@@ -206,6 +206,9 @@ const ko = {
     line:
       "LINE",
 
+    choosePlatform:
+      "선호하는 연락 수단을 선택해주세요.",
+
     wechat:
       "WeChat",
 

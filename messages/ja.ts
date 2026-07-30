@@ -191,6 +191,8 @@ const ja = {
 
     line: "LINE",
 
+    choosePlatform: "希望の連絡方法を選択してください。",
+
     wechat: "WeChat",
 
     email: "Email",
