@@ -214,6 +214,21 @@ const zhCN = {
 
     email:
       "Email",
+
+    greeting:
+      "您好，",
+
+    interestedInModel:
+      "我对型号 {modelId} 感兴趣。",
+
+    interestedInServices:
+      "我对您的服务感兴趣。",
+
+    requestInfo:
+      "请告诉我详细信息。",
+
+    thankYou:
+      "谢谢您。",
   },
 };
 

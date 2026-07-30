@@ -214,6 +214,21 @@ const zhTW = {
 
     email:
       "Email",
+
+    greeting:
+      "您好，",
+
+    interestedInModel:
+      "我對型號 {modelId} 感興趣。",
+
+    interestedInServices:
+      "我對您的服務感興趣。",
+
+    requestInfo:
+      "請告訴我詳細信息。",
+
+    thankYou:
+      "謝謝您。",
   },
 };
 

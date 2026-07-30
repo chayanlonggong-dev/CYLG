@@ -214,6 +214,21 @@ const ko = {
 
     email:
       "Email",
+
+    greeting:
+      "안녕하세요,",
+
+    interestedInModel:
+      "모델 {modelId}에 관심이 있습니다.",
+
+    interestedInServices:
+      "서비스에 관심이 있습니다.",
+
+    requestInfo:
+      "자세한 정보를 알려주세요.",
+
+    thankYou:
+      "감사합니다.",
   },
 };
 

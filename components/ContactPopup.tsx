@@ -42,36 +42,53 @@ function buildContactMessage(
   modelId: string | undefined,
   messages: any,
 ){
+  const contact = messages?.contact || {};
 
-  if(modelId){
+  const greeting =
+    contact.greeting ||
+    "Hello,";
 
+  const interestedInModel =
+    contact.interestedInModel
+      ? contact.interestedInModel.replace(
+          "{modelId}",
+          modelId ?? ""
+        )
+      : `I am interested in ${modelId || "your services"}.`;
+
+  const interestedInServices =
+    contact.interestedInServices ||
+    "I am interested in your services.";
+
+  const requestInfo =
+    contact.requestInfo ||
+    "Please let me know the details.";
+
+  const thankYou =
+    contact.thankYou ||
+    "Thank you.";
+
+  if (modelId) {
     return [
-      messages.contact.greeting,
+      greeting,
       "",
-      messages.contact.interestedInModel.replace(
-        "{modelId}",
-        modelId
-      ),
+      interestedInModel,
       "",
-      messages.contact.requestInfo,
+      requestInfo,
       "",
-      messages.contact.thankYou,
+      thankYou,
     ].join("\n");
-
   }
 
-
-
   return [
-    messages.contact.greeting,
+    greeting,
     "",
-    messages.contact.interestedInServices,
+    interestedInServices,
     "",
-    messages.contact.requestInfo,
+    requestInfo,
     "",
-    messages.contact.thankYou,
+    thankYou,
   ].join("\n");
-
 }
 
 

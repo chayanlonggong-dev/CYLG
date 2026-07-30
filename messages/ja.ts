@@ -196,6 +196,16 @@ const ja = {
     wechat: "WeChat",
 
     email: "Email",
+
+    greeting: "こんにちは、",
+
+    interestedInModel: "モデル {modelId} に興味があります。",
+
+    interestedInServices: "あなたのサービスに興味があります。",
+
+    requestInfo: "詳細を教えてください。",
+
+    thankYou: "ありがとうございます。",
   },
 };
 
