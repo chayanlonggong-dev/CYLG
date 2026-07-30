@@ -1,4 +1,5 @@
 import {
+  NextRequest,
   NextResponse,
 } from "next/server";
 
@@ -27,12 +28,25 @@ import {
   createAuditLog,
 } from "@/lib/audit/audit";
 
+import {
+  apiBadRequest,
+  apiMethodNotAllowed,
+  apiServerError,
+  apiUnauthorized,
+} from "@/lib/api/response";
+import { apiError, apiNotFound, apiSuccess } from "@/lib/api/response";
+
+import {
+  isEmptyJsonBody,
+  parseRequestJson,
+} from "@/lib/api/request";
+
 
 
 
 
 export async function POST(
-  request: Request
+  request: NextRequest
 ) {
 
 
@@ -47,22 +61,7 @@ export async function POST(
 
 
     if(!session){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Unauthorized.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
-
-
+      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
     }
 
 
@@ -92,22 +91,7 @@ export async function POST(
 
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Too many requests.",
-        },
-
-        {
-          status:429,
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
 
 
@@ -117,15 +101,21 @@ export async function POST(
 
 
 
-    const body =
-      await request.json();
+    const { body, error } = await parseRequestJson<Record<string, unknown>>(request);
+
+    if (error === "INVALID_JSON") {
+      return apiBadRequest("Invalid JSON body.", "INVALID_JSON");
+    }
+
+    if (!body || isEmptyJsonBody(body)) {
+      return apiBadRequest("Request body is required.", "EMPTY_BODY");
+    }
 
 
 
 
 
-    const token =
-      body.token;
+    const token = typeof body.token === "string" ? body.token : "";
 
 
 
@@ -133,22 +123,7 @@ export async function POST(
 
 
     if(!token){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Token is required.",
-        },
-
-        {
-          status:400,
-        }
-
-      );
-
-
+      return apiBadRequest("Token is required.", "MISSING_TOKEN");
     }
 
 
@@ -179,22 +154,7 @@ export async function POST(
 
 
     if(!adminUser){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Admin user not found.",
-        },
-
-        {
-          status:404,
-        }
-
-      );
-
-
+      return apiNotFound("Admin user not found.", "ADMIN_USER_NOT_FOUND");
     }
 
 
@@ -207,22 +167,7 @@ export async function POST(
     if(
       adminUser.twoFactorEnabled
     ){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Two-factor authentication is already enabled.",
-        },
-
-        {
-          status:400,
-        }
-
-      );
-
-
+      return apiError("Two-factor authentication is already enabled.", 400, "TWO_FACTOR_ALREADY_ENABLED");
     }
 
 
@@ -235,22 +180,7 @@ export async function POST(
     if(
       !adminUser.twoFactorSecret
     ){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "2FA setup has not started.",
-        },
-
-        {
-          status:400,
-        }
-
-      );
-
-
+      return apiBadRequest("2FA setup has not started.", "TWO_FACTOR_NOT_STARTED");
     }
 
 
@@ -280,18 +210,7 @@ export async function POST(
     if(!verified){
 
 
-      return NextResponse.json(
-
-        {
-          message:
-            "Invalid 2FA code.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
+      return apiUnauthorized("Invalid 2FA code.", "INVALID_2FA_CODE");
 
 
     }
@@ -366,17 +285,7 @@ export async function POST(
 
 
 
-    return NextResponse.json({
-
-
-      success:true,
-
-
-      message:
-        "2FA enabled successfully.",
-
-
-    });
+    return apiSuccess(null, "2FA enabled successfully.", 200);
 
 
 
@@ -400,21 +309,14 @@ export async function POST(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "2FA verification failed.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("2FA verification failed.", "2FA_VERIFY_FAILED");
 
 
   }
 
 
+}
+
+export async function OPTIONS() {
+  return apiMethodNotAllowed("Method not allowed for this route.", "METHOD_NOT_ALLOWED");
 }

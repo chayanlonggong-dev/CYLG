@@ -30,6 +30,12 @@ import {
   createAuditLog,
 } from "@/lib/audit/audit";
 
+import {
+  apiError,
+  apiServerError,
+  apiSuccess,
+} from "@/lib/api/response";
+
 
 
 
@@ -132,9 +138,7 @@ export async function GET() {
 
 
 
-    return NextResponse.json(
-      settings
-    );
+    return apiSuccess(settings, "Settings loaded.", 200);
 
 
 
@@ -147,24 +151,7 @@ export async function GET() {
 
 
 
-    return NextResponse.json(
-
-      {
-
-        success:false,
-
-        message:
-          "Failed to load website settings.",
-
-      },
-
-      {
-
-        status:500,
-
-      }
-
-    );
+    return apiServerError("Failed to load website settings.", "FETCH_SETTINGS_FAILED");
 
 
   }
@@ -223,26 +210,7 @@ export async function DELETE(
 
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-
-          message:
-            "Too many requests.",
-
-        },
-
-        {
-
-          status:429,
-
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
 
 
@@ -385,16 +353,7 @@ export async function DELETE(
 
 
 
-    return NextResponse.json({
-
-
-      success:true,
-
-
-      settings,
-
-
-    });
+    return apiSuccess({ settings }, "Favicon deleted.", 200);
 
 
 
@@ -408,24 +367,7 @@ export async function DELETE(
 
 
 
-    return NextResponse.json(
-
-      {
-
-        success:false,
-
-        message:
-          "Failed to delete favicon.",
-
-      },
-
-      {
-
-        status:500,
-
-      }
-
-    );
+    return apiServerError("Failed to delete favicon.", "DELETE_FAVICON_FAILED");
 
 
   }
@@ -487,26 +429,7 @@ export async function PUT(
 
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-
-          message:
-            "Too many requests.",
-
-        },
-
-        {
-
-          status:429,
-
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
 
 
@@ -714,16 +637,7 @@ export async function PUT(
 
 
 
-    return NextResponse.json({
-
-
-      success:true,
-
-
-      settings,
-
-
-    });
+    return apiSuccess({ settings }, "Settings updated.", 200);
 
 
 
@@ -738,24 +652,7 @@ export async function PUT(
 
 
 
-    return NextResponse.json(
-
-      {
-
-        success:false,
-
-        message:
-          "Failed to save website settings.",
-
-      },
-
-      {
-
-        status:500,
-
-      }
-
-    );
+    return apiServerError("Failed to save website settings.", "SAVE_SETTINGS_FAILED");
 
 
   }

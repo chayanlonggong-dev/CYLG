@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import AvatarUpload from "./AvatarUpload";
+import { useNotifications } from "./NotificationProvider";
 import GalleryUpload from "./GalleryUpload";
 import IntroductionEditor from "./IntroductionEditor";
 import VideoUpload from "./VideoUpload";
@@ -47,6 +48,8 @@ export type AdminModel = {
   online: boolean;
 
   featured: boolean;
+
+  createdAt?: string | Date;
 
 };
 
@@ -135,6 +138,8 @@ export default function EditModelModal({
 
   const [loading, setLoading] =
     useState(false);
+
+  const { addNotification } = useNotifications();
 
 
 
@@ -336,6 +341,12 @@ export default function EditModelModal({
 
 
 
+      addNotification({
+        type: "success",
+        title: "Model updated",
+        message: `Model ${payload.code || model.code} was updated successfully.`,
+      });
+
       onSaved();
 
       onClose();
@@ -348,15 +359,11 @@ export default function EditModelModal({
       console.error(error);
 
 
-      alert(
-
-        error instanceof Error
-
-          ? error.message
-
-          : String(error)
-
-      );
+      addNotification({
+        type: "error",
+        title: "Update failed",
+        message: error instanceof Error ? error.message : "Unable to save the model.",
+      });
 
 
     } finally {

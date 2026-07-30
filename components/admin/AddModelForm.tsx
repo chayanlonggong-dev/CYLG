@@ -4,6 +4,8 @@ import {
   useState,
 } from "react";
 
+import { useNotifications } from "./NotificationProvider";
+
 import AvatarUpload from "./AvatarUpload";
 import GalleryUpload from "./GalleryUpload";
 import VideoUpload from "./VideoUpload";
@@ -47,6 +49,7 @@ export default function AddModelForm({
   const [introduction,setIntroduction] =
     useState("");
 
+  const { addNotification } = useNotifications();
 
   const [loading,setLoading] =
     useState(false);
@@ -142,9 +145,11 @@ export default function AddModelForm({
 
 
 
-      alert(
-        `Model Created: ${result.code}`
-      );
+      addNotification({
+        type: "success",
+        title: "Model created",
+        message: `Model ${result.code || "record"} was created successfully.`,
+      });
 
 
 
@@ -163,15 +168,11 @@ export default function AddModelForm({
 
 
 
-      alert(
-
-        error instanceof Error
-
-        ? error.message
-
-        : String(error)
-
-      );
+      addNotification({
+        type: "error",
+        title: "Create failed",
+        message: error instanceof Error ? error.message : "Unable to create the model.",
+      });
 
 
     }finally{

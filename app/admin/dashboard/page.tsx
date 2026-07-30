@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useEffect,
@@ -56,8 +56,14 @@ export default function DashboardPage() {
           );
 
 
-        const data =
+        const payload =
           await response.json();
+
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+            ? payload
+            : [];
 
 
 
@@ -97,56 +103,34 @@ export default function DashboardPage() {
 
 
 
-  const stats =
-    useMemo(()=>{
+    const stats =
+    useMemo(() => {
+      const levelCounts = LEVELS.reduce<Record<string, number>>(
+        (acc, level) => {
+          acc[level] = 0;
+          return acc;
+        },
+        {}
+      );
 
-
-      const totalByLevel =
-        LEVELS.map(level=>({
-
-
-          level,
-
-
-          count:
-            models.filter(
-              model =>
-                model.level === level
-            ).length,
-
-
-        }));
-
-
+      models.forEach((model) => {
+        if (model.level in levelCounts) {
+          levelCounts[model.level] += 1;
+        }
+      });
 
       return {
-
-
-        totalModels:
-          models.length,
-
-
-        onlineModels:
-          models.filter(
-            model =>
-              model.online
-          ).length,
-
-
-        featuredModels:
-          models.filter(
-            model =>
-              model.featured
-          ).length,
-
-
-        totalByLevel,
-
-
+        totalModels: models.length,
+        crownCount: levelCounts.CROWN ?? 0,
+        sssCount: levelCounts.SSS ?? 0,
+        ssCount: levelCounts.SS ?? 0,
+        sCount: levelCounts.S ?? 0,
+        aCount: levelCounts.A ?? 0,
+        onlineModels: models.filter((model) => model.online).length,
+        offlineModels: models.filter((model) => !model.online).length,
+        featuredModels: models.filter((model) => model.featured).length,
       };
-
-
-    },[models]);
+    }, [models]);
 
 
 
@@ -334,25 +318,15 @@ export default function DashboardPage() {
       >
 
         <DashboardStats
-
           loading={loading}
-
-          totalModels={
-            stats.totalModels
-          }
-
-          onlineModels={
-            stats.onlineModels
-          }
-
-          featuredModels={
-            stats.featuredModels
-          }
-
-          totalLevels={
-            stats.totalByLevel.length
-          }
-
+          totalModels={stats.totalModels}
+          crownCount={stats.crownCount}
+          sssCount={stats.sssCount}
+          ssCount={stats.ssCount}
+          sCount={stats.sCount}
+          aCount={stats.aCount}
+          onlineModels={stats.onlineModels}
+          offlineModels={stats.offlineModels}
         />
 
       </section>

@@ -1,40 +1,68 @@
-"use client";
+﻿"use client";
 
 interface DashboardStatsProps {
   totalModels: number;
-  onlineModels: number;
-  featuredModels: number;
-  totalLevels: number;
+  crownCount?: number;
+  sssCount?: number;
+  ssCount?: number;
+  sCount?: number;
+  aCount?: number;
+  onlineModels?: number;
+  offlineModels?: number;
   loading: boolean;
 }
 
 export default function DashboardStats({
   totalModels,
-  onlineModels,
-  featuredModels,
-  totalLevels,
+  crownCount = 0,
+  sssCount = 0,
+  ssCount = 0,
+  sCount = 0,
+  aCount = 0,
+  onlineModels = 0,
+  offlineModels = 0,
   loading,
 }: DashboardStatsProps) {
   const cards = [
     {
-      title: "Models",
+      title: "Total Models",
       value: totalModels,
-      subtitle: "Total Profiles",
+      subtitle: "Profiles in CMS",
     },
     {
-      title: "Online",
+      title: "CROWN",
+      value: crownCount,
+      subtitle: "CROWN level profiles",
+    },
+    {
+      title: "SSS",
+      value: sssCount,
+      subtitle: "SSS level profiles",
+    },
+    {
+      title: "SS",
+      value: ssCount,
+      subtitle: "SS level profiles",
+    },
+    {
+      title: "S",
+      value: sCount,
+      subtitle: "S level profiles",
+    },
+    {
+      title: "A",
+      value: aCount,
+      subtitle: "A level profiles",
+    },
+    {
+      title: "Online Models",
       value: onlineModels,
-      subtitle: "Currently Online",
+      subtitle: "Currently online",
     },
     {
-      title: "Featured",
-      value: featuredModels,
-      subtitle: "Featured Profiles",
-    },
-    {
-      title: "Collections",
-      value: totalLevels,
-      subtitle: "Model Levels",
+      title: "Offline Models",
+      value: offlineModels,
+      subtitle: "Currently offline",
     },
   ];
 
@@ -53,10 +81,9 @@ export default function DashboardStats({
             {loading ? "—" : card.value}
           </h2>
 
-          <p className="mt-4 text-gray-400">
-            {card.subtitle}
-          </p>
+          <p className="mt-4 text-gray-400">{card.subtitle}</p>
         </div>
       ))}
-    </section>  );
+    </section>
+  );
 }

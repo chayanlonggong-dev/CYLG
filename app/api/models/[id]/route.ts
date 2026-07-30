@@ -13,11 +13,25 @@ import {
   requireAdminSession,
 } from "@/lib/auth/session";
 
+import {
+  apiBadRequest,
+  apiMethodNotAllowed,
+  apiNotFound,
+  apiServerError,
+  apiSuccess,
+  apiUnauthorized,
+} from "@/lib/api/response";
+
+import {
+  isEmptyJsonBody,
+  isValidModelId,
+  isValidModelLevel,
+  parseRequestJson,
+} from "@/lib/api/request";
 
 import {
   rateLimit,
 } from "@/lib/rateLimit";
-
 
 import {
   createAuditLog,
@@ -63,8 +77,9 @@ export async function GET(
     const { id } =
       await params;
 
-
-
+    if (!isValidModelId(id)) {
+      return apiBadRequest("Invalid model ID.", "INVALID_MODEL_ID");
+    }
 
     const model =
       await prisma.model.findUnique({
@@ -118,18 +133,7 @@ export async function GET(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Failed to fetch model.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Failed to fetch model.", "FETCH_MODEL_FAILED");
 
 
   }
@@ -220,8 +224,17 @@ export async function PUT(
 
 
 
-    const body =
-      await request.json();
+    const parsedBody = await parseRequestJson<Record<string, unknown>>(request);
+
+    if (parsedBody.error === "INVALID_JSON") {
+      return apiBadRequest("Invalid JSON body.", "INVALID_JSON");
+    }
+
+    if (!parsedBody.body || isEmptyJsonBody(parsedBody.body)) {
+      return apiBadRequest("Request body is required.", "EMPTY_BODY");
+    }
+
+    const body = parsedBody.body as Record<string, unknown>;
 
 
 
@@ -246,18 +259,7 @@ export async function PUT(
     if(!oldModel){
 
 
-      return NextResponse.json(
-
-        {
-          message:
-            "Model not found.",
-        },
-
-        {
-          status:404,
-        }
-
-      );
+      return apiNotFound("Model not found.", "MODEL_NOT_FOUND");
 
 
     }
@@ -269,19 +271,17 @@ export async function PUT(
 
 
 
-    const level =
-      body.level ??
-      oldModel.level;
+    const level: typeof oldModel.level =
+      (typeof body.level === "string" && isValidModelLevel(body.level)
+        ? body.level
+        : oldModel.level) as typeof oldModel.level;
 
+    const numberValue =
+      typeof body.number === "number" || typeof body.number === "string"
+        ? Number(body.number)
+        : oldModel.number;
 
-
-    const number =
-      Number(
-
-        body.number ??
-        oldModel.number
-
-      );
+    const number = Number(numberValue);
 
 
 
@@ -320,81 +320,93 @@ export async function PUT(
 
 
           title:
-            body.title ??
-            oldModel.title,
+            typeof body.title === "string"
+              ? body.title
+              : oldModel.title,
 
 
           age:
             Number(
-              body.age ??
-              oldModel.age
+              typeof body.age === "number" || typeof body.age === "string"
+                ? body.age
+                : oldModel.age
             ),
 
 
           height:
             Number(
-              body.height ??
-              oldModel.height
+              typeof body.height === "number" || typeof body.height === "string"
+                ? body.height
+                : oldModel.height
             ),
 
 
           weight:
             Number(
-              body.weight ??
-              oldModel.weight
+              typeof body.weight === "number" || typeof body.weight === "string"
+                ? body.weight
+                : oldModel.weight
             ),
 
 
           nationality:
-            body.nationality ??
-            oldModel.nationality,
+            typeof body.nationality === "string"
+              ? body.nationality
+              : oldModel.nationality,
 
 
           city:
-            body.city ??
-            oldModel.city,
+            typeof body.city === "string"
+              ? body.city
+              : oldModel.city,
 
 
           languages:
-            body.languages ??
-            oldModel.languages,
+            typeof body.languages === "string"
+              ? body.languages
+              : oldModel.languages,
 
 
           services:
-            body.services ??
-            oldModel.services,
+            typeof body.services === "string"
+              ? body.services
+              : oldModel.services,
 
 
           avatar:
-            body.avatar ??
-            oldModel.avatar,
+            typeof body.avatar === "string"
+              ? body.avatar
+              : oldModel.avatar,
 
 
           gallery:
-            body.gallery ??
-            oldModel.gallery,
+            typeof body.gallery === "string"
+              ? body.gallery
+              : oldModel.gallery,
 
 
           videos:
-            body.videos ??
-            oldModel.videos,
+            typeof body.videos === "string"
+              ? body.videos
+              : oldModel.videos,
 
 
           introduction:
-            body.introduction ??
-            oldModel.introduction,
+            typeof body.introduction === "string"
+              ? body.introduction
+              : oldModel.introduction,
 
 
           online:
-            Boolean(
-              body.online
-            ),
+            typeof body.online === "boolean"
+              ? body.online
+              : Boolean(oldModel.online),
 
 
           featured:
-            Boolean(
-              body.featured
-            ),
+            typeof body.featured === "boolean"
+              ? body.featured
+              : Boolean(oldModel.featured),
 
 
         },
@@ -408,10 +420,10 @@ export async function PUT(
 
 
 
-    createAuditLog({
+    await createAuditLog({
 
       action:
-        "UPDATE",
+        "EDIT_MODEL",
 
 
       entity:
@@ -431,6 +443,13 @@ export async function PUT(
       description:
         "Admin updated model.",
 
+
+      metadata: {
+        modelCode: model.code,
+        operator: "Admin",
+        result: "Success",
+        actionLabel: "Edit Model",
+      },
 
     });
 
@@ -456,18 +475,7 @@ export async function PUT(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Update failed.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Update failed.", "UPDATE_MODEL_FAILED");
 
 
   }
@@ -555,10 +563,9 @@ export async function DELETE(
     const { id } =
       await params;
 
-
-
-
-
+    if (!isValidModelId(id)) {
+      return apiBadRequest("Invalid model ID.", "INVALID_MODEL_ID");
+    }
 
 
 
@@ -616,10 +623,10 @@ export async function DELETE(
 
 
 
-    createAuditLog({
+    await createAuditLog({
 
       action:
-        "DELETE",
+        "DELETE_MODEL",
 
 
       entity:
@@ -639,6 +646,13 @@ export async function DELETE(
       description:
         "Admin deleted model.",
 
+
+      metadata: {
+        modelCode: model.code,
+        operator: "Admin",
+        result: "Success",
+        actionLabel: "Delete Model",
+      },
 
     });
 
@@ -668,18 +682,7 @@ export async function DELETE(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Delete failed.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Delete failed.", "DELETE_MODEL_FAILED");
 
 
   }

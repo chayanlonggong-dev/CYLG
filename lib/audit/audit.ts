@@ -11,7 +11,15 @@ export type AuditAction =
   | "LOGIN"
   | "LOGOUT"
   | "UPLOAD"
-  | "SETTINGS_CHANGE";
+  | "SETTINGS_CHANGE"
+  | "CREATE_MODEL"
+  | "EDIT_MODEL"
+  | "DELETE_MODEL"
+  | "BATCH_DELETE"
+  | "BATCH_ONLINE"
+  | "BATCH_OFFLINE"
+  | "TOGGLE_ONLINE"
+  | "TOGGLE_OFFLINE";
 
 
 

@@ -32,335 +32,126 @@ import {
   createAuditLog,
 } from "@/lib/audit/audit";
 
-
-
+import {
+  apiError,
+  apiMethodNotAllowed,
+  apiNotFound,
+  apiServerError,
+  apiSuccess,
+  apiUnauthorized,
+} from "@/lib/api/response";
 
 
 export async function POST(
   request: NextRequest
 ) {
 
-
   try {
-
 
     const session =
       await getAdminSession();
 
-
-
-
-
     if(!session){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Unauthorized.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
-
-
+      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
     }
-
-
-
-
-
-
-
 
     const limit =
       rateLimit(
-
         `2fa-setup:${session.adminUserId}`,
-
         {
-
           limit:5,
-
           windowMs:
             60 * 60 * 1000,
-
         }
-
       );
-
-
-
-
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Too many requests.",
-        },
-
-        {
-          status:429,
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
-
-
-
-
-
-
-
 
     const adminUser =
       await prisma.adminUser.findUnique({
-
-
         where:{
-
           id:
             session.adminUserId,
-
         },
-
-
       });
 
-
-
-
-
-
-
     if(!adminUser){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Admin user not found.",
-        },
-
-        {
-          status:404,
-        }
-
-      );
-
-
+      return apiNotFound("Admin user not found.", "ADMIN_USER_NOT_FOUND");
     }
 
-
-
-
-
-
-
-
-    if(
+    if (
       adminUser.twoFactorEnabled
-    ){
-
-
-      return NextResponse.json(
-
-        {
-
-          success:false,
-
-          enabled:true,
-
-
-          message:
-            "Two-factor authentication is already enabled.",
-
-        },
-
-        {
-          status:400,
-        }
-
+    ) {
+      return apiError(
+        "Two-factor authentication is already enabled.",
+        400,
+        "TWO_FACTOR_ALREADY_ENABLED",
+        { enabled: true }
       );
-
-
     }
-
-
-
-
-
-
-
-
 
     const secret =
       generateSecret();
 
-
-
-
-
-
-
     const otpauth =
       generateURI({
-
         issuer:
           "ChaYanLongGong Admin",
-
-
         label:
           adminUser.username,
-
-
         secret,
-
-
       });
-
-
-
-
-
-
 
     const qrCode =
       await QRCode.toDataURL(
         otpauth
       );
 
-
-
-
-
-
-
-
     await prisma.adminUser.update({
-
-
       where:{
-
         id:
           adminUser.id,
-
       },
-
-
       data:{
-
-
         twoFactorSecret:
           secret,
-
-
         twoFactorEnabled:
           false,
-
-
       },
-
-
     });
 
-
-
-
-
-
-
-
     createAuditLog({
-
       action:
         "UPDATE",
-
-
       entity:
         "AdminUser",
-
-
       entityId:
         adminUser.id,
-
-
       userId:
         String(
           adminUser.id
         ),
-
-
       description:
         "Admin generated new two-factor authentication setup.",
-
-
     });
 
-
-
-
-
-
-
-
-    return NextResponse.json({
-
-      success:true,
-
-      qrCode,
-
-    });
-
-
-
-
-
-
+    return apiSuccess({ qrCode }, "2FA setup generated.", 200);
 
   } catch(error){
 
-
-
     console.error(
-
       "2FA SETUP ERROR:",
-
       error
-
     );
 
-
-
-
-
-
-    return NextResponse.json(
-
-      {
-        message:
-          "2FA setup failed.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
-
+    return apiServerError("2FA setup failed.", "TWO_FACTOR_SETUP_FAILED");
 
   }
 
+}
 
+export async function OPTIONS() {
+  return apiMethodNotAllowed("Method not allowed for this route.", "METHOD_NOT_ALLOWED");
 }

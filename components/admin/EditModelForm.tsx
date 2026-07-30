@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import AvatarUpload from "./AvatarUpload";
+import { useNotifications } from "./NotificationProvider";
 import GalleryUpload from "./GalleryUpload";
 import VideoUpload from "./VideoUpload";
 import IntroductionEditor from "./IntroductionEditor";
@@ -39,6 +40,7 @@ export default function EditModelForm({
   const [gallery, setGallery] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
   const [introduction, setIntroduction] = useState("");
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     async function load() {
@@ -46,7 +48,11 @@ export default function EditModelForm({
         const res = await fetch(`/api/models/${id}`);
 
         if (!res.ok) {
-          alert("Failed to load model.");
+          addNotification({
+            type: "error",
+            title: "Failed to load model",
+            message: "Unable to retrieve the selected model.",
+          });
           return;
         }
 
@@ -122,11 +128,19 @@ export default function EditModelForm({
       });
 
       if (!res.ok) {
-        alert("Save failed.");
+        addNotification({
+          type: "error",
+          title: "Save failed",
+          message: "Unable to save the updated model.",
+        });
         return;
       }
 
-      alert("Model updated.");
+      addNotification({
+        type: "success",
+        title: "Model updated",
+        message: "The model was updated successfully.",
+      });
 
       onSuccess?.();
     } finally {

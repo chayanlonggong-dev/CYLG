@@ -1,4 +1,5 @@
 import {
+  NextRequest,
   NextResponse,
 } from "next/server";
 
@@ -32,6 +33,19 @@ import {
   createAuditLog,
 } from "@/lib/audit/audit";
 
+import {
+  apiBadRequest,
+  apiMethodNotAllowed,
+  apiServerError,
+  apiUnauthorized,
+} from "@/lib/api/response";
+import { apiError, apiSuccess } from "@/lib/api/response";
+
+import {
+  isEmptyJsonBody,
+  parseRequestJson,
+} from "@/lib/api/request";
+
 
 
 
@@ -47,7 +61,7 @@ const LOCK_TIME =
 
 
 export async function POST(
-  request: Request
+  request: NextRequest
 ) {
 
 
@@ -89,22 +103,11 @@ export async function POST(
 
 
     if (!limit.success) {
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Too many login attempts. Please try again later.",
-        },
-
-        {
-          status:429,
-        }
-
+      return apiError(
+        "Too many login attempts. Please try again later.",
+        429,
+        "RATE_LIMITED"
       );
-
-
     }
 
 
@@ -114,23 +117,23 @@ export async function POST(
 
 
 
-    const body =
-      await request.json();
+    const { body, error } = await parseRequestJson<Record<string, unknown>>(request);
+
+    if (error === "INVALID_JSON") {
+      return apiBadRequest("Invalid JSON body.", "INVALID_JSON");
+    }
+
+    if (!body || isEmptyJsonBody(body)) {
+      return apiBadRequest("Request body is required.", "EMPTY_BODY");
+    }
 
 
 
 
 
-    const username =
-      body.username;
-
-
-    const password =
-      body.password;
-
-
-    const twoFactorToken =
-      body.twoFactorToken;
+    const username = typeof body.username === "string" ? body.username : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const twoFactorToken = typeof body.twoFactorToken === "string" ? body.twoFactorToken : "";
 
 
 
@@ -143,18 +146,7 @@ export async function POST(
     ) {
 
 
-      return NextResponse.json(
-
-        {
-          message:
-            "Username and password are required.",
-        },
-
-        {
-          status:400,
-        }
-
-      );
+      return apiBadRequest("Username and password are required.", "MISSING_CREDENTIALS");
 
 
     }
@@ -185,22 +177,7 @@ export async function POST(
 
 
     if (!adminUser) {
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Invalid username or password.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
-
-
+      return apiUnauthorized("Invalid username or password.", "INVALID_CREDENTIALS");
     }
 
 
@@ -212,30 +189,11 @@ export async function POST(
 
 
     if (
-
       adminUser.lockedUntil
-
       &&
-
       adminUser.lockedUntil > new Date()
-
     ) {
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Account temporarily locked. Try again later.",
-        },
-
-        {
-          status:423,
-        }
-
-      );
-
-
+      return apiError("Account temporarily locked. Try again later.", 423, "ACCOUNT_LOCKED");
     }
 
 
@@ -326,18 +284,7 @@ export async function POST(
 
 
 
-      return NextResponse.json(
-
-        {
-          message:
-            "Invalid username or password.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
+      return apiUnauthorized("Invalid username or password.", "INVALID_CREDENTIALS");
 
 
     }
@@ -406,27 +353,11 @@ export async function POST(
 
 
       if (!twoFactorToken) {
-
-
-        return NextResponse.json(
-
-          {
-
-            requireTwoFactor:true,
-
-
-            message:
-              "Two factor authentication required.",
-
-          },
-
-          {
-            status:200,
-          }
-
+        return apiSuccess(
+          { requireTwoFactor: true },
+          "Two factor authentication required.",
+          200
         );
-
-
       }
 
 
@@ -435,26 +366,9 @@ export async function POST(
 
 
       if (
-
         !adminUser.twoFactorSecret
-
       ) {
-
-
-        return NextResponse.json(
-
-          {
-            message:
-              "2FA configuration error.",
-          },
-
-          {
-            status:500,
-          }
-
-        );
-
-
+        return apiServerError("2FA configuration error.", "INVALID_2FA_CONFIGURATION");
       }
 
 
@@ -481,22 +395,7 @@ export async function POST(
 
 
       if (!verified) {
-
-
-        return NextResponse.json(
-
-          {
-            message:
-              "Invalid 2FA code.",
-          },
-
-          {
-            status:401,
-          }
-
-        );
-
-
+        return apiUnauthorized("Invalid 2FA code.", "INVALID_2FA_CODE");
       }
 
 
@@ -633,19 +532,7 @@ export async function POST(
 
 
 
-    const response =
-      NextResponse.json(
-
-        {
-          message:
-            "Login successful.",
-        },
-
-        {
-          status:200,
-        }
-
-      );
+    const response = apiSuccess(null, "Login successful.", 200);
 
 
 
@@ -718,21 +605,14 @@ export async function POST(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Internal server error.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Internal server error.", "ADMIN_LOGIN_FAILED");
 
 
   }
 
 
+}
+
+export async function OPTIONS() {
+  return apiMethodNotAllowed("Method not allowed for this route.", "METHOD_NOT_ALLOWED");
 }

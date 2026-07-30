@@ -1,4 +1,5 @@
 import {
+  NextRequest,
   NextResponse,
 } from "next/server";
 
@@ -22,12 +23,27 @@ import {
   createAuditLog,
 } from "@/lib/audit/audit";
 
+import {
+  apiBadRequest,
+  apiForbidden,
+  apiMethodNotAllowed,
+  apiNotFound,
+  apiServerError,
+  apiUnauthorized,
+} from "@/lib/api/response";
+import { apiError, apiSuccess } from "@/lib/api/response";
+
+import {
+  isEmptyJsonBody,
+  parseRequestJson,
+} from "@/lib/api/request";
+
 
 
 
 
 function getClientIp(
-  request: Request
+  request: NextRequest
 ){
 
   return (
@@ -57,7 +73,7 @@ function getClientIp(
 // =========================
 
 export async function GET(
-  request: Request
+  request: NextRequest
 ) {
 
 
@@ -71,22 +87,7 @@ export async function GET(
 
 
     if(!currentSession){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Unauthorized.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
-
-
+      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
     }
 
 
@@ -121,22 +122,7 @@ export async function GET(
 
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Too many requests.",
-        },
-
-        {
-          status:429,
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
 
 
@@ -198,18 +184,7 @@ export async function GET(
 
 
 
-    return NextResponse.json({
-
-
-      sessions,
-
-
-      currentSessionId:
-
-        currentSession.sessionId,
-
-
-    });
+    return apiSuccess({ sessions, currentSessionId: currentSession.sessionId }, "Sessions fetched.", 200);
 
 
 
@@ -230,18 +205,7 @@ export async function GET(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Failed to fetch sessions.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Failed to fetch sessions.", "FETCH_SESSIONS_FAILED");
 
 
   }
@@ -262,7 +226,7 @@ export async function GET(
 // =========================
 
 export async function DELETE(
-  request: Request
+  request: NextRequest
 ) {
 
 
@@ -277,22 +241,7 @@ export async function DELETE(
 
 
     if(!currentSession){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Unauthorized.",
-        },
-
-        {
-          status:401,
-        }
-
-      );
-
-
+      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
     }
 
 
@@ -329,22 +278,7 @@ export async function DELETE(
 
 
     if(!limit.success){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Too many requests.",
-        },
-
-        {
-          status:429,
-        }
-
-      );
-
-
+      return apiError("Too many requests.", 429, "RATE_LIMITED");
     }
 
 
@@ -354,15 +288,23 @@ export async function DELETE(
 
 
 
-    const body =
-      await request.json();
+    const parsedBody = await parseRequestJson<Record<string, unknown>>(request);
+
+    if (parsedBody.error === "INVALID_JSON") {
+      return apiBadRequest("Invalid JSON body.", "INVALID_JSON");
+    }
+
+    if (!parsedBody.body || isEmptyJsonBody(parsedBody.body)) {
+      return apiBadRequest("Request body is required.", "EMPTY_BODY");
+    }
+
+    const body = parsedBody.body as Record<string, unknown>;
 
 
 
 
 
-    const sessionId =
-      body.sessionId;
+    const sessionId = typeof body.sessionId === "string" ? body.sessionId : "";
 
 
 
@@ -370,22 +312,7 @@ export async function DELETE(
 
 
     if(!sessionId){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Session ID required.",
-        },
-
-        {
-          status:400,
-        }
-
-      );
-
-
+      return apiBadRequest("Session ID required.", "MISSING_SESSION_ID");
     }
 
 
@@ -416,22 +343,7 @@ export async function DELETE(
 
 
     if(!targetSession){
-
-
-      return NextResponse.json(
-
-        {
-          message:
-            "Session not found.",
-        },
-
-        {
-          status:404,
-        }
-
-      );
-
-
+      return apiNotFound("Session not found.", "SESSION_NOT_FOUND");
     }
 
 
@@ -452,18 +364,7 @@ export async function DELETE(
     ){
 
 
-      return NextResponse.json(
-
-        {
-          message:
-            "Forbidden.",
-        },
-
-        {
-          status:403,
-        }
-
-      );
+      return apiForbidden("Forbidden.", "FORBIDDEN");
 
 
     }
@@ -536,17 +437,7 @@ export async function DELETE(
 
 
 
-    return NextResponse.json({
-
-
-      success:true,
-
-
-      message:
-        "Session revoked.",
-
-
-    });
+    return apiSuccess(null, "Session revoked.", 200);
 
 
 
@@ -567,18 +458,7 @@ export async function DELETE(
 
 
 
-    return NextResponse.json(
-
-      {
-        message:
-          "Failed to revoke session.",
-      },
-
-      {
-        status:500,
-      }
-
-    );
+    return apiServerError("Failed to revoke session.", "REVOKE_SESSION_FAILED");
 
 
   }

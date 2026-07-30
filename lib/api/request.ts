@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 
+import { LEVELS } from "@/app/data/options";
+
 export function getClientIp(
   request: NextRequest
 ) {
@@ -62,6 +64,39 @@ export async function parseJsonBody<T>(
   } catch {
     return null;
   }
+}
+
+export async function parseRequestJson<T>(
+  request: NextRequest | Request
+): Promise<{ body: T | null; error: "INVALID_JSON" | null }> {
+  try {
+    return {
+      body: await request.json(),
+      error: null,
+    };
+  } catch {
+    return {
+      body: null,
+      error: "INVALID_JSON",
+    };
+  }
+}
+
+export function isEmptyJsonBody(body: unknown) {
+  return (
+    body === undefined ||
+    body === null ||
+    (typeof body === "object" && !Array.isArray(body) && Object.keys(body).length === 0)
+  );
+}
+
+export function isValidModelId(value: string | number) {
+  const numeric = Number(value);
+  return Number.isInteger(numeric) && numeric > 0;
+}
+
+export function isValidModelLevel(level: string) {
+  return LEVELS.includes(level as (typeof LEVELS)[number]);
 }
 
 export function getQueryParam(
