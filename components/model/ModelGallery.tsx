@@ -96,8 +96,6 @@ export default function ModelGallery({
 
     resetView();
 
-    setLoaded(false);
-
     setOpen(false);
 
   },[]);
@@ -581,6 +579,8 @@ quality={90}
 fetchPriority="high"
 
 sizes="(max-width:768px) 100vw, 768px"
+
+onLoad={() => setLoaded(true)}
 
 className="
 object-cover
