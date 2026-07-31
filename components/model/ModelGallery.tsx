@@ -91,6 +91,8 @@ export default function ModelGallery({
       y:number;
     } | null>(null);
 
+  const previousIndexRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined")
       return;
@@ -217,6 +219,8 @@ export default function ModelGallery({
 
     resetView();
 
+    previousIndexRef.current = current;
+
     setLoaded(false);
 
     setCurrent(index);
@@ -231,11 +235,14 @@ export default function ModelGallery({
   const next =
     useCallback(()=>{
 
+
       setCurrent(prev=>{
         const nextIndex =
           prev + 1 >= images.length
           ? 0
           : prev + 1;
+
+        previousIndexRef.current = prev;
 
         return nextIndex;
       });
@@ -258,17 +265,17 @@ export default function ModelGallery({
     useCallback(()=>{
 
 
-      setCurrent(prev=>{
 
+      setCurrent(prev=>{
 
         const previousIndex =
           prev === 0
           ? images.length - 1
           : prev - 1;
 
+        previousIndexRef.current = prev;
 
         return previousIndex;
-
 
       });
 
@@ -844,7 +851,8 @@ priority
 sizes="90vw"
 
 onLoad={() =>
-  setLoaded(true)
+  setLoaded(true);
+  previousIndexRef.current = null;
 }
 
 draggable={false}
@@ -875,6 +883,28 @@ object-contain
 "
 
 />
+
+{previousIndexRef.current !== null && !loaded && (
+  <Image
+    src={images[previousIndexRef.current]}
+    alt={`${id}-prev-${previousIndexRef.current}`}
+    fill
+    priority
+    sizes="90vw"
+    draggable={false}
+    style={{
+      transform:
+        `translate(${position.x}px,${position.y}px) scale(${zoom})`,
+      transition:
+        dragging.current
+        ? "none"
+        : "transform .4s ease",
+      opacity: 1,
+      pointerEvents: "none",
+    }}
+    className="object-contain"
+  />
+)}
 
 
 </div>
