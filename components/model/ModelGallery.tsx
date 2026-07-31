@@ -43,6 +43,12 @@ export default function ModelGallery({
   const [loaded,setLoaded] =
     useState(false);
 
+  const [pendingIndex,setPendingIndex] =
+    useState<number | null>(null);
+
+  const [isMobile,setIsMobile] =
+    useState(false);
+
   const [preloadedImages,setPreloadedImages] =
     useState<Set<string>>(new Set());
 
@@ -86,6 +92,33 @@ export default function ModelGallery({
       x:number;
       y:number;
     } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined")
+      return;
+
+    const mediaQuery =
+      window.matchMedia(
+        "(max-width: 768px)"
+      );
+
+    const updateIsMobile = () =>
+      setIsMobile(mediaQuery.matches);
+
+    updateIsMobile();
+
+    mediaQuery.addEventListener(
+      "change",
+      updateIsMobile
+    );
+
+    return () => {
+      mediaQuery.removeEventListener(
+        "change",
+        updateIsMobile
+      );
+    };
+  }, []);
 
   const closeGallery =
   useCallback(()=>{
@@ -186,6 +219,11 @@ export default function ModelGallery({
 
     resetView();
 
+    if (isMobile) {
+      setPendingIndex(index);
+      return;
+    }
+
     setLoaded(false);
 
     setCurrent(index);
@@ -201,21 +239,20 @@ export default function ModelGallery({
     useCallback(()=>{
 
 
-      setCurrent(prev=>{
+      const nextIndex =
+        current + 1 >= images.length
+        ? 0
+        : current + 1;
 
-        const nextIndex =
-          prev + 1 >= images.length
-          ? 0
-          : prev + 1;
+      if (isMobile) {
+        setPendingIndex(nextIndex);
+        resetView();
+        return;
+      }
 
-
-        return nextIndex;
-
-      });
-
+      setCurrent(nextIndex);
 
       resetView();
-
 
       setLoaded(false);
 
@@ -590,6 +627,25 @@ hover:scale-105
 "
 
 />
+
+{isMobile && pendingIndex !== null && (
+  <Image
+    src={images[pendingIndex]}
+    alt={`${id}-${pendingIndex}`}
+    fill
+    priority
+    quality={90}
+    fetchPriority="high"
+    sizes="90vw"
+    onLoad={() => {
+      setCurrent(pendingIndex);
+      setPendingIndex(null);
+      setLoaded(true);
+    }}
+    style={{ display: "none" }}
+    className="object-contain"
+  />
+)}
 
 {!loaded && (
   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
