@@ -40,14 +40,15 @@ export default function CollectionPage() {
         const res = await fetch("/api/models");
 
 
-        const data = await res.json();
+        const payload = await res.json();
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+            ? payload
+            : [];
 
 
-        setModels(
-          Array.isArray(data)
-            ? data
-            : []
-        );
+        setModels(data);
 
 
       } catch(error) {

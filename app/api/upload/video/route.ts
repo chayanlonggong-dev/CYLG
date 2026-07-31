@@ -27,6 +27,16 @@ import {
 
 
 
+import {
+  createUploadErrorResponse,
+  hasUnsafePathTraversal,
+  isAllowedExtension,
+  isAllowedMimeType,
+  isDangerousFile,
+  logUploadEvent,
+  sanitizeUploadFilename,
+} from "@/lib/upload";
+
 const MAX_FILE_SIZE =
   100 * 1024 * 1024;
 
@@ -41,8 +51,11 @@ const ALLOWED_TYPES = [
 
   "video/webm",
 
-  "video/quicktime",
+];
 
+const ALLOWED_EXTENSIONS = [
+  "mp4",
+  "webm",
 ];
 
 
@@ -95,12 +108,11 @@ export async function POST(
 
 ) {
 
+  let sanitizedFileName = "unknown";
+  let fileSize = 0;
+
 
   try {
-
-
-
-
 
     const session =
       await requireAdminSession();
@@ -149,22 +161,20 @@ export async function POST(
     if(!rate.success){
 
 
+      logUploadEvent({
+        uploadType: "video",
+        filename: sanitizedFileName,
+        size: fileSize,
+        success: false,
+      });
+
       return NextResponse.json(
-
+        createUploadErrorResponse(
+          "Too many upload requests."
+        ),
         {
-
-          message:
-
-            "Too many upload requests.",
-
-        },
-
-        {
-
           status:429,
-
         }
-
       );
 
 
@@ -201,22 +211,20 @@ export async function POST(
     if(!file){
 
 
+      logUploadEvent({
+        uploadType: "video",
+        filename: sanitizedFileName,
+        size: fileSize,
+        success: false,
+      });
+
       return NextResponse.json(
-
+        createUploadErrorResponse(
+          "No file uploaded."
+        ),
         {
-
-          message:
-
-            "No file uploaded.",
-
-        },
-
-        {
-
           status:400,
-
         }
-
       );
 
 
@@ -230,33 +238,39 @@ export async function POST(
 
 
 
+    sanitizedFileName =
+      sanitizeUploadFilename(file.name);
+    fileSize = file.size;
+
     if(
-
-      !ALLOWED_TYPES.includes(
-
-        file.type
-
+      hasUnsafePathTraversal(file.name) ||
+      hasUnsafePathTraversal(sanitizedFileName) ||
+      isDangerousFile(
+        sanitizedFileName,
+        file.type,
+        ALLOWED_TYPES
+      ) ||
+      !isAllowedExtension(
+        sanitizedFileName,
+        ALLOWED_EXTENSIONS
       )
-
     ){
 
 
+      logUploadEvent({
+        uploadType: "video",
+        filename: sanitizedFileName,
+        size: fileSize,
+        success: false,
+      });
+
       return NextResponse.json(
-
+        createUploadErrorResponse(
+          "Invalid video type."
+        ),
         {
-
-          message:
-
-            "Invalid video type.",
-
-        },
-
-        {
-
           status:400,
-
         }
-
       );
 
 
@@ -279,22 +293,20 @@ export async function POST(
     ){
 
 
+      logUploadEvent({
+        uploadType: "video",
+        filename: sanitizedFileName,
+        size: fileSize,
+        success: false,
+      });
+
       return NextResponse.json(
-
+        createUploadErrorResponse(
+          "Video size exceeds 100MB."
+        ),
         {
-
-          message:
-
-            "Video size exceeds 100MB.",
-
-        },
-
-        {
-
           status:400,
-
         }
-
       );
 
 
@@ -467,7 +479,7 @@ export async function POST(
 
         fileName:
 
-          file.name,
+          sanitizedFileName,
 
 
       },
@@ -482,6 +494,13 @@ export async function POST(
 
 
 
+
+    logUploadEvent({
+      uploadType: "video",
+      filename: sanitizedFileName,
+      size: fileSize,
+      success: true,
+    });
 
     return NextResponse.json(
 
@@ -546,22 +565,20 @@ export async function POST(
     ){
 
 
+      logUploadEvent({
+        uploadType: "video",
+        filename: sanitizedFileName,
+        size: fileSize,
+        success: false,
+      });
+
       return NextResponse.json(
-
+        createUploadErrorResponse(
+          "Unauthorized."
+        ),
         {
-
-          message:
-
-            "Unauthorized.",
-
-        },
-
-        {
-
           status:401,
-
         }
-
       );
 
 
@@ -575,22 +592,20 @@ export async function POST(
 
 
 
+    logUploadEvent({
+      uploadType: "video",
+      filename: sanitizedFileName,
+      size: fileSize,
+      success: false,
+    });
+
     return NextResponse.json(
-
+      createUploadErrorResponse(
+        "Upload failed."
+      ),
       {
-
-        message:
-
-          "Upload failed.",
-
-      },
-
-      {
-
         status:500,
-
       }
-
     );
 
 

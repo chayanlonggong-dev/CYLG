@@ -41,9 +41,10 @@ export default function LevelGrid({
       "
     >
       {levels.map((level) => {
-        const count = models.filter(
+        const filteredModels = models.filter(
           (model) => model.level === level
-        ).length;
+        );
+        const count = filteredModels.length;
 
         return (
           <LevelCard

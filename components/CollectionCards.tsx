@@ -23,25 +23,6 @@ export default function CollectionCards() {
 
   async function loadModels() {
     try {
-      const cache =
-        sessionStorage.getItem("cylg-home-models");
-
-      if (cache) {
-        const cached = JSON.parse(cache);
-        const cachedData = Array.isArray(cached?.data)
-          ? cached.data
-          : Array.isArray(cached)
-            ? cached
-            : [];
-
-        if (!cancelled) {
-          setModels(cachedData);
-          setLoading(false);
-        }
-
-        return;
-      }
-
       const res = await fetch("/api/models");
       const payload = await res.json();
       const data = Array.isArray(payload?.data)
@@ -50,16 +31,9 @@ export default function CollectionCards() {
           ? payload
           : [];
 
-      console.log("Collection models:", data.length, data);
-
-      sessionStorage.setItem(
-        "cylg-home-models",
-        JSON.stringify(data)
-      );
-
-if (!cancelled) {
-  setModels(data);
-}
+      if (!cancelled) {
+        setModels(data);
+      }
     } catch (error) {
       console.error("Failed to load models:", error);
 
