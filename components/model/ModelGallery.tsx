@@ -850,10 +850,10 @@ priority
 
 sizes="90vw"
 
-onLoad={() =>
+onLoad={() => {
   setLoaded(true);
   previousIndexRef.current = null;
-}
+}}
 
 draggable={false}
 
