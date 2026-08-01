@@ -71,28 +71,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
     metadataBase:
+  new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://https://chayanlonggong.vercel.app"
+  ),
 
-      new URL(
+alternates: {
+  canonical: "/",
+},
 
-        process.env.NEXT_PUBLIC_SITE_URL ||
+title: {
+  default:
+    "ChaYanLongGong | Luxury Elite Companion Agency",
 
-        "https://cylg-production.vercel.app"
-
-      ),
-
-
-
-    title: {
-
-      default:
-
-        "ChaYanLongGong | Luxury Elite Companion Agency",
-
-      template:
-
-        "%s | ChaYanLongGong",
-
-    },
+  template:
+    "%s | ChaYanLongGong",
+},
 
 
 
@@ -138,13 +132,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 
-    icons:{
+    icons: {
+  icon: favicon,
+  apple: "/apple-touch-icon.png",
+},
 
-      icon:
-
-        favicon,
-
-    },
+manifest: "/site.webmanifest",
 
 
 
@@ -165,7 +158,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
       url:
 
-        "https://cylg-production.vercel.app",
+        "https://https://chayanlonggong.vercel.app",
 
 
 
@@ -393,19 +386,41 @@ gtag(
 
                 url:
 
-                  "https://cylg-production.vercel.app",
+                  "https://https://chayanlonggong.vercel.app",
 
 
                 logo:
 
-                  "https://cylg-production.vercel.app/logo.png",
+                  "https://https://chayanlonggong.vercel.app/logo.png",
 
               }),
 
           }}
 
         />
+{/* Website Schema */}
 
+<Script
+  id="website-schema"
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "ChaYanLongGong",
+      url: "https://https://chayanlonggong.vercel.app",
+      inLanguage: "en",
+      publisher: {
+        "@type": "Organization",
+        name: "ChaYanLongGong",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://https://chayanlonggong.vercel.app/logo.png",
+        },
+      },
+    }),
+  }}
+/>
 
 
 
