@@ -51,6 +51,10 @@ model Model {
 
   updatedAt DateTime @updatedAt
 
+  @@index([level])
+  @@index([online])
+  @@index([featured])
+  @@index([createdAt])
 }
 
 

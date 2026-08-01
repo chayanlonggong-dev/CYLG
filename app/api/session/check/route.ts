@@ -7,7 +7,7 @@ import {
   prisma,
 } from "@/lib/prisma";
 
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+const SESSION_TIMEOUT = 10 * 60 * 1000;
 
 export async function GET(
   request: NextRequest
