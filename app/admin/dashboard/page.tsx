@@ -28,17 +28,26 @@ type ModelSummary = {
   createdAt?: string;
 };
 
+type ActivityItem = {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  type: "create" | "update" | "delete" | "system";
+};
 
 
 export default function DashboardPage() {
 
 
   const [models,setModels] =
-    useState<ModelSummary[]>([]);
+  useState<ModelSummary[]>([]);
 
+const [activities,setActivities] =
+  useState<ActivityItem[]>([]);
 
-  const [loading,setLoading] =
-    useState(true);
+const [loading,setLoading] =
+  useState(true);
 
 
   useEffect(()=>{
@@ -92,10 +101,74 @@ export default function DashboardPage() {
 
 
     }
+async function loadActivities() {
 
+  try {
 
-    loadModels();
+    const response =
+      await fetch("/api/admin/logs");
 
+    const payload =
+      await response.json();
+
+    const data =
+      Array.isArray(payload?.data)
+        ? payload.data
+        : [];
+
+    setActivities(
+  data.slice(0, 8).map(
+    (
+      log: {
+        id: string;
+        action: string;
+        description: string;
+        createdAt: string;
+      },
+      index: number
+    ) => ({
+      id: index,
+
+      title: log.action,
+
+      description: log.description,
+
+      time: new Date(
+        log.createdAt
+      ).toLocaleString(),
+
+      type:
+        log.action.includes("DELETE")
+          ? "delete"
+          : log.action.includes("UPDATE") ||
+            log.action.includes("EDIT")
+          ? "update"
+          : log.action.includes("CREATE")
+          ? "create"
+          : "system",
+    })
+  )
+);
+
+  } catch (error) {
+
+    console.error(error);
+
+    setActivities([]);
+
+  }
+
+}
+
+    async function initialize() {
+
+  await loadModels();
+
+  await loadActivities();
+
+}
+
+initialize();
 
   },[]);
 
@@ -147,47 +220,6 @@ export default function DashboardPage() {
 
 
     },[models]);
-
-
-
-
-
-  const recentActivity =
-    useMemo(()=>{
-
-
-      return recentModels.map(
-        model=>({
-
-
-          id:model.id,
-
-
-          title:model.code,
-
-
-          description:
-            `Profile ${model.code} is available in the CMS.`,
-
-
-          time:
-            "Recently",
-
-
-          type:
-            "system" as const,
-
-
-        })
-      );
-
-
-    },[recentModels]);
-
-
-
-
-
 
   async function logout() {
 
@@ -405,7 +437,7 @@ export default function DashboardPage() {
 
           loading={loading}
 
-          activities={recentActivity}
+          activities={activities}
 
         />
 

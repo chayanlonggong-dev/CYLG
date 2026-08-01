@@ -282,7 +282,7 @@ export async function getAuditLogsByUser(
       createdAt:
         "desc",
 
-    },
+      },
 
   });
 
