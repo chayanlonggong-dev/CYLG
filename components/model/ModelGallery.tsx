@@ -604,7 +604,7 @@ fill
 
 priority
 
-quality={90}
+quality={85}
 
 fetchPriority="high"
 
