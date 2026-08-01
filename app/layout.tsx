@@ -73,7 +73,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase:
   new URL(
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://https://chayanlonggong.vercel.app"
+    "https://chayanlonggong.vercel.app"
   ),
 
 alternates: {
@@ -158,7 +158,7 @@ manifest: "/site.webmanifest",
 
       url:
 
-        "https://https://chayanlonggong.vercel.app",
+        "https://chayanlonggong.vercel.app",
 
 
 
@@ -386,12 +386,12 @@ gtag(
 
                 url:
 
-                  "https://https://chayanlonggong.vercel.app",
+                  "https://chayanlonggong.vercel.app",
 
 
                 logo:
 
-                  "https://https://chayanlonggong.vercel.app/logo.png",
+                  "https://chayanlonggong.vercel.app/logo.png",
 
               }),
 
@@ -408,14 +408,14 @@ gtag(
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: "ChaYanLongGong",
-      url: "https://https://chayanlonggong.vercel.app",
+      url: "https://chayanlonggong.vercel.app",
       inLanguage: "en",
       publisher: {
         "@type": "Organization",
         name: "ChaYanLongGong",
         logo: {
           "@type": "ImageObject",
-          url: "https://https://chayanlonggong.vercel.app/logo.png",
+          url: "https://chayanlonggong.vercel.app/logo.png",
         },
       },
     }),

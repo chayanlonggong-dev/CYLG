@@ -68,7 +68,7 @@ export async function generateMetadata({
 
     process.env.NEXT_PUBLIC_SITE_URL ||
 
-    "https://https://chayanlonggong.vercel.app";
+    "https://chayanlonggong.vercel.app";
 
 
 
