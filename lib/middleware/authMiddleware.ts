@@ -8,9 +8,9 @@ export function getSessionFromRequest(
   request: NextRequest
 ) {
   const sessionId =
-    request.cookies.get(
-      "cylg_session"
-    )?.value;
+  request.cookies.get(
+    "cylg_admin_session"
+  )?.value;
 
   if (!sessionId) {
     return null;
