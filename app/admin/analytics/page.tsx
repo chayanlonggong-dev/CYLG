@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+import AnalyticsCards from "@/components/admin/analytics/AnalyticsCards";
+import TopPagesCard from "@/components/admin/analytics/TopPagesCard";
+import RecentVisitorsCard from "@/components/admin/analytics/RecentVisitorsCard";
+import TopCountriesCard from "@/components/admin/analytics/TopCountriesCard";
+import TopBrowsersCard from "@/components/admin/analytics/TopBrowsersCard";
+import TopDevicesCard from "@/components/admin/analytics/TopDevicesCard";
+import TopReferrersCard from "@/components/admin/analytics/TopReferrersCard";
+
 type TopPage = {
   path: string;
   _count: {
@@ -17,6 +25,34 @@ type RecentVisitor = {
   device: string | null;
 };
 
+type Country = {
+  country: string | null;
+  _count: {
+    country: number;
+  };
+};
+
+type Browser = {
+  browser: string | null;
+  _count: {
+    browser: number;
+  };
+};
+
+type Device = {
+  device: string | null;
+  _count: {
+    device: number;
+  };
+};
+
+type Referrer = {
+  referrer: string | null;
+  _count: {
+    referrer: number;
+  };
+};
+
 type AnalyticsData = {
   todayVisits: number;
   totalVisits: number;
@@ -24,6 +60,10 @@ type AnalyticsData = {
   onlineVisitors: number;
   topPages: TopPage[];
   recentVisitors: RecentVisitor[];
+  topCountries: Country[];
+  topBrowsers: Browser[];
+  topDevices: Device[];
+  topReferrers: Referrer[];
 };
 
 export default function AnalyticsPage() {
@@ -34,6 +74,10 @@ export default function AnalyticsPage() {
     onlineVisitors: 0,
     topPages: [],
     recentVisitors: [],
+    topCountries: [],
+    topBrowsers: [],
+    topDevices: [],
+    topReferrers: [],
   });
 
   useEffect(() => {
@@ -66,129 +110,29 @@ export default function AnalyticsPage() {
         </h1>
 
         <p className="mt-4 text-gray-400">
-          Website Traffic Analytics
+          Website Traffic & Visitor Analytics
         </p>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-            <h2 className="text-xl font-bold text-yellow-400">
-              Today's Visits
-            </h2>
-
-            <p className="mt-6 text-5xl font-black">
-              {data.todayVisits}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-            <h2 className="text-xl font-bold text-yellow-400">
-              Total Visits
-            </h2>
-
-            <p className="mt-6 text-5xl font-black">
-              {data.totalVisits}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-            <h2 className="text-xl font-bold text-yellow-400">
-              Unique Visitors
-            </h2>
-
-            <p className="mt-6 text-5xl font-black">
-              {data.uniqueVisitors}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-            <h2 className="text-xl font-bold text-yellow-400">
-              Online Visitors
-            </h2>
-
-            <p className="mt-6 text-5xl font-black">
-              {data.onlineVisitors}
-            </p>
-          </div>
-
-        </div>
+        <AnalyticsCards
+          todayPageViews={data.todayVisits}
+          totalPageViews={data.totalVisits}
+          uniqueVisitors={data.uniqueVisitors}
+          onlineVisitors={data.onlineVisitors}
+        />
 
         <div className="mt-12 grid gap-8 xl:grid-cols-2">
+          <TopPagesCard pages={data.topPages} />
+          <RecentVisitorsCard visitors={data.recentVisitors} />
+        </div>
 
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
+        <div className="mt-8 grid gap-8 xl:grid-cols-2">
+          <TopCountriesCard countries={data.topCountries} />
+          <TopBrowsersCard browsers={data.topBrowsers} />
+        </div>
 
-            <h2 className="text-2xl font-bold text-yellow-400">
-              Top Pages
-            </h2>
-
-            <div className="mt-6 space-y-4">
-
-              {data.topPages.length === 0 && (
-                <p className="text-gray-500">
-                  No data
-                </p>
-              )}
-
-              {data.topPages.map((page) => (
-                <div
-                  key={page.path}
-                  className="flex items-center justify-between border-b border-white/10 pb-3"
-                >
-                  <span className="font-mono text-sm">
-                    {page.path}
-                  </span>
-
-                  <span className="font-bold text-yellow-400">
-                    {page._count.path}
-                  </span>
-                </div>
-              ))}
-
-            </div>
-
-          </div>
-
-          <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-
-            <h2 className="text-2xl font-bold text-yellow-400">
-              Recent Visitors
-            </h2>
-
-            <div className="mt-6 space-y-4">
-
-              {data.recentVisitors.length === 0 && (
-                <p className="text-gray-500">
-                  No data
-                </p>
-              )}
-
-              {data.recentVisitors.map((visitor, index) => (
-
-                <div
-                  key={index}
-                  className="rounded-xl border border-white/10 p-4"
-                >
-
-                  <div className="text-sm text-gray-400">
-                    {new Date(visitor.createdAt).toLocaleString()}
-                  </div>
-
-                  <div className="mt-2 font-mono text-yellow-400">
-                    {visitor.path}
-                  </div>
-
-                  <div className="mt-2 text-sm text-gray-400">
-                    {visitor.country || "-"} · {visitor.browser || "-"} · {visitor.device || "-"}
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
-
+        <div className="mt-8 grid gap-8 xl:grid-cols-2">
+          <TopDevicesCard devices={data.topDevices} />
+          <TopReferrersCard referrers={data.topReferrers} />
         </div>
 
       </div>

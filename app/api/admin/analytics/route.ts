@@ -22,6 +22,10 @@ export async function GET() {
       onlineVisitors,
       topPages,
       recentVisitors,
+      topCountries,
+      topBrowsers,
+      topDevices,
+      topReferrers,
     ] = await Promise.all([
 
       prisma.analyticsVisit.count(),
@@ -80,6 +84,58 @@ export async function GET() {
         },
       }),
 
+      prisma.analyticsVisit.groupBy({
+        by: ["country"],
+        _count: {
+          country: true,
+        },
+        orderBy: {
+          _count: {
+            country: "desc",
+          },
+        },
+        take: 10,
+      }),
+
+      prisma.analyticsVisit.groupBy({
+        by: ["browser"],
+        _count: {
+          browser: true,
+        },
+        orderBy: {
+          _count: {
+            browser: "desc",
+          },
+        },
+        take: 10,
+      }),
+
+      prisma.analyticsVisit.groupBy({
+        by: ["device"],
+        _count: {
+          device: true,
+        },
+        orderBy: {
+          _count: {
+            device: "desc",
+          },
+        },
+        take: 10,
+      }),
+
+      prisma.analyticsVisit.groupBy({
+        by: ["referrer"],
+        _count: {
+          referrer: true,
+        },
+        orderBy: {
+          _count: {
+            referrer: "desc",
+          },
+        },
+        take: 10,
+      }),
+
     ]);
 
     return NextResponse.json({
@@ -91,6 +147,10 @@ export async function GET() {
         onlineVisitors: onlineVisitors.length,
         topPages,
         recentVisitors,
+        topCountries,
+        topBrowsers,
+        topDevices,
+        topReferrers,
       },
     });
 
