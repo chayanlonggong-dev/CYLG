@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 
 import { LanguageProvider } from "@/app/providers/LanguageProvider";
+import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 
 import {
   prisma,
@@ -428,9 +429,11 @@ gtag(
 
         <LanguageProvider>
 
-          {children}
+  <AnalyticsTracker />
 
-        </LanguageProvider>
+  {children}
+
+</LanguageProvider>
 
 
 
