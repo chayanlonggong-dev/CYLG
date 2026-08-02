@@ -453,38 +453,23 @@ export async function POST(
 
 
 
-    await prisma.session.create({
+    const session = await prisma.session.create({
+  data: {
+    token,
+    adminUserId: adminUser.id,
+    expiresAt,
+    lastActivityAt: new Date(),
+    ip,
+    userAgent,
+  },
+});
 
-
-      data:{
-
-
-        token,
-
-
-        adminUserId:
-          adminUser.id,
-
-
-        expiresAt,
-
-
-        lastActivityAt:
-          new Date(),
-
-
-
-        ip,
-
-
-        userAgent,
-
-
-
-      },
-
-
-    });
+if (!session) {
+  return apiServerError(
+    "Failed to create session.",
+    "SESSION_CREATE_FAILED"
+  );
+}
 
 
 
@@ -492,7 +477,7 @@ export async function POST(
 
 
 
-    createAuditLog({
+    await createAuditLog({
 
       action:
         "LOGIN",

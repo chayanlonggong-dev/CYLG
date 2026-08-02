@@ -253,8 +253,8 @@ export default function SessionManager() {
       fixed
       bottom-6
       right-6
-      z-[9999]
-      w-[360px]
+      z-9999
+      w-90
       rounded-2xl
       border
       border-yellow-500

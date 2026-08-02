@@ -8,7 +8,7 @@ import {
 
 
 const SESSION_TIMEOUT =
-  30 * 60 * 1000;
+  10 * 60 * 1000;
 
 
 

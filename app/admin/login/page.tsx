@@ -181,7 +181,7 @@ export default function AdminLoginPage() {
 
 
     try {
-
+console.time("LOGIN_API");
 
       const response =
         await fetch(
@@ -213,7 +213,8 @@ export default function AdminLoginPage() {
 
           }
         );
-
+console.timeEnd("LOGIN_API");
+console.log("status:", response.status);
 
 
 
