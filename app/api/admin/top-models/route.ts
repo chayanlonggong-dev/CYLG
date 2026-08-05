@@ -65,6 +65,7 @@ switch (period) {
     createdAtFilter = {};
 }
     const visits = await prisma.analyticsVisit.groupBy({
+      
       by: ["path"],
       _count: {
         path: true,
@@ -79,7 +80,7 @@ switch (period) {
   }),
 },
     });
-
+console.log(visits);
     const visitMap = new Map<string, number>();
 
     visits.forEach((item) => {

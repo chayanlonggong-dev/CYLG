@@ -60,6 +60,13 @@ type Traffic = {
   views: number;
 };
 
+type BookingPlatform = {
+  referrer: string | null;
+  _count: {
+    referrer: number;
+  };
+};
+
 type AnalyticsData = {
   yesterdayVisits: number;
   weekVisits: number;
@@ -81,12 +88,7 @@ type AnalyticsData = {
 
   traffic: Traffic[];
 
-  bookingPlatforms: {
-    referrer: string | null;
-    _count: {
-      referrer: number;
-    };
-  }[];
+  bookingPlatforms: BookingPlatform[];
 };
 
 export default function AnalyticsPage() {
@@ -115,34 +117,55 @@ export default function AnalyticsPage() {
   });
 
   useEffect(() => {
-    async function loadAnalytics() {
-      try {
-        const response = await fetch("/api/admin/analytics");
-        const result = await response.json();
+  async function loadAnalytics() {
+    try {
+      const response = await fetch("/api/admin/analytics");
+      const result = await response.json();
 
-        if (result.success) {
-          setData(result.data);
-        }
-      } catch (error) {
-        console.error(error);
+      if (result.success) {
+        setData(result.data);
       }
+    } catch (error) {
+      console.error(error);
     }
+  }
 
+  loadAnalytics();
+
+  const interval = setInterval(() => {
     loadAnalytics();
-  }, []);  return (
+  }, 30000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  return (
     <main className="min-h-screen bg-[#050505] px-10 py-10 text-white">
       <div className="mx-auto max-w-7xl">
         <p className="uppercase tracking-[0.4em] text-yellow-500">
           CYLG CMS
         </p>
 
-        <h1 className="mt-4 text-5xl font-black">
-          Analytics
-        </h1>
+        <div className="flex items-center justify-between">
+  <div>
+    <h1 className="mt-4 text-5xl font-black">
+      Analytics
+    </h1>
 
-        <p className="mt-4 text-gray-400">
-          Website Traffic & Visitor Analytics
-        </p>
+    <p className="mt-4 text-gray-400">
+      Website Traffic & Visitor Analytics
+    </p>
+  </div>
+
+  <a
+    href="/api/admin/analytics/export"
+    className="rounded-xl border border-yellow-500 bg-yellow-500 px-6 py-3 font-semibold text-black transition hover:bg-yellow-400"
+  >
+    Export CSV
+  </a>
+</div>
+
+  
 
         <AnalyticsCards
           todayPageViews={data.todayVisits}

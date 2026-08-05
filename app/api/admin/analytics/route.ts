@@ -119,12 +119,15 @@ prisma.analyticsVisit.count({
         },
         take: 20,
         select: {
-          createdAt: true,
-          path: true,
-          country: true,
-          browser: true,
-          device: true,
-        },
+  createdAt: true,
+  path: true,
+  country: true,
+  browser: true,
+  device: true,
+
+  ip: true,
+  referrer: true,
+},
       }),
 
       prisma.analyticsVisit.groupBy({
@@ -320,11 +323,11 @@ const normalizedBrowsers = Array.from(
 const normalizedBookingPlatforms = bookingPlatforms.filter(
   (item) =>
     [
-      "WhatsApp",
-      "Telegram",
-      "LINE",
-      "WeChat",
-      "Signal",
+      "whatsapp",
+      "telegram",
+      "line",
+      "wechat",
+      "signal",
     ].includes(item.referrer ?? "")
 );
     return NextResponse.json({
@@ -346,6 +349,7 @@ const normalizedBookingPlatforms = bookingPlatforms.filter(
         topReferrers,
         traffic: trafficData,
         bookingPlatforms: normalizedBookingPlatforms,
+        topModels,
       },
     });
 
