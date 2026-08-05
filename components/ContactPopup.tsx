@@ -184,7 +184,7 @@ export default function ContactPopup({
 
 
 
-  function openContact(
+  async function openContact(
     platform:
       |"whatsapp"
       |"telegram"
@@ -212,7 +212,19 @@ export default function ContactPopup({
 
 
 
-
+await fetch("/api/analytics/book", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    platform,
+    modelId,
+    visitorId:
+      localStorage.getItem("visitor-id") ??
+      crypto.randomUUID(),
+  }),
+}).catch(() => {});
 
     const text =
       encodeURIComponent(message);

@@ -9,6 +9,40 @@ type Props = {
   browsers: Browser[];
 };
 
+function getBrowserIcon(browser: string | null) {
+  switch (browser) {
+    case "Chrome":
+      return "🌐";
+
+    case "Edge":
+      return "🟦";
+
+    case "Safari":
+      return "🧭";
+
+    case "Firefox":
+      return "🦊";
+
+    case "Opera":
+      return "🅾️";
+
+    case "Brave":
+      return "🦁";
+
+    case "DuckDuckGo":
+      return "🦆";
+
+    case "Samsung Internet":
+      return "📱";
+
+    case "Arc":
+      return "🌀";
+
+    default:
+      return "❓";
+  }
+}
+
 export default function TopBrowsersCard({
   browsers,
 }: Props) {
@@ -30,9 +64,15 @@ export default function TopBrowsersCard({
             key={index}
             className="flex items-center justify-between border-b border-white/10 pb-3"
           >
-            <span>
-              {item.browser || "Unknown"}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">
+                {getBrowserIcon(item.browser)}
+              </span>
+
+              <span>
+                {item.browser || "Unknown"}
+              </span>
+            </div>
 
             <span className="font-bold text-yellow-400">
               {item._count.browser}

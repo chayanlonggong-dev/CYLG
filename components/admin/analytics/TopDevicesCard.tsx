@@ -9,6 +9,22 @@ type Props = {
   devices: Device[];
 };
 
+function getDeviceIcon(device: string | null) {
+  switch (device) {
+    case "Desktop":
+      return "🖥️";
+
+    case "Mobile":
+      return "📱";
+
+    case "Tablet":
+      return "📲";
+
+    default:
+      return "❓";
+  }
+}
+
 export default function TopDevicesCard({
   devices,
 }: Props) {
@@ -30,9 +46,15 @@ export default function TopDevicesCard({
             key={index}
             className="flex items-center justify-between border-b border-white/10 pb-3"
           >
-            <span>
-              {item.device || "Unknown"}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">
+                {getDeviceIcon(item.device)}
+              </span>
+
+              <span>
+                {item.device || "Unknown"}
+              </span>
+            </div>
 
             <span className="font-bold text-yellow-400">
               {item._count.device}

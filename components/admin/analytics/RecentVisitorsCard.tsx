@@ -10,6 +10,85 @@ type Props = {
   visitors: RecentVisitor[];
 };
 
+function getCountryIcon(country: string | null) {
+  switch (country) {
+    case "TH":
+      return "🇹🇭";
+    case "US":
+      return "🇺🇸";
+    case "JP":
+      return "🇯🇵";
+    case "CN":
+      return "🇨🇳";
+    case "TW":
+      return "🇹🇼";
+    case "KR":
+      return "🇰🇷";
+    case "SG":
+      return "🇸🇬";
+    case "MY":
+      return "🇲🇾";
+    case "VN":
+      return "🇻🇳";
+    case "HK":
+      return "🇭🇰";
+    case "Local Development":
+      return "💻";
+    default:
+      return "🌍";
+  }
+}
+
+function getBrowserIcon(browser: string | null) {
+  switch (browser) {
+    case "Chrome":
+      return "🌐";
+
+    case "Edge":
+      return "🟦";
+
+    case "Safari":
+      return "🧭";
+
+    case "Firefox":
+      return "🦊";
+
+    case "Opera":
+      return "🅾️";
+
+    case "Brave":
+      return "🦁";
+
+    case "DuckDuckGo":
+      return "🦆";
+
+    case "Samsung Internet":
+      return "📱";
+
+    case "Arc":
+      return "🌀";
+
+    default:
+      return "❓";
+  }
+}
+
+function getDeviceIcon(device: string | null) {
+  switch (device) {
+    case "Desktop":
+      return "🖥️";
+
+    case "Mobile":
+      return "📱";
+
+    case "Tablet":
+      return "📲";
+
+    default:
+      return "❓";
+  }
+}
+
 export default function RecentVisitorsCard({
   visitors,
 }: Props) {
@@ -39,10 +118,21 @@ export default function RecentVisitorsCard({
               {visitor.path}
             </div>
 
-            <div className="mt-2 text-sm text-gray-400">
-              {visitor.country || "-"} ·{" "}
-              {visitor.browser || "-"} ·{" "}
-              {visitor.device || "-"}
+            <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-300">
+              <span className="flex items-center gap-2">
+                <span>{getCountryIcon(visitor.country)}</span>
+                <span>{visitor.country || "Unknown"}</span>
+              </span>
+
+              <span className="flex items-center gap-2">
+                <span>{getBrowserIcon(visitor.browser)}</span>
+                <span>{visitor.browser || "Unknown"}</span>
+              </span>
+
+              <span className="flex items-center gap-2">
+                <span>{getDeviceIcon(visitor.device)}</span>
+                <span>{visitor.device || "Unknown"}</span>
+              </span>
             </div>
           </div>
         ))}

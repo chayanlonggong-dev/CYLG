@@ -11,6 +11,7 @@ const menu = [
   { href: "/admin/languages", label: "Languages" },
   { href: "/admin/ai-translation", label: "AI Translation" },
   { href: "/admin/analytics", label: "Analytics" },
+ { href: "/admin/top-models", label: "Top Models" },
   { href: "/admin/backups", label: "Backups" },
   { href: "/admin/security", label: "Security" },
   { href: "/admin/firewall", label: "Firewall" },
