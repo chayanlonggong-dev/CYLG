@@ -116,14 +116,25 @@ model AnalyticsVisit {
 }
 
 model BackupRecord {
-  id        String   @id @default(cuid())
-  filename  String
-  type      String
-  size      Int
-  status    String   @default("Completed")
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+
+  filename    String
+  type        String
+
+  size        Int
+
+  filePath    String   @default("")
+  checksum    String   @default("")
+
+  status      String   @default("Completed")
+
+  restoredAt  DateTime?
+  restoredBy  String?
+
+  createdAt   DateTime @default(now())
 
   @@index([createdAt])
+  @@index([status])
 }
 
 enum ModelLevel {
