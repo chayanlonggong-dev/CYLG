@@ -50,3 +50,5 @@ public/uploads/
 
 # SQLite temporary schema
 prisma/schema-sqlite.prisma
+# Backup files
+backup/
