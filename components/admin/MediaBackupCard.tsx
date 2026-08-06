@@ -9,21 +9,59 @@ export default function MediaBackupCard() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/admin/backups/media");
+      // ① 执行 Media Backup
+      const mediaResponse = await fetch(
+        "/api/admin/backups/media"
+      );
 
-      const result = await response.json();
+      const mediaResult = await mediaResponse.json();
 
-      if (result.success) {
-        alert(
-          `Media Scan Completed
-
-Images : ${result.images}
-Videos : ${result.videos}
-Total : ${result.total}`
-        );
-      } else {
-        alert(result.message);
+      if (!mediaResult.success) {
+        alert(mediaResult.message);
+        setLoading(false);
+        return;
       }
+
+      // ② 建立 Backup History 记录
+      const now = new Date();
+
+      const filename =
+        `CYLG-MEDIA-${
+          now.getFullYear()
+        }${
+          String(now.getMonth() + 1).padStart(2, "0")
+        }${
+          String(now.getDate()).padStart(2, "0")
+        }-${
+          String(now.getHours()).padStart(2, "0")
+        }${
+          String(now.getMinutes()).padStart(2, "0")
+        }${
+          String(now.getSeconds()).padStart(2, "0")
+        }`;
+
+      await fetch("/api/admin/backups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          filename,
+          type: "Media",
+          size: mediaResult.total,
+        }),
+      });
+
+      alert(
+        `Media Backup Completed
+
+Images : ${mediaResult.images}
+Videos : ${mediaResult.videos}
+Total : ${mediaResult.total}`
+      );
+
+      // ③ 自动刷新页面，让 History 出现新纪录
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Failed to backup media.");
@@ -45,20 +83,9 @@ Total : ${result.total}`
       <button
         onClick={backupMedia}
         disabled={loading}
-        className="
-          mt-8
-          rounded-full
-          bg-yellow-500
-          px-8
-          py-3
-          font-bold
-          text-black
-          transition
-          hover:bg-yellow-400
-          disabled:opacity-50
-        "
+        className="mt-8 rounded-full bg-yellow-500 px-8 py-3 font-bold text-black transition hover:bg-yellow-400 disabled:opacity-50"
       >
-        {loading ? "Scanning..." : "Backup Media"}
+        {loading ? "Backing Up..." : "Backup Media"}
       </button>
 
       <p className="mt-6 text-sm text-gray-500">

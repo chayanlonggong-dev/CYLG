@@ -289,12 +289,6 @@ export async function getAuditLogsByUser(
 }
 
 
-
-
-
-
-
-
 export async function getAuditLogsByEntity(
 
   entity: string,
@@ -302,7 +296,6 @@ export async function getAuditLogsByEntity(
   entityId?: string | number
 
 ) {
-
 
   return prisma.auditLog.findMany({
 

@@ -46,7 +46,16 @@ export async function POST(request: NextRequest) {
           body.size ??
           0,
 
+        filePath:
+          body.filePath ??
+          "",
+
+        checksum:
+          body.checksum ??
+          "",
+
         status:
+          body.status ??
           "Completed",
       },
     });

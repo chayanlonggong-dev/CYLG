@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { restoreModels } from "./restore-models";
+import { restoreWebsiteSettings } from "./restore-settings";
+import { restoreAdminUsers } from "./restore-admin-users";
+import { restoreAuditLogs } from "./restore-audit-logs";
+import { restoreAnalytics } from "./restore-analytics";
+
 export async function POST(request: NextRequest) {
   try {
     const backup = await request.json();
@@ -64,27 +70,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Restore Models
+    const modelResult = await restoreModels(
+      backup.data.models ?? []
+    );
+
+    if (!modelResult.success) {
+      return NextResponse.json(modelResult, {
+        status: 500,
+      });
+    }
+
+    // Restore Website Settings
+    const settingsResult =
+      await restoreWebsiteSettings(
+        backup.data.websiteSettings ?? []
+      );
+
+    if (!settingsResult.success) {
+      return NextResponse.json(settingsResult, {
+        status: 500,
+      });
+    }
+
+    // Restore Admin Users
+    const adminResult =
+      await restoreAdminUsers(
+        backup.data.adminUsers ?? []
+      );
+
+    if (!adminResult.success) {
+      return NextResponse.json(adminResult, {
+        status: 500,
+      });
+    }
+
+    // Restore Audit Logs
+    const auditResult =
+      await restoreAuditLogs(
+        backup.data.auditLogs ?? []
+      );
+
+    if (!auditResult.success) {
+      return NextResponse.json(auditResult, {
+        status: 500,
+      });
+    }
+
+    // Restore Analytics
+    const analyticsResult =
+      await restoreAnalytics(
+        backup.data.analytics ?? []
+      );
+
+    if (!analyticsResult.success) {
+      return NextResponse.json(analyticsResult, {
+        status: 500,
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      message: "Backup file verified successfully.",
-      info: {
-        version: backup.version,
-        application: backup.application,
-        database: backup.database,
-        schema: backup.schema,
-        exportedAt: backup.exportedAt,
-
-        models: backup.data.models?.length ?? 0,
-        websiteSettings:
-          backup.data.websiteSettings?.length ?? 0,
-        adminUsers:
-          backup.data.adminUsers?.length ?? 0,
-        sessions:
-          backup.data.sessions?.length ?? 0,
-        auditLogs:
-          backup.data.auditLogs?.length ?? 0,
-        analytics:
-          backup.data.analytics?.length ?? 0,
+      message: "Backup restored successfully.",
+      restored: {
+        models: modelResult.restored,
+        websiteSettings: settingsResult.restored,
+        adminUsers: adminResult.restored,
+        auditLogs: auditResult.restored,
+        analytics: analyticsResult.restored,
       },
     });
   } catch (error) {
@@ -93,7 +146,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to parse backup file.",
+        message: "Failed to restore backup.",
       },
       {
         status: 500,

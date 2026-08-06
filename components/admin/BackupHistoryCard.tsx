@@ -59,6 +59,10 @@ export default function BackupHistoryCard() {
     }
   }
 
+  function downloadBackup(id: string) {
+    window.open(`/api/admin/backups/${id}/download`, "_blank");
+  }
+
   useEffect(() => {
     loadBackups();
   }, []);
@@ -87,7 +91,7 @@ export default function BackupHistoryCard() {
                 <th>Size</th>
                 <th>Status</th>
                 <th>Date</th>
-                <th>Action</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
 
@@ -97,7 +101,9 @@ export default function BackupHistoryCard() {
                   key={backup.id}
                   className="border-b border-yellow-500/10"
                 >
-                  <td className="py-4">{backup.filename}</td>
+                  <td className="py-4">
+                    {backup.filename}
+                  </td>
 
                   <td>{backup.type}</td>
 
@@ -108,16 +114,33 @@ export default function BackupHistoryCard() {
                   </td>
 
                   <td>
-                    {new Date(backup.createdAt).toLocaleString()}
+                    {new Date(
+                      backup.createdAt
+                    ).toLocaleString()}
                   </td>
 
                   <td>
-                    <button
-                      onClick={() => deleteBackup(backup.id)}
-                      className="rounded-lg border border-red-500 px-3 py-1 text-sm text-red-400 transition hover:bg-red-500 hover:text-white"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex gap-2 justify-center">
+
+                      <button
+                        onClick={() =>
+                          downloadBackup(backup.id)
+                        }
+                        className="rounded-lg border border-yellow-500 px-3 py-1 text-sm text-yellow-400 transition hover:bg-yellow-500 hover:text-black"
+                      >
+                        Download
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          deleteBackup(backup.id)
+                        }
+                        className="rounded-lg border border-red-500 px-3 py-1 text-sm text-red-400 transition hover:bg-red-500 hover:text-white"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
                   </td>
                 </tr>
               ))}
