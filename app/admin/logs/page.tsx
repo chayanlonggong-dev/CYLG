@@ -1,10 +1,14 @@
+import LogsStats from "@/components/admin/logs/LogsStats";
+import LogsFilters from "@/components/admin/logs/LogsFilters";
+import LogsTable from "@/components/admin/logs/LogsTable";
+
 export default function LogsPage() {
   return (
-    <main className="min-h-screen bg-[#050505] px-10 py-10 text-white">
-      <div className="mx-auto max-w-7xl">
-        <p className="uppercase tracking-[0.4em] text-yellow-500">
+    <main className="min-h-screen bg-[#050505] text-white">
+      <div className="mx-auto max-w-7xl px-8 py-12">
+        <span className="text-sm uppercase tracking-[0.3em] text-yellow-500">
           CYLG CMS
-        </p>
+        </span>
 
         <h1 className="mt-4 text-5xl font-black">
           System Logs
@@ -14,27 +18,11 @@ export default function LogsPage() {
           Audit logs, login history and system events.
         </p>
 
-        <div className="mt-16 rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-yellow-500/20">
-                <th className="pb-4">Time</th>
-                <th className="pb-4">User</th>
-                <th className="pb-4">Action</th>
-                <th className="pb-4">Status</th>
-              </tr>
-            </thead>
+        <LogsStats />
 
-            <tbody>
-              <tr>
-                <td className="py-6 text-gray-400">--</td>
-                <td className="py-6 text-gray-400">--</td>
-                <td className="py-6 text-gray-400">No logs available.</td>
-                <td className="py-6 text-green-400">OK</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <LogsFilters />
+
+        <LogsTable />
       </div>
     </main>
   );
