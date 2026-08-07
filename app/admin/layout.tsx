@@ -16,7 +16,8 @@ const menu = [
   { href: "/admin/security", label: "Security" },
   { href: "/admin/firewall", label: "Firewall" },
   { href: "/admin/system", label: "System" },
-  { href: "/admin/logs", label: "Logs" },
+{ href: "/admin/production", label: "Production" },
+{ href: "/admin/logs", label: "Logs" },
 ];
 
 export default function AdminLayout({
@@ -30,7 +31,7 @@ export default function AdminLayout({
 
       <NotificationProvider>
         <div className="flex">
-          <aside className="sticky top-0 h-screen w-72 border-r border-yellow-500/20 bg-[#0d0d0d]">
+          <aside className="sticky top-0 flex h-screen w-72 flex-col border-r border-yellow-500/20 bg-[#0d0d0d]">
             <div className="border-b border-yellow-500/20 p-8">
               <p className="text-sm uppercase tracking-[0.45em] text-yellow-500">
                 CYLG CMS
@@ -41,7 +42,7 @@ export default function AdminLayout({
               </h2>
             </div>
 
-            <nav className="flex flex-col p-5">
+            <nav className="flex flex-1 flex-col overflow-y-auto p-5">
               {menu.map((item) => (
                 <Link
                   key={item.href}

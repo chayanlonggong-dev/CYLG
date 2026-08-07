@@ -1155,10 +1155,10 @@ export default function ModelsList({
               ">
 
                 {
-                  level==="CROWN"
-                  ? "๐‘‘ Collection"
-                  : `${level} Collection`
-                }
+  level === "CROWN"
+    ? "CROWN Collection"
+    : `${level} Collection`
+}
 
               </h2>
 
