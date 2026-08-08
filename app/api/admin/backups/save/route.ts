@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth/session";
+import { createAuditLog } from "@/lib/audit/audit";
 
 import fs from "fs";
 import path from "path";
@@ -7,21 +10,42 @@ import crypto from "crypto";
 
 export async function POST() {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Authentication required.",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
     const [
       models,
       websiteSettings,
       adminUsers,
-      sessions,
       auditLogs,
       analytics,
     ] = await Promise.all([
       prisma.model.findMany(),
       prisma.websiteSettings.findMany(),
       prisma.adminUser.findMany(),
-      prisma.session.findMany(),
       prisma.auditLog.findMany(),
       prisma.analyticsVisit.findMany(),
     ]);
+
+    /*
+     * Sessions are intentionally NOT included.
+     *
+     * Session tokens are active authentication credentials
+     * and must never be stored inside a portable backup.
+     *
+     * After a restore, administrators must log in again.
+     */
 
     const backup = {
       exportedAt: new Date().toISOString(),
@@ -38,13 +62,11 @@ export async function POST() {
         models,
         websiteSettings,
         adminUsers,
-        sessions,
         auditLogs,
         analytics,
       },
     };
 
-    // backup/database/
     const backupDir = path.join(
       process.cwd(),
       "backup",
@@ -84,19 +106,42 @@ export async function POST() {
       .update(json)
       .digest("hex");
 
-    await prisma.backupRecord.create({
-      data: {
+    const size = Math.max(
+      1,
+      Math.round(stat.size / 1024)
+    );
+
+    const backupRecord =
+      await prisma.backupRecord.create({
+        data: {
+          filename: fileName,
+
+          type: "Database",
+
+          size,
+
+          filePath,
+
+          checksum,
+
+          status: "Completed",
+        },
+      });
+
+    await createAuditLog({
+      action: "CREATE",
+      entity: "BackupRecord",
+      entityId: backupRecord.id,
+      userId: String(session.adminUserId),
+      description:
+        "Database backup created successfully.",
+      metadata: {
         filename: fileName,
-
-        type: "Database",
-
-        size: Math.round(stat.size / 1024),
-
-        filePath,
-
+        size,
         checksum,
-
-        status: "Completed",
+        operator: session.username,
+        result: "Success",
+        actionLabel: "DATABASE_BACKUP",
       },
     });
 
@@ -110,10 +155,13 @@ export async function POST() {
 
       checksum,
 
-      size: Math.round(stat.size / 1024),
+      size,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "DATABASE BACKUP ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {

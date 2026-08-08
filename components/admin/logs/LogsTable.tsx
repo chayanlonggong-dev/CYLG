@@ -1,6 +1,8 @@
 "use client";
+
 import LogDetailsModal from "./LogDetailsModal";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type AuditLog = {
   id: string;
@@ -21,6 +23,7 @@ type AuditLog = {
   } | null;
   createdAt: string;
 };
+
 function getActionColor(action: string) {
   switch (action) {
     case "LOGIN":
@@ -47,29 +50,77 @@ function getActionColor(action: string) {
       return "bg-white/10 text-white border border-white/10";
   }
 }
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case "Success":
+      return "bg-green-500/20 text-green-400 border border-green-500/30";
+
+    case "Warning":
+      return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+
+    case "Failed":
+      return "bg-red-500/20 text-red-400 border border-red-500/30";
+
+    default:
+      return "bg-white/10 text-white border border-white/10";
+  }
+}
+
 export default function LogsTable() {
+  const searchParams = useSearchParams();
+
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
-const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const [selectedLog, setSelectedLog] =
+    useState<AuditLog | null>(null);
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
   useEffect(() => {
     loadLogs();
-  }, []);
+  }, [searchParams]);
 
   async function loadLogs() {
     try {
-      const res = await fetch("/api/admin/logs", {
+      setLoading(true);
+
+      const query = searchParams.toString();
+
+      const url = query
+        ? `/api/admin/logs?${query}`
+        : "/api/admin/logs?range=TODAY";
+
+      const res = await fetch(url, {
         cache: "no-store",
       });
 
       const json = await res.json();
 
+      if (!res.ok || !json.success) {
+        throw new Error(
+          json.message ?? "Failed to load logs"
+        );
+      }
+
       setLogs(json.data ?? []);
     } catch (error) {
-      console.error(error);
+      console.error("Load logs error:", error);
+      setLogs([]);
     } finally {
       setLoading(false);
     }
+  }
+
+  function openDetails(log: AuditLog) {
+    setSelectedLog(log);
+    setDetailsOpen(true);
+  }
+
+  function closeDetails() {
+    setDetailsOpen(false);
+    setSelectedLog(null);
   }
 
   if (loading) {
@@ -81,101 +132,112 @@ const [detailsOpen, setDetailsOpen] = useState(false);
   }
 
   return (
-  <>
-    <div className="mt-8 overflow-hidden rounded-3xl border border-yellow-500/20 bg-[#101010]">
-      <table className="w-full">
-        <thead className="border-b border-yellow-500/20">
-  <tr>
-    <th className="px-6 py-4 text-left">Time</th>
-    <th className="px-6 py-4 text-left">User</th>
-    <th className="px-6 py-4 text-left">Action</th>
-    <th className="px-6 py-4 text-left">Description</th>
-    <th className="px-6 py-4 text-left">Status</th>
-  </tr>
-</thead>
+    <>
+      <div className="mt-8 overflow-hidden rounded-3xl border border-yellow-500/20 bg-[#101010]">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-900px">
+            <thead className="border-b border-yellow-500/20">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                  Time
+                </th>
 
-        <tbody>
-          {logs.length === 0 ? (
-            <tr>
-              <td
-  colSpan={5}
-                className="px-6 py-8 text-center text-gray-400"
-              >
-                No logs available.
-              </td>
-            </tr>
-          ) : (
-            logs.map((log) => (
-              <tr
-  key={log.id}
-  onClick={() => {
-    console.log("clicked", log);
+                <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                  User
+                </th>
 
-    setSelectedLog(log);
-    setDetailsOpen(true);
-  }}
-  className="cursor-pointer border-b border-yellow-500/10 transition hover:bg-yellow-500/5"
->
-                <td className="px-6 py-4">
-  {new Date(log.createdAt).toLocaleString()}
-</td>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                  Action
+                </th>
 
-<td className="px-6 py-4">
-  <div className="font-medium text-white">
-    {log.metadata?.operator ?? "Admin"}
-  </div>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                  Description
+                </th>
 
-  <div className="text-xs text-gray-500">
-    ID: {log.userId ?? "-"}
-  </div>
-</td>
-
-<td className="px-6 py-4">
-  <span
-  className={
-    "inline-flex rounded-full px-3 py-1 text-xs font-semibold " +
-    getActionColor(log.action)
-  }
->
-    {log.action}
-  </span>
-</td>
-
-<td className="px-6 py-4 text-gray-300">
-  {log.description}
-</td>
-
-<td className="px-6 py-4">
-  <span
-    className={
-      "inline-flex rounded-full px-3 py-1 text-xs font-semibold " +
-      (
-        (log.metadata?.result ?? "Success") === "Success"
-          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-          : (log.metadata?.result ?? "") === "Warning"
-          ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-          : "bg-red-500/20 text-red-400 border border-red-500/30"
-      )
-    }
-  >
-    {log.metadata?.result ?? "Success"}
-  </span>
-</td>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-white">
+                  Status
+                </th>
               </tr>
-            ))
-          )}
-        </tbody>
-            </table>
-    </div>
+            </thead>
 
-    <LogDetailsModal
-      open={detailsOpen}
-      log={selectedLog}
-      onClose={() => {
-        setDetailsOpen(false);
-        setSelectedLog(null);
-      }}
-    />
-  </>
-);
+            <tbody>
+              {logs.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-gray-400"
+                  >
+                    No logs found.
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => {
+                  const status =
+                    log.metadata?.result ?? "Success";
+
+                  return (
+                    <tr
+                      key={log.id}
+                      onClick={() => openDetails(log)}
+                      className="cursor-pointer border-b border-yellow-500/10 transition hover:bg-yellow-500/5"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                        {new Date(
+                          log.createdAt
+                        ).toLocaleString()}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-white">
+                          {log.metadata?.operator ?? "Admin"}
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          ID: {log.userId ?? "-"}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={
+                            "inline-flex rounded-full px-3 py-1 text-xs font-semibold " +
+                            getActionColor(log.action)
+                          }
+                        >
+                          {log.action}
+                        </span>
+                      </td>
+
+                      <td className="max-w-md px-6 py-4 text-sm text-gray-300">
+                        <div className="truncate">
+                          {log.description}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={
+                            "inline-flex rounded-full px-3 py-1 text-xs font-semibold " +
+                            getStatusColor(status)
+                          }
+                        >
+                          {status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <LogDetailsModal
+        open={detailsOpen}
+        log={selectedLog}
+        onClose={closeDetails}
+      />
+    </>
+  );
 }

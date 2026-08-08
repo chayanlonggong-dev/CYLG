@@ -1,6 +1,5 @@
 import {
   NextRequest,
-  NextResponse,
 } from "next/server";
 
 import {
@@ -41,20 +40,24 @@ function getClientIp(request: NextRequest) {
       .get("x-forwarded-for")
       ?.split(",")[0]
       ?.trim() ||
+    request.headers.get("x-real-ip") ||
     "unknown"
   );
 }
 
-// =========================
+// =====================================================
 // GET ALL ADMIN SESSIONS
-// =========================
+// =====================================================
 
 export async function GET(request: NextRequest) {
   try {
     const currentSession = await getAdminSession();
 
     if (!currentSession) {
-      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
     }
 
     const ip = getClientIp(request);
@@ -68,16 +71,23 @@ export async function GET(request: NextRequest) {
     );
 
     if (!limit.success) {
-      return apiError("Too many requests.", 429, "RATE_LIMITED");
+      return apiError(
+        "Too many requests.",
+        429,
+        "RATE_LIMITED"
+      );
     }
 
     const sessions = await prisma.session.findMany({
       where: {
-        adminUserId: currentSession.adminUserId,
+        adminUserId:
+          currentSession.adminUserId,
       },
+
       orderBy: {
         createdAt: "desc",
       },
+
       select: {
         id: true,
         ip: true,
@@ -91,27 +101,41 @@ export async function GET(request: NextRequest) {
     return apiSuccess(
       {
         sessions,
-        currentSessionId: currentSession.sessionId,
+        currentSessionId:
+          currentSession.sessionId,
       },
       "Sessions fetched.",
       200
     );
   } catch (error) {
-    console.error("GET ADMIN SESSIONS ERROR:", error);
-    return apiServerError("Failed to fetch sessions.", "FETCH_SESSIONS_FAILED");
+    console.error(
+      "GET ADMIN SESSIONS ERROR:",
+      error
+    );
+
+    return apiServerError(
+      "Failed to fetch sessions.",
+      "FETCH_SESSIONS_FAILED"
+    );
   }
 }
 
-// =========================
-// DELETE SESSION
-// =========================
+// =====================================================
+// DELETE SESSION / LOGOUT ACTIONS
+// =====================================================
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest
+) {
   try {
-    const currentSession = await getAdminSession();
+    const currentSession =
+      await getAdminSession();
 
     if (!currentSession) {
-      return apiUnauthorized("Unauthorized.", "UNAUTHORIZED");
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
     }
 
     const ip = getClientIp(request);
@@ -133,9 +157,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     const parsedBody =
-      await parseRequestJson<Record<string, unknown>>(request);
+      await parseRequestJson<
+        Record<string, unknown>
+      >(request);
 
-    if (parsedBody.error === "INVALID_JSON") {
+    if (
+      parsedBody.error ===
+      "INVALID_JSON"
+    ) {
       return apiBadRequest(
         "Invalid JSON body.",
         "INVALID_JSON"
@@ -153,7 +182,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body =
-      parsedBody.body as Record<string, unknown>;
+      parsedBody.body as Record<
+        string,
+        unknown
+      >;
 
     const action =
       typeof body.action === "string"
@@ -165,9 +197,9 @@ export async function DELETE(request: NextRequest) {
         ? body.sessionId
         : "";
 
-    // =====================================
-    // Logout All Devices
-    // =====================================
+    // =================================================
+    // LOGOUT ALL DEVICES
+    // =================================================
 
     if (action === "logoutAll") {
       await prisma.session.deleteMany({
@@ -177,7 +209,7 @@ export async function DELETE(request: NextRequest) {
         },
       });
 
-      createAuditLog({
+      await createAuditLog({
         action: "DELETE",
         entity: "Session",
         entityId: "ALL",
@@ -188,6 +220,9 @@ export async function DELETE(request: NextRequest) {
           "Logout all devices.",
         metadata: {
           ip,
+          operator: "Admin",
+          result: "Success",
+          actionLabel: "Logout All Devices",
         },
       });
 
@@ -198,22 +233,24 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // =====================================
-    // Logout All Other Devices
-    // =====================================
+    // =================================================
+    // LOGOUT ALL OTHER DEVICES
+    // =================================================
 
     if (action === "logoutOthers") {
       await prisma.session.deleteMany({
         where: {
           adminUserId:
             currentSession.adminUserId,
+
           NOT: {
-            id: currentSession.sessionId,
+            id:
+              currentSession.sessionId,
           },
         },
       });
 
-      createAuditLog({
+      await createAuditLog({
         action: "DELETE",
         entity: "Session",
         entityId: "OTHERS",
@@ -224,6 +261,10 @@ export async function DELETE(request: NextRequest) {
           "Logout all other devices.",
         metadata: {
           ip,
+          operator: "Admin",
+          result: "Success",
+          actionLabel:
+            "Logout Other Devices",
         },
       });
 
@@ -234,9 +275,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // =====================================
-    // Logout Single Device
-    // =====================================
+    // =================================================
+    // LOGOUT SINGLE DEVICE
+    // =================================================
 
     if (!sessionId) {
       return apiBadRequest(
@@ -250,6 +291,11 @@ export async function DELETE(request: NextRequest) {
         where: {
           id: sessionId,
         },
+
+        select: {
+          id: true,
+          adminUserId: true,
+        },
       });
 
     if (!targetSession) {
@@ -258,6 +304,12 @@ export async function DELETE(request: NextRequest) {
         "SESSION_NOT_FOUND"
       );
     }
+
+    // =================================================
+    // SECURITY:
+    // A SESSION CAN ONLY BE REVOKED BY
+    // THE SAME ADMIN USER WHO OWNS IT.
+    // =================================================
 
     if (
       targetSession.adminUserId !==
@@ -275,7 +327,7 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    createAuditLog({
+    await createAuditLog({
       action: "DELETE",
       entity: "Session",
       entityId: sessionId,
@@ -286,6 +338,10 @@ export async function DELETE(request: NextRequest) {
         "Admin session revoked.",
       metadata: {
         ip,
+        operator: "Admin",
+        result: "Success",
+        actionLabel:
+          "Revoke Session",
       },
     });
 
@@ -305,4 +361,15 @@ export async function DELETE(request: NextRequest) {
       "REVOKE_SESSION_FAILED"
     );
   }
+}
+
+// =====================================================
+// OPTIONS
+// =====================================================
+
+export async function OPTIONS() {
+  return apiMethodNotAllowed(
+    "Method not allowed for this route.",
+    "METHOD_NOT_ALLOWED"
+  );
 }

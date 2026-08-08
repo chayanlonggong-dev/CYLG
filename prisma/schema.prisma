@@ -47,8 +47,8 @@ model WebsiteSettings {
   enableLine          Boolean  @default(false)
   enableWechat        Boolean  @default(false)
   enableFeedbackEmail Boolean  @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
   favicon             String   @default("")
 }
 
@@ -56,8 +56,8 @@ model AdminUser {
   id                  Int       @id @default(autoincrement())
   username            String    @unique
   password            String
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   twoFactorEnabled    Boolean   @default(false)
   twoFactorSecret     String?
   failedLoginAttempts Int       @default(0)
@@ -120,7 +120,6 @@ model BackupRecord {
 
   filename    String
   type        String
-
   size        Int
 
   filePath    String   @default("")
@@ -135,6 +134,18 @@ model BackupRecord {
 
   @@index([createdAt])
   @@index([status])
+}
+
+model BackupScheduler {
+  id         Int      @id @default(1)
+
+  enabled    Boolean  @default(false)
+  day        String   @default("Sunday")
+  time       String   @default("03:00")
+  retention  Int      @default(8)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum ModelLevel {
