@@ -43,7 +43,6 @@ type SchedulerConfig = {
   time: string;
   retention: number;
 };
-
 /**
  * Get CRON secret from environment.
  */
@@ -143,20 +142,20 @@ async function loadSchedulerConfig(): Promise<SchedulerConfig> {
 }
 
 /**
- * Get current UTC day name.
+ * Get current Malaysia time day name.
  */
 function getCurrentDayName(): string {
   return new Intl.DateTimeFormat(
     "en-US",
     {
       weekday: "long",
-      timeZone: "UTC",
+      timeZone: "Asia/Kuala_Lumpur",
     }
   ).format(new Date());
 }
 
 /**
- * Get current UTC time.
+ * Get current Malaysia time.
  *
  * Always returns HH:mm.
  *
@@ -171,7 +170,7 @@ function getCurrentTime(): string {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
-        timeZone: "UTC",
+        timeZone: "Asia/Kuala_Lumpur",
       }
     ).formatToParts(
       new Date()
@@ -827,7 +826,7 @@ export async function GET(
     }
 
     /**
-     * 4. Get current UTC
+     * 4. Get current Malaysia
      *    schedule.
      */
     const currentDay =
@@ -989,7 +988,7 @@ export async function GET(
           config.retention,
 
         timezone:
-          "UTC",
+          "Asia/Kuala_Lumpur",
       },
 
       database: {
