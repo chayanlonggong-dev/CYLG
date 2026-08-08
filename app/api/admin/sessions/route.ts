@@ -103,6 +103,9 @@ export async function GET(request: NextRequest) {
         sessions,
         currentSessionId:
           currentSession.sessionId,
+
+        twoFactorEnabled:
+          currentSession.twoFactorEnabled,
       },
       "Sessions fetched.",
       200
@@ -222,7 +225,8 @@ export async function DELETE(
           ip,
           operator: "Admin",
           result: "Success",
-          actionLabel: "Logout All Devices",
+          actionLabel:
+            "Logout All Devices",
         },
       });
 

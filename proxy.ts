@@ -7,11 +7,12 @@ import {
   firewall,
 } from "@/lib/security/firewall";
 
-export function proxy(
+export async function proxy(
   request: NextRequest
 ) {
   // Firewall
-  const result = firewall(request);
+  const result =
+    await firewall(request);
 
   if (!result.allowed) {
     return NextResponse.json(
@@ -25,7 +26,8 @@ export function proxy(
     );
   }
 
-  const pathname = request.nextUrl.pathname;
+  const pathname =
+    request.nextUrl.pathname;
 
   // Protect Admin Pages
   const isAdminPage =
@@ -34,11 +36,16 @@ export function proxy(
 
   if (isAdminPage) {
     const session =
-      request.cookies.get("cylg_admin_session");
+      request.cookies.get(
+        "cylg_admin_session"
+      );
 
     if (!session?.value) {
       return NextResponse.redirect(
-        new URL("/admin/login", request.url)
+        new URL(
+          "/admin/login",
+          request.url
+        )
       );
     }
   }

@@ -98,6 +98,32 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model SecurityEvent {
+  id          String              @id @default(cuid())
+  type        SecurityEventType
+  severity    SecurityEventSeverity
+  status      SecurityEventStatus  @default(OPEN)
+
+  ip          String?
+  country     String?
+  userAgent   String?
+
+  adminUserId Int?
+
+  description String
+  metadata    String?
+
+  createdAt   DateTime             @default(now())
+  resolvedAt  DateTime?
+
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+  @@index([ip])
+  @@index([adminUserId])
+  @@index([createdAt])
+}
+
 model AnalyticsVisit {
   id        Int      @id @default(autoincrement())
   path      String
@@ -112,24 +138,18 @@ model AnalyticsVisit {
 
   @@index([createdAt])
   @@index([path])
-  @@index([visitorId])
 }
 
 model BackupRecord {
   id          String   @id @default(cuid())
-
   filename    String
   type        String
   size        Int
-
   filePath    String   @default("")
   checksum    String   @default("")
-
   status      String   @default("Completed")
-
   restoredAt  DateTime?
   restoredBy  String?
-
   createdAt   DateTime @default(now())
 
   @@index([createdAt])
@@ -138,14 +158,24 @@ model BackupRecord {
 
 model BackupScheduler {
   id         Int      @id @default(1)
-
   enabled    Boolean  @default(false)
   day        String   @default("Sunday")
   time       String   @default("03:00")
   retention  Int      @default(8)
-
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model FirewallBlock {
+  id        String           @id @default(cuid())
+  type      FirewallBlockType
+  value     String           @unique
+  enabled   Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([type])
+  @@index([enabled])
 }
 
 enum ModelLevel {
@@ -154,4 +184,34 @@ enum ModelLevel {
   SS
   S
   A
+}
+
+enum FirewallBlockType {
+  IP
+  COUNTRY
+}
+
+enum SecurityEventType {
+  LOGIN_FAILED
+  ACCOUNT_LOCKED
+  INVALID_2FA
+  TWO_FACTOR_RATE_LIMITED
+  FIREWALL_BLOCKED
+  RATE_LIMIT_EXCEEDED
+  SUSPICIOUS_SESSION
+  UNAUTHORIZED_ACCESS
+  SENSITIVE_ACTION
+}
+
+enum SecurityEventSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SecurityEventStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
 }

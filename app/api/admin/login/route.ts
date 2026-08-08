@@ -50,6 +50,80 @@ const TWO_FACTOR_MAX_ATTEMPTS = 10;
 const TWO_FACTOR_RATE_WINDOW =
   60 * 60 * 1000;
 
+// =====================================================
+// SECURITY EVENT HELPER
+// =====================================================
+
+async function createSecurityEvent(data: {
+  type:
+    | "LOGIN_FAILED"
+    | "ACCOUNT_LOCKED"
+    | "INVALID_2FA"
+    | "TWO_FACTOR_RATE_LIMITED"
+    | "FIREWALL_BLOCKED"
+    | "RATE_LIMIT_EXCEEDED"
+    | "SUSPICIOUS_SESSION"
+    | "UNAUTHORIZED_ACCESS"
+    | "SENSITIVE_ACTION";
+
+  severity:
+    | "LOW"
+    | "MEDIUM"
+    | "HIGH"
+    | "CRITICAL";
+
+  ip?: string | null;
+  country?: string | null;
+  userAgent?: string | null;
+  adminUserId?: number | null;
+  description: string;
+  metadata?: Record<
+    string,
+    unknown
+  >;
+}) {
+  try {
+    await prisma.securityEvent.create({
+      data: {
+        type: data.type,
+        severity: data.severity,
+        status: "OPEN",
+
+        ip:
+          data.ip ?? null,
+
+        country:
+          data.country ?? null,
+
+        userAgent:
+          data.userAgent ?? null,
+
+        adminUserId:
+          data.adminUserId ?? null,
+
+        description:
+          data.description,
+
+        metadata:
+          data.metadata
+            ? JSON.stringify(
+                data.metadata
+              )
+            : null,
+      },
+    });
+  } catch (error) {
+    /*
+     * Security event logging must never
+     * break the authentication flow.
+     */
+    console.error(
+      "SECURITY EVENT CREATE ERROR:",
+      error
+    );
+  }
+}
+
 export async function POST(
   request: NextRequest
 ) {
@@ -64,6 +138,20 @@ export async function POST(
       ) ||
       "unknown";
 
+    const userAgent =
+      request.headers.get(
+        "user-agent"
+      ) ||
+      "unknown";
+
+    const country =
+      request.headers
+        .get(
+          "x-vercel-ip-country"
+        )
+        ?.toUpperCase() ||
+      null;
+
     // =====================================================
     // LOGIN RATE LIMIT
     // =====================================================
@@ -77,6 +165,34 @@ export async function POST(
     );
 
     if (!limit.success) {
+      await createSecurityEvent({
+        type:
+          "RATE_LIMIT_EXCEEDED",
+
+        severity:
+          "HIGH",
+
+        ip,
+
+        country,
+
+        userAgent,
+
+        description:
+          "Admin login rate limit exceeded.",
+
+        metadata: {
+          operator:
+            "Unknown",
+
+          result:
+            "Blocked",
+
+          actionLabel:
+            "ADMIN_LOGIN_RATE_LIMITED",
+        },
+      });
+
       return apiError(
         "Too many login attempts. Please try again later.",
         429,
@@ -96,7 +212,10 @@ export async function POST(
         Record<string, unknown>
       >(request);
 
-    if (error === "INVALID_JSON") {
+    if (
+      error ===
+      "INVALID_JSON"
+    ) {
       return apiBadRequest(
         "Invalid JSON body.",
         "INVALID_JSON"
@@ -114,17 +233,20 @@ export async function POST(
     }
 
     const username =
-      typeof body.username === "string"
+      typeof body.username ===
+      "string"
         ? body.username.trim()
         : "";
 
     const password =
-      typeof body.password === "string"
+      typeof body.password ===
+      "string"
         ? body.password
         : "";
 
     const twoFactorToken =
-      typeof body.twoFactorToken === "string"
+      typeof body.twoFactorToken ===
+      "string"
         ? body.twoFactorToken.trim()
         : "";
 
@@ -150,6 +272,59 @@ export async function POST(
       });
 
     if (!adminUser) {
+      await createSecurityEvent({
+        type:
+          "LOGIN_FAILED",
+
+        severity:
+          "MEDIUM",
+
+        ip,
+
+        country,
+
+        userAgent,
+
+        description:
+          "Admin login failed because the username does not exist.",
+
+        metadata: {
+          username,
+          result:
+            "Failed",
+
+          actionLabel:
+            "LOGIN_UNKNOWN_USER",
+        },
+      });
+
+      await createAuditLog({
+        action:
+          "LOGIN",
+
+        entity:
+          "AdminUser",
+
+        entityId:
+          "UNKNOWN",
+
+        description:
+          "Admin login failed because the username does not exist.",
+
+        metadata: {
+          ip,
+
+          operator:
+            username,
+
+          result:
+            "Failed",
+
+          actionLabel:
+            "LOGIN_UNKNOWN_USER",
+        },
+      });
+
       return apiUnauthorized(
         "Invalid username or password.",
         "INVALID_CREDENTIALS"
@@ -162,8 +337,43 @@ export async function POST(
 
     if (
       adminUser.lockedUntil &&
-      adminUser.lockedUntil > new Date()
+      adminUser.lockedUntil >
+        new Date()
     ) {
+      await createSecurityEvent({
+        type:
+          "ACCOUNT_LOCKED",
+
+        severity:
+          "HIGH",
+
+        ip,
+
+        country,
+
+        userAgent,
+
+        adminUserId:
+          adminUser.id,
+
+        description:
+          "Login attempt against a temporarily locked administrator account.",
+
+        metadata: {
+          username:
+            adminUser.username,
+
+          result:
+            "Blocked",
+
+          actionLabel:
+            "ACCOUNT_LOCKED_ACCESS_ATTEMPT",
+
+          lockedUntil:
+            adminUser.lockedUntil.toISOString(),
+        },
+      });
+
       return apiError(
         "Account temporarily locked. Try again later.",
         423,
@@ -183,15 +393,25 @@ export async function POST(
 
     if (!valid) {
       const attempts =
-        adminUser.failedLoginAttempts + 1;
+        adminUser.failedLoginAttempts +
+        1;
 
       const shouldLock =
         attempts >=
         MAX_LOGIN_ATTEMPTS;
 
+      const lockedUntil =
+        shouldLock
+          ? new Date(
+              Date.now() +
+                LOCK_TIME
+            )
+          : null;
+
       await prisma.adminUser.update({
         where: {
-          id: adminUser.id,
+          id:
+            adminUser.id,
         },
 
         data: {
@@ -200,42 +420,134 @@ export async function POST(
               ? 0
               : attempts,
 
-          lockedUntil:
-            shouldLock
-              ? new Date(
-                  Date.now() +
-                    LOCK_TIME
-                )
-              : null,
+          lockedUntil,
         },
       });
 
       await createAuditLog({
-        action: "LOGIN",
-        entity: "AdminUser",
-        entityId: adminUser.id,
-        userId: String(
-          adminUser.id
-        ),
+        action:
+          "LOGIN",
+
+        entity:
+          "AdminUser",
+
+        entityId:
+          adminUser.id,
+
+        userId:
+          String(
+            adminUser.id
+          ),
+
         description:
           shouldLock
             ? "Admin login failed and account was temporarily locked."
             : "Admin login failed.",
+
         metadata: {
           ip,
-          operator: adminUser.username,
-          result: "Failed",
-          actionLabel: "LOGIN_FAILED",
+
+          operator:
+            adminUser.username,
+
+          result:
+            "Failed",
+
+          actionLabel:
+            shouldLock
+              ? "ACCOUNT_LOCKED"
+              : "LOGIN_FAILED",
+
+          failedAttempts:
+            attempts,
         },
       });
 
       if (shouldLock) {
+        await createSecurityEvent({
+          type:
+            "ACCOUNT_LOCKED",
+
+          severity:
+            "HIGH",
+
+          ip,
+
+          country,
+
+          userAgent,
+
+          adminUserId:
+            adminUser.id,
+
+          description:
+            "Administrator account was temporarily locked after repeated failed login attempts.",
+
+          metadata: {
+            username:
+              adminUser.username,
+
+            failedAttempts:
+              attempts,
+
+            lockDurationMinutes:
+              15,
+
+            result:
+              "Blocked",
+
+            actionLabel:
+              "ACCOUNT_LOCKED",
+          },
+        });
+
         return apiError(
           "Too many failed login attempts. Account temporarily locked.",
           423,
           "ACCOUNT_LOCKED"
         );
       }
+
+      await createSecurityEvent({
+        type:
+          "LOGIN_FAILED",
+
+        severity:
+          "MEDIUM",
+
+        ip,
+
+        country,
+
+        userAgent,
+
+        adminUserId:
+          adminUser.id,
+
+        description:
+          "Administrator login failed because the password was invalid.",
+
+        metadata: {
+          username:
+            adminUser.username,
+
+          failedAttempts:
+            attempts,
+
+          remainingAttempts:
+            Math.max(
+              MAX_LOGIN_ATTEMPTS -
+                attempts,
+              0
+            ),
+
+          result:
+            "Failed",
+
+          actionLabel:
+            "LOGIN_FAILED",
+        },
+      });
 
       return apiUnauthorized(
         "Invalid username or password.",
@@ -270,19 +582,63 @@ export async function POST(
         !twoFactorLimit.success
       ) {
         await createAuditLog({
-          action: "LOGIN",
-          entity: "AdminUser",
-          entityId: adminUser.id,
-          userId: String(
-            adminUser.id
-          ),
+          action:
+            "LOGIN",
+
+          entity:
+            "AdminUser",
+
+          entityId:
+            adminUser.id,
+
+          userId:
+            String(
+              adminUser.id
+            ),
+
           description:
             "Admin 2FA verification rate limit exceeded.",
+
           metadata: {
             ip,
+
             operator:
               adminUser.username,
-            result: "Warning",
+
+            result:
+              "Warning",
+
+            actionLabel:
+              "2FA_RATE_LIMITED",
+          },
+        });
+
+        await createSecurityEvent({
+          type:
+            "TWO_FACTOR_RATE_LIMITED",
+
+          severity:
+            "HIGH",
+
+          ip,
+
+          country,
+
+          userAgent,
+
+          adminUserId:
+            adminUser.id,
+
+          description:
+            "Administrator two-factor authentication rate limit was exceeded.",
+
+          metadata: {
+            username:
+              adminUser.username,
+
+            result:
+              "Blocked",
+
             actionLabel:
               "2FA_RATE_LIMITED",
           },
@@ -299,10 +655,13 @@ export async function POST(
       // Require 2FA token
       // ---------------------------------------------------
 
-      if (!twoFactorToken) {
+      if (
+        !twoFactorToken
+      ) {
         return apiSuccess(
           {
-            requireTwoFactor: true,
+            requireTwoFactor:
+              true,
           },
           "Two factor authentication required.",
           200
@@ -317,19 +676,63 @@ export async function POST(
         !adminUser.twoFactorSecret
       ) {
         await createAuditLog({
-          action: "LOGIN",
-          entity: "AdminUser",
-          entityId: adminUser.id,
-          userId: String(
-            adminUser.id
-          ),
+          action:
+            "LOGIN",
+
+          entity:
+            "AdminUser",
+
+          entityId:
+            adminUser.id,
+
+          userId:
+            String(
+              adminUser.id
+            ),
+
           description:
             "Admin login failed because 2FA configuration is invalid.",
+
           metadata: {
             ip,
+
             operator:
               adminUser.username,
-            result: "Failed",
+
+            result:
+              "Failed",
+
+            actionLabel:
+              "INVALID_2FA_CONFIGURATION",
+          },
+        });
+
+        await createSecurityEvent({
+          type:
+            "SENSITIVE_ACTION",
+
+          severity:
+            "CRITICAL",
+
+          ip,
+
+          country,
+
+          userAgent,
+
+          adminUserId:
+            adminUser.id,
+
+          description:
+            "Administrator login encountered an invalid two-factor authentication configuration.",
+
+          metadata: {
+            username:
+              adminUser.username,
+
+            result:
+              "Failed",
+
             actionLabel:
               "INVALID_2FA_CONFIGURATION",
           },
@@ -354,21 +757,67 @@ export async function POST(
             adminUser.twoFactorSecret,
         });
 
-      if (!verified.valid) {
+      if (
+        !verified.valid
+      ) {
         await createAuditLog({
-          action: "LOGIN",
-          entity: "AdminUser",
-          entityId: adminUser.id,
-          userId: String(
-            adminUser.id
-          ),
+          action:
+            "LOGIN",
+
+          entity:
+            "AdminUser",
+
+          entityId:
+            adminUser.id,
+
+          userId:
+            String(
+              adminUser.id
+            ),
+
           description:
             "Admin login failed because the 2FA code was invalid.",
+
           metadata: {
             ip,
+
             operator:
               adminUser.username,
-            result: "Failed",
+
+            result:
+              "Failed",
+
+            actionLabel:
+              "INVALID_2FA_CODE",
+          },
+        });
+
+        await createSecurityEvent({
+          type:
+            "INVALID_2FA",
+
+          severity:
+            "HIGH",
+
+          ip,
+
+          country,
+
+          userAgent,
+
+          adminUserId:
+            adminUser.id,
+
+          description:
+            "Administrator login failed because the submitted two-factor authentication code was invalid.",
+
+          metadata: {
+            username:
+              adminUser.username,
+
+            result:
+              "Failed",
+
             actionLabel:
               "INVALID_2FA_CODE",
           },
@@ -395,17 +844,22 @@ export async function POST(
     // =====================================================
 
     if (
-      adminUser.failedLoginAttempts > 0 ||
+      adminUser.failedLoginAttempts >
+        0 ||
       adminUser.lockedUntil
     ) {
       await prisma.adminUser.update({
         where: {
-          id: adminUser.id,
+          id:
+            adminUser.id,
         },
 
         data: {
-          failedLoginAttempts: 0,
-          lockedUntil: null,
+          failedLoginAttempts:
+            0,
+
+          lockedUntil:
+            null,
         },
       });
     }
@@ -427,12 +881,6 @@ export async function POST(
             24 *
             7
       );
-
-    const userAgent =
-      request.headers.get(
-        "user-agent"
-      ) ||
-      "unknown";
 
     const session =
       await prisma.session.create({
@@ -465,16 +913,19 @@ export async function POST(
     // =====================================================
 
     await createAuditLog({
-      action: "LOGIN",
+      action:
+        "LOGIN",
 
-      entity: "AdminUser",
+      entity:
+        "AdminUser",
 
       entityId:
         adminUser.id,
 
-      userId: String(
-        adminUser.id
-      ),
+      userId:
+        String(
+          adminUser.id
+        ),
 
       description:
         adminUser.twoFactorEnabled
@@ -521,7 +972,8 @@ export async function POST(
           process.env.NODE_ENV ===
           "production",
 
-        sameSite: "lax",
+        sameSite:
+          "lax",
 
         maxAge:
           60 *
