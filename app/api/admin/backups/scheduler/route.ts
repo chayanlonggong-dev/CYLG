@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
 
 const DEFAULT_CONFIG = {
   enabled: false,
@@ -53,6 +55,15 @@ async function getOrCreateScheduler() {
 
 export async function GET() {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const scheduler =
       await getOrCreateScheduler();
 
@@ -90,6 +101,15 @@ export async function POST(
   request: NextRequest
 ) {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const body =
       await request.json();
 

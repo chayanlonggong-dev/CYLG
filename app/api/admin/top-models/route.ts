@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
+
 const LEVEL_ORDER: Record<string, number> = {
   CROWN: 0,
   SSS: 1,
@@ -11,80 +14,107 @@ const LEVEL_ORDER: Record<string, number> = {
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
+    const session = await getAdminSession();
 
-const period =
-  searchParams.get("period") ?? "all";
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
 
-const now = new Date();
+    const { searchParams } =
+      new URL(request.url);
 
-const today = new Date(
-  now.getFullYear(),
-  now.getMonth(),
-  now.getDate()
-);
+    const period =
+      searchParams.get("period") ?? "all";
 
-const yesterday = new Date(today);
-yesterday.setDate(today.getDate() - 1);
+    const now = new Date();
 
-const sevenDaysAgo = new Date(today);
-sevenDaysAgo.setDate(today.getDate() - 6);
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
 
-const thirtyDaysAgo = new Date(today);
-thirtyDaysAgo.setDate(today.getDate() - 29);
+    const yesterday = new Date(today);
+    yesterday.setDate(
+      today.getDate() - 1
+    );
 
-let createdAtFilter = {};
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(
+      today.getDate() - 6
+    );
 
-switch (period) {
-  case "today":
-    createdAtFilter = {
-      gte: today,
-    };
-    break;
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(
+      today.getDate() - 29
+    );
 
-  case "yesterday":
-    createdAtFilter = {
-      gte: yesterday,
-      lt: today,
-    };
-    break;
+    let createdAtFilter = {};
 
-  case "7days":
-    createdAtFilter = {
-      gte: sevenDaysAgo,
-    };
-    break;
+    switch (period) {
+      case "today":
+        createdAtFilter = {
+          gte: today,
+        };
+        break;
 
-  case "30days":
-    createdAtFilter = {
-      gte: thirtyDaysAgo,
-    };
-    break;
+      case "yesterday":
+        createdAtFilter = {
+          gte: yesterday,
+          lt: today,
+        };
+        break;
 
-  default:
-    createdAtFilter = {};
-}
-    const visits = await prisma.analyticsVisit.groupBy({
-      
-      by: ["path"],
-      _count: {
-        path: true,
-      },
-      where: {
-  path: {
-    startsWith: "/models/",
-  },
+      case "7days":
+        createdAtFilter = {
+          gte: sevenDaysAgo,
+        };
+        break;
 
-  ...(Object.keys(createdAtFilter).length > 0 && {
-    createdAt: createdAtFilter,
-  }),
-},
-    });
-console.log(visits);
-    const visitMap = new Map<string, number>();
+      case "30days":
+        createdAtFilter = {
+          gte: thirtyDaysAgo,
+        };
+        break;
+
+      default:
+        createdAtFilter = {};
+    }
+
+    const visits =
+      await prisma.analyticsVisit.groupBy({
+        by: ["path"],
+        _count: {
+          path: true,
+        },
+        where: {
+          path: {
+            startsWith: "/models/",
+          },
+
+          ...(Object.keys(
+            createdAtFilter
+          ).length > 0 && {
+            createdAt: createdAtFilter,
+          }),
+        },
+      });
+
+    console.log(visits);
+
+    const visitMap = new Map<
+      string,
+      number
+    >();
 
     visits.forEach((item) => {
-      const code = item.path.replace("/models/", "");
+      const code = item.path.replace(
+        "/models/",
+        ""
+      );
 
       visitMap.set(
         code,
@@ -92,14 +122,15 @@ console.log(visits);
       );
     });
 
-    const models = await prisma.model.findMany({
-      select: {
-        code: true,
-        avatar: true,
-        level: true,
-        number: true,
-      },
-    });
+    const models =
+      await prisma.model.findMany({
+        select: {
+          code: true,
+          avatar: true,
+          level: true,
+          number: true,
+        },
+      });
 
     const data = models
       .map((model) => ({
@@ -107,15 +138,16 @@ console.log(visits);
         avatar: model.avatar,
         level: model.level,
         number: model.number,
-        views: visitMap.get(model.code) ?? 0,
+        views:
+          visitMap.get(model.code) ?? 0,
       }))
       .sort((a, b) => {
-        // ① Views 高→低
+        // Views
         if (b.views !== a.views) {
           return b.views - a.views;
         }
 
-        // ② Level
+        // Level
         const levelCompare =
           LEVEL_ORDER[a.level] -
           LEVEL_ORDER[b.level];
@@ -124,7 +156,7 @@ console.log(visits);
           return levelCompare;
         }
 
-        // ③ Number
+        // Number
         return a.number - b.number;
       })
       .map(({ number, ...model }) => model);
@@ -133,7 +165,6 @@ console.log(visits);
       success: true,
       data,
     });
-
   } catch (error) {
     console.error(error);
 

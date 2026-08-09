@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
 
 export async function GET() {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const now = new Date();
 
     const today = new Date(
@@ -17,36 +28,37 @@ export async function GET() {
 
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(today.getDate() - 6);
-const yesterday = new Date(today);
-yesterday.setDate(today.getDate() - 1);
 
-const weekStart = new Date(today);
-weekStart.setDate(today.getDate() - today.getDay());
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
-const monthStart = new Date(
-  today.getFullYear(),
-  today.getMonth(),
-  1
-);
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+
+    const monthStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+
     const [
-  totalVisits,
-  todayVisits,
-  yesterdayVisits,
-  weekVisits,
-  monthVisits,
-  uniqueVisitors,
-  onlineVisitors,
-  topPages,
-  recentVisitors,
-  topCountries,
-  topBrowsers,
-  topDevices,
-  topReferrers,
-  traffic,
-  bookingPlatforms,
-  topModels,
-] = await Promise.all([
-
+      totalVisits,
+      todayVisits,
+      yesterdayVisits,
+      weekVisits,
+      monthVisits,
+      uniqueVisitors,
+      onlineVisitors,
+      topPages,
+      recentVisitors,
+      topCountries,
+      topBrowsers,
+      topDevices,
+      topReferrers,
+      traffic,
+      bookingPlatforms,
+      topModels,
+    ] = await Promise.all([
       prisma.analyticsVisit.count(),
 
       prisma.analyticsVisit.count({
@@ -56,31 +68,32 @@ const monthStart = new Date(
           },
         },
       }),
-      
-prisma.analyticsVisit.count({
-  where: {
-    createdAt: {
-      gte: yesterday,
-      lt: today,
-    },
-  },
-}),
 
-prisma.analyticsVisit.count({
-  where: {
-    createdAt: {
-      gte: weekStart,
-    },
-  },
-}),
+      prisma.analyticsVisit.count({
+        where: {
+          createdAt: {
+            gte: yesterday,
+            lt: today,
+          },
+        },
+      }),
 
-prisma.analyticsVisit.count({
-  where: {
-    createdAt: {
-      gte: monthStart,
-    },
-  },
-}),
+      prisma.analyticsVisit.count({
+        where: {
+          createdAt: {
+            gte: weekStart,
+          },
+        },
+      }),
+
+      prisma.analyticsVisit.count({
+        where: {
+          createdAt: {
+            gte: monthStart,
+          },
+        },
+      }),
+
       prisma.analyticsVisit.findMany({
         distinct: ["visitorId"],
         select: {
@@ -119,15 +132,14 @@ prisma.analyticsVisit.count({
         },
         take: 20,
         select: {
-  createdAt: true,
-  path: true,
-  country: true,
-  browser: true,
-  device: true,
-
-  ip: true,
-  referrer: true,
-},
+          createdAt: true,
+          path: true,
+          country: true,
+          browser: true,
+          device: true,
+          ip: true,
+          referrer: true,
+        },
       }),
 
       prisma.analyticsVisit.groupBy({
@@ -192,42 +204,44 @@ prisma.analyticsVisit.count({
           createdAt: true,
         },
       }),
-prisma.analyticsVisit.groupBy({
-  by: ["referrer"],
-  where: {
-    path: {
-      startsWith: "/book/",
-    },
-    referrer: {
-      not: null,
-    },
-  },
-  _count: {
-    referrer: true,
-  },
-  orderBy: {
-    _count: {
-      referrer: "desc",
-    },
-  },
-}),
-prisma.analyticsVisit.groupBy({
-  by: ["path"],
-  where: {
-    path: {
-      startsWith: "/models/",
-    },
-  },
-  _count: {
-    path: true,
-  },
-  orderBy: {
-    _count: {
-      path: "desc",
-    },
-  },
-  take: 10,
-}),
+
+      prisma.analyticsVisit.groupBy({
+        by: ["referrer"],
+        where: {
+          path: {
+            startsWith: "/book/",
+          },
+          referrer: {
+            not: null,
+          },
+        },
+        _count: {
+          referrer: true,
+        },
+        orderBy: {
+          _count: {
+            referrer: "desc",
+          },
+        },
+      }),
+
+      prisma.analyticsVisit.groupBy({
+        by: ["path"],
+        where: {
+          path: {
+            startsWith: "/models/",
+          },
+        },
+        _count: {
+          path: true,
+        },
+        orderBy: {
+          _count: {
+            path: "desc",
+          },
+        },
+        take: 10,
+      }),
     ]);
 
     const trafficMap = new Map<string, number>();
@@ -245,12 +259,11 @@ prisma.analyticsVisit.groupBy({
     }
 
     traffic.forEach((item) => {
-      const key = new Date(item.createdAt).toLocaleDateString(
-        "en-US",
-        {
-          weekday: "short",
-        }
-      );
+      const key = new Date(
+        item.createdAt
+      ).toLocaleDateString("en-US", {
+        weekday: "short",
+      });
 
       trafficMap.set(
         key,
@@ -264,97 +277,118 @@ prisma.analyticsVisit.groupBy({
       date,
       views,
     }));
+
     const growthRate =
-  yesterdayVisits === 0
-    ? 100
-    : Number(
-        (
-          ((todayVisits - yesterdayVisits) /
-            yesterdayVisits) *
-          100
-        ).toFixed(1)
+      yesterdayVisits === 0
+        ? 100
+        : Number(
+            (
+              ((todayVisits - yesterdayVisits) /
+                yesterdayVisits) *
+              100
+            ).toFixed(1)
+          );
+
+    const browserMap = new Map<
+      string,
+      number
+    >();
+
+    topBrowsers.forEach((item) => {
+      const browser =
+        item.browser
+          ?.replace(/\s+\d+(\.\d+)*/g, "")
+          .trim() || "Unknown";
+
+      browserMap.set(
+        browser,
+        (browserMap.get(browser) ?? 0) +
+          item._count.browser
       );
-const browserMap = new Map<string, number>();
+    });
 
-topBrowsers.forEach((item) => {
-  const browser =
-    item.browser
-      ?.replace(/\s+\d+(\.\d+)*/g, "")
-      .trim() || "Unknown";
+    const normalizedBrowsers = Array.from(
+      browserMap.entries()
+    )
+      .map(([browser, count]) => ({
+        browser,
+        _count: {
+          browser: count,
+        },
+      }))
+      .sort(
+        (a, b) =>
+          b._count.browser -
+          a._count.browser
+      );
 
-  browserMap.set(
-    browser,
-    (browserMap.get(browser) ?? 0) +
-      item._count.browser
-  );
-});
+    const normalizedCountries = [
+      ...topCountries,
+    ].sort((a, b) => {
+      const lowPriority = [
+        "",
+        null,
+        "Unknown",
+        "Local Development",
+      ];
 
-const normalizedBrowsers = Array.from(
-  browserMap.entries()
-)
-  .map(([browser, count]) => ({
-    browser,
-    _count: {
-      browser: count,
-    },
-  }))
-  .sort(
-    (a, b) =>
-      b._count.browser -
-      a._count.browser
-  );
-  const normalizedCountries = [...topCountries].sort((a, b) => {
-  const lowPriority = [
-    "",
-    null,
-    "Unknown",
-    "Local Development",
-  ];
+      const aLow = lowPriority.includes(
+        a.country as never
+      );
 
-  const aLow = lowPriority.includes(a.country as never);
-  const bLow = lowPriority.includes(b.country as never);
+      const bLow = lowPriority.includes(
+        b.country as never
+      );
 
-  if (aLow !== bLow) {
-    return aLow ? 1 : -1;
-  }
+      if (aLow !== bLow) {
+        return aLow ? 1 : -1;
+      }
 
-  return b._count.country - a._count.country;
-});
-const normalizedBookingPlatforms = bookingPlatforms.filter(
-  (item) =>
-    [
-      "whatsapp",
-      "telegram",
-      "line",
-      "wechat",
-      "signal",
-    ].includes(item.referrer ?? "")
-);
+      return (
+        b._count.country -
+        a._count.country
+      );
+    });
+
+    const normalizedBookingPlatforms =
+      bookingPlatforms.filter((item) =>
+        [
+          "whatsapp",
+          "telegram",
+          "line",
+          "wechat",
+          "signal",
+        ].includes(item.referrer ?? "")
+      );
+
     return NextResponse.json({
       success: true,
       data: {
-  totalVisits,
-  todayVisits,
-  yesterdayVisits,
-  weekVisits,
-  monthVisits,
-  growthRate,
-        uniqueVisitors: uniqueVisitors.length,
-        onlineVisitors: onlineVisitors.length,
+        totalVisits,
+        todayVisits,
+        yesterdayVisits,
+        weekVisits,
+        monthVisits,
+        growthRate,
+        uniqueVisitors:
+          uniqueVisitors.length,
+        onlineVisitors:
+          onlineVisitors.length,
         topPages,
         recentVisitors,
-        topCountries: normalizedCountries,
-        topBrowsers: normalizedBrowsers,
+        topCountries:
+          normalizedCountries,
+        topBrowsers:
+          normalizedBrowsers,
         topDevices,
         topReferrers,
         traffic: trafficData,
-        bookingPlatforms: normalizedBookingPlatforms,
+        bookingPlatforms:
+          normalizedBookingPlatforms,
         topModels,
       },
     });
-
   } catch (error) {
-
     console.error(error);
 
     return NextResponse.json(
@@ -366,6 +400,5 @@ const normalizedBookingPlatforms = bookingPlatforms.filter(
         status: 500,
       }
     );
-
   }
 }

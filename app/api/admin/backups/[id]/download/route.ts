@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
+
 type RouteContext = {
   params: Promise<{
     id: string;
@@ -15,13 +18,23 @@ export async function GET(
   { params }: RouteContext
 ) {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const { id } = await params;
 
-    const backup = await prisma.backupRecord.findUnique({
-      where: {
-        id,
-      },
-    });
+    const backup =
+      await prisma.backupRecord.findUnique({
+        where: {
+          id,
+        },
+      });
 
     if (!backup) {
       return NextResponse.json(
@@ -35,7 +48,6 @@ export async function GET(
       );
     }
 
-    // 默认读取 backup/database/
     const filePath = path.join(
       process.cwd(),
       "backup",

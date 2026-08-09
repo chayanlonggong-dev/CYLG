@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
 
 type RouteContext = {
   params: Promise<{
@@ -12,13 +14,23 @@ export async function DELETE(
   context: RouteContext
 ) {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const { id } = await context.params;
 
-    const backup = await prisma.backupRecord.findUnique({
-      where: {
-        id,
-      },
-    });
+    const backup =
+      await prisma.backupRecord.findUnique({
+        where: {
+          id,
+        },
+      });
 
     if (!backup) {
       return NextResponse.json(

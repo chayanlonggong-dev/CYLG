@@ -4,8 +4,20 @@ import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
+import { getAdminSession } from "@/lib/auth/session";
+import { apiUnauthorized } from "@/lib/api/response";
+
 export async function GET() {
   try {
+    const session = await getAdminSession();
+
+    if (!session) {
+      return apiUnauthorized(
+        "Unauthorized.",
+        "UNAUTHORIZED"
+      );
+    }
+
     const checks = {
       database: false,
       uploads: false,
@@ -27,7 +39,8 @@ export async function GET() {
       "public"
     );
 
-    checks.uploads = fs.existsSync(uploadPath);
+    checks.uploads =
+      fs.existsSync(uploadPath);
 
     // Backup Folder
     const backupPath = path.join(
@@ -35,7 +48,8 @@ export async function GET() {
       "backup"
     );
 
-    checks.backups = fs.existsSync(backupPath);
+    checks.backups =
+      fs.existsSync(backupPath);
 
     // Environment
     checks.environment =
