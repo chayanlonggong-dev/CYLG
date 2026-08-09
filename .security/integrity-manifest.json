@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-09T12:26:56.220Z",
+  "generatedAt": "2026-08-09T18:34:47.307Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -85,8 +85,8 @@
     },
     {
       "path": "app/admin/security/page.tsx",
-      "hash": "4008ee8a4c225ca29ca881af0554eb8ba31440b4528a6bd442ac888575c1e1ca",
-      "size": 66861
+      "hash": "6c2d80daa28f18a2fcd53fb8b4f61650e61e685980c70c71bc17ec20ff0f16a2",
+      "size": 71691
     },
     {
       "path": "app/admin/settings/page.tsx",
@@ -120,23 +120,23 @@
     },
     {
       "path": "app/api/admin/analytics/export/route.ts",
-      "hash": "c7297987e5362669d76a6b6c57c85f957350b4a085e1ecb57dddfb2045eccbf9",
-      "size": 1602
+      "hash": "603a11d368241f19710ae7e6611c3e41e2a6b215b0de8fc5b184d31e6168529a",
+      "size": 2008
     },
     {
       "path": "app/api/admin/analytics/route.ts",
-      "hash": "9c3332a085a028860c4304864468f4e837c5d7ac6d29b558b9391fe292a6d0c1",
-      "size": 7057
+      "hash": "39960c9f1d3d3b980950c82fa2e2f4529752ec736c371e859580f38dcd31d1fe",
+      "size": 8272
     },
     {
       "path": "app/api/admin/backups/[id]/download/route.ts",
-      "hash": "9154b45c8bee946f807b74ce8dcd9aec46b7adc562ec0ff35621855e12ae1612",
-      "size": 1526
+      "hash": "d2323581ac4ce459a715801c7318b666d644f5b0aab27f8c4470f459ff5835a2",
+      "size": 1784
     },
     {
       "path": "app/api/admin/backups/[id]/route.ts",
-      "hash": "f185a4e546d95d8a995380324a49c57b191ef3565507b46a7c6f27890cd60926",
-      "size": 1064
+      "hash": "3027da7dd6764010d088c2d9e482d31d8a082d18f132df1e43c72f5ffa2728d2",
+      "size": 1358
     },
     {
       "path": "app/api/admin/backups/cron/route.ts",
@@ -200,8 +200,8 @@
     },
     {
       "path": "app/api/admin/backups/scheduler/route.ts",
-      "hash": "68d11f544a21bd391beb4e003244e897f0c52188928b00271281c9b2e20ee55d",
-      "size": 3654
+      "hash": "27c7a3cd43d91130f59706eddf195fb43f952e970bcf62fbf1134f2159a98f6e",
+      "size": 4102
     },
     {
       "path": "app/api/admin/firewall/route.ts",
@@ -230,8 +230,8 @@
     },
     {
       "path": "app/api/admin/production/route.ts",
-      "hash": "f39aefaffa0006b0b5eb53ff73cf9d34107f43eafd3c84727e26e6bfe35229da",
-      "size": 1704
+      "hash": "921e496cdc434369d44364ecc4e1162bb29dd47823cec1cf8306499490651865",
+      "size": 1999
     },
     {
       "path": "app/api/admin/security/events/route.ts",
@@ -265,8 +265,8 @@
     },
     {
       "path": "app/api/admin/top-models/route.ts",
-      "hash": "4fa44127f606b6494a7292028e09addd534aa132701685ccb0c6b3f6421f92c6",
-      "size": 2864
+      "hash": "52820f5b41550f81d10267be18601e609502a115349e9d92c4b865a8e2851b52",
+      "size": 3513
     },
     {
       "path": "app/api/analytics/book/route.ts",
@@ -1165,8 +1165,8 @@
     },
     {
       "path": "lib/security/integrity.ts",
-      "hash": "ba6b79ca1b095185b9cf4ff43b1d655cbba959e12ecc5ecd3d8f7766c4024857",
-      "size": 4295
+      "hash": "ecd5d5404218a5291d9def27e8f9db11242dc5b94e5c3963b04d08fca90168a6",
+      "size": 10502
     },
     {
       "path": "lib/security/loginProtection.ts",

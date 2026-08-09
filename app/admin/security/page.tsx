@@ -88,6 +88,16 @@ interface IntegrityRepairSummary {
   results: IntegrityRepairResult[];
 }
 
+interface IntegrityBaselineUpdateResult {
+  updated: boolean;
+  requiresConfirmation?: boolean;
+  blocked?: boolean;
+  backupPath?: string;
+  generatedAt?: string;
+  protectedFiles?: number;
+  integrity?: IntegritySummary;
+}
+
 const SECURITY_EVENT_TYPES: SecurityEventType[] = [
   "LOGIN_FAILED",
   "ACCOUNT_LOCKED",
@@ -187,6 +197,12 @@ export default function SecurityPage() {
 
   const [integrityRepairResult, setIntegrityRepairResult] =
     useState<IntegrityRepairSummary | null>(null);
+
+  const [integrityBaselineLoading, setIntegrityBaselineLoading] =
+    useState(false);
+
+  const [integrityBaselineMessage, setIntegrityBaselineMessage] =
+    useState("");
 
   // =====================================================
   // Active Sessions
@@ -692,6 +708,119 @@ export default function SecurityPage() {
       );
     } finally {
       setIntegrityLoading(false);
+    }
+  }
+
+  async function updateTrustedBaseline() {
+    if (
+      integrityBaselineLoading ||
+      integrityLoading ||
+      integrityRepairLoading
+    ) {
+      return;
+    }
+
+    if (!integrity) {
+      await runIntegrityCheck();
+      return;
+    }
+
+    if (
+      integrity.missing > 0 ||
+      integrity.errors > 0
+    ) {
+      setIntegrityBaselineMessage(
+        "Trusted baseline cannot be updated while files are missing or unreadable."
+      );
+      return;
+    }
+
+    if (integrity.modified === 0) {
+      setIntegrityBaselineMessage(
+        "No modified files are present. The trusted baseline is already current."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "UPDATE TRUSTED INTEGRITY BASELINE\\n\\n" +
+        `${integrity.modified} modified file(s) were detected.\\n\\n` +
+        "This will make the CURRENT verified application files the new trusted baseline.\\n\\n" +
+        "The previous integrity manifest will be backed up before the update.\\n\\n" +
+        "Only continue if you intentionally made these code changes and they have been reviewed.\\n\\n" +
+        "Continue?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setIntegrityBaselineLoading(true);
+      setIntegrityBaselineMessage("");
+      setIntegrityRepairResult(null);
+
+      const res = await fetch(
+        "/api/admin/security/integrity",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            confirmation:
+              "UPDATE_TRUSTED_BASELINE",
+          }),
+        }
+      );
+
+      const payload = await res.json();
+
+      if (!res.ok || !payload.success) {
+        setIntegrityBaselineMessage(
+          payload.message ||
+            "Failed to update trusted integrity baseline."
+        );
+        return;
+      }
+
+      const data =
+        (payload.data ??
+          payload) as IntegrityBaselineUpdateResult;
+
+      if (!data.updated) {
+        setIntegrityBaselineMessage(
+          payload.message ||
+            "Trusted integrity baseline was not updated."
+        );
+        return;
+      }
+
+      if (data.integrity) {
+        setIntegrity(
+          data.integrity
+        );
+      }
+
+      setIntegrityBaselineMessage(
+        `Trusted integrity baseline updated and verified. ${
+          data.protectedFiles ?? integrity.total
+        } protected files are now registered.`
+      );
+
+      await runIntegrityCheck();
+    } catch (error) {
+      console.error(
+        "Trusted integrity baseline update error:",
+        error
+      );
+
+      setIntegrityBaselineMessage(
+        "Failed to update trusted integrity baseline."
+      );
+    } finally {
+      setIntegrityBaselineLoading(false);
     }
   }
 
@@ -1328,13 +1457,31 @@ export default function SecurityPage() {
             </div>
           )}
 
-          <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p className="max-w-2xl text-xs leading-6 text-gray-600">
-              Integrity repair is limited to files detected as
-              modified or missing. Each affected file is backed
-              up before restoration and verified against the
-              trusted SHA-256 baseline after repair.
-            </p>
+          {integrityBaselineMessage && (
+            <div className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-400">
+              {integrityBaselineMessage}
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs leading-6 text-gray-600">
+                <span className="font-bold text-gray-500">
+                  UPDATE TRUSTED BASELINE
+                </span>{" "}
+                registers the current reviewed application files as
+                trusted. Use it after intentional code changes.
+              </p>
+
+              <p className="mt-2 text-xs leading-6 text-gray-600">
+                <span className="font-bold text-gray-500">
+                  REPAIR DAMAGED FILES
+                </span>{" "}
+                restores modified or missing files from the separate
+                trusted repair source. Do not use repair to approve
+                intentional code changes.
+              </p>
+            </div>
 
             <div className="flex flex-wrap gap-3">
               <button
@@ -1342,7 +1489,8 @@ export default function SecurityPage() {
                 onClick={runIntegrityCheck}
                 disabled={
                   integrityLoading ||
-                  integrityRepairLoading
+                  integrityRepairLoading ||
+                  integrityBaselineLoading
                 }
                 className="rounded-xl border border-yellow-500/40 px-5 py-3 font-bold text-yellow-400 transition hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -1353,10 +1501,30 @@ export default function SecurityPage() {
 
               <button
                 type="button"
+                onClick={updateTrustedBaseline}
+                disabled={
+                  integrityLoading ||
+                  integrityRepairLoading ||
+                  integrityBaselineLoading ||
+                  !integrity ||
+                  integrity.modified === 0 ||
+                  integrity.missing > 0 ||
+                  integrity.errors > 0
+                }
+                className="rounded-xl border border-green-500/40 bg-green-500/5 px-5 py-3 font-black text-green-400 transition hover:bg-green-500 hover:text-black disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-600"
+              >
+                {integrityBaselineLoading
+                  ? "UPDATING..."
+                  : "UPDATE TRUSTED BASELINE"}
+              </button>
+
+              <button
+                type="button"
                 onClick={repairDamagedFiles}
                 disabled={
                   integrityLoading ||
                   integrityRepairLoading ||
+                  integrityBaselineLoading ||
                   !integrity ||
                   integrity.modified +
                     integrity.missing +
