@@ -95,14 +95,8 @@ export async function executeSecurityRecovery(
       continue;
     }
 
-    // ===================================================
-    // Never automatically block the administrator's
-    // current IP.
-    //
-    // This protects the administrator from accidentally
-    // locking themselves out during recovery.
-    // ===================================================
-
+    // Never automatically block the
+    // administrator's current IP.
     if (
       normalizedCurrentIp &&
       ip === normalizedCurrentIp
@@ -149,15 +143,17 @@ export async function executeSecurityRecovery(
   }
 
   // =====================================================
-  // Revoke all OTHER sessions belonging to the
-  // current administrator.
+  // Revoke all OTHER sessions belonging to
+  // the current administrator.
   //
   // IMPORTANT:
-  // We preserve the exact current session by ID.
+  // We identify the current session by SESSION ID,
+  // not by IP address.
   //
-  // We intentionally DO NOT use IP matching here.
-  // Multiple administrator sessions can share the
-  // same IP, so IP-based preservation is unsafe.
+  // This prevents accidental deletion of the current
+  // session when the request IP differs from the IP
+  // stored in the session because of a proxy, CDN,
+  // localhost, IPv4/IPv6 difference, etc.
   // =====================================================
 
   const sessionDeleteResult =

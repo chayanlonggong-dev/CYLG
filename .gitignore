@@ -52,3 +52,5 @@ public/uploads/
 prisma/schema-sqlite.prisma
 # Backup files
 backup/
+# Security integrity runtime data
+.security/

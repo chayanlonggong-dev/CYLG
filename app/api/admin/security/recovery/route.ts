@@ -38,7 +38,9 @@ function getClientIp(
       .get("x-forwarded-for")
       ?.split(",")[0]
       ?.trim() ||
-    request.headers.get("x-real-ip") ||
+    request.headers.get(
+      "x-real-ip"
+    ) ||
     "unknown"
   );
 }
@@ -149,9 +151,9 @@ export async function POST(
     // Execute recovery
     //
     // IMPORTANT:
-    // Pass the exact current session ID so the recovery
-    // service can preserve this session while revoking
-    // all other administrator sessions.
+    // Pass the current SESSION ID so the recovery
+    // process can preserve the session that is
+    // executing this operation.
     // =================================================
 
     const result =
@@ -218,8 +220,8 @@ export async function POST(
               skippedCurrentIp:
                 result.skippedCurrentIp,
 
-              currentSessionPreserved:
-                true,
+              currentSessionId:
+                session.sessionId,
 
               operator:
                 session.username,
@@ -281,8 +283,8 @@ export async function POST(
         skippedCurrentIp:
           result.skippedCurrentIp,
 
-        currentSessionPreserved:
-          true,
+        currentSessionId:
+          session.sessionId,
       },
     });
 
@@ -308,9 +310,6 @@ export async function POST(
 
         skippedCurrentIp:
           result.skippedCurrentIp,
-
-        currentSessionPreserved:
-          true,
       },
 
       "Emergency security recovery completed.",

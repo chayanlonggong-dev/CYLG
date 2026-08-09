@@ -57,6 +57,37 @@ interface RecoveryResult {
   skippedCurrentIp: boolean;
 }
 
+interface IntegritySummary {
+  total: number;
+  healthy: number;
+  modified: number;
+  missing: number;
+  errors: number;
+  results: Array<{
+    status: "HEALTHY" | "MODIFIED" | "MISSING" | "ERROR";
+    path: string;
+    expectedHash: string;
+    actualHash: string | null;
+    expectedSize: number;
+    actualSize: number | null;
+  }>;
+}
+
+interface IntegrityRepairResult {
+  path: string;
+  status: "REPAIRED" | "SKIPPED" | "FAILED";
+  reason: string;
+  backupPath: string | null;
+}
+
+interface IntegrityRepairSummary {
+  requested: number;
+  repairedCount: number;
+  skipped: number;
+  failed: number;
+  results: IntegrityRepairResult[];
+}
+
 const SECURITY_EVENT_TYPES: SecurityEventType[] = [
   "LOGIN_FAILED",
   "ACCOUNT_LOCKED",
@@ -137,6 +168,25 @@ export default function SecurityPage() {
 
   const [recoveryConfirmed, setRecoveryConfirmed] =
     useState(false);
+
+  // =====================================================
+  // Security Integrity / Repair
+  // =====================================================
+
+  const [integrityLoading, setIntegrityLoading] =
+    useState(false);
+
+  const [integrityRepairLoading, setIntegrityRepairLoading] =
+    useState(false);
+
+  const [integrityMessage, setIntegrityMessage] =
+    useState("");
+
+  const [integrity, setIntegrity] =
+    useState<IntegritySummary | null>(null);
+
+  const [integrityRepairResult, setIntegrityRepairResult] =
+    useState<IntegrityRepairSummary | null>(null);
 
   // =====================================================
   // Active Sessions
@@ -575,6 +625,200 @@ export default function SecurityPage() {
   }
 
   // =====================================================
+  // Security Integrity
+  // =====================================================
+
+  async function runIntegrityCheck() {
+    if (integrityLoading || integrityRepairLoading) {
+      return;
+    }
+
+    try {
+      setIntegrityLoading(true);
+      setIntegrityMessage("");
+
+      const res = await fetch(
+        "/api/admin/security/integrity",
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+
+      const payload = await res.json();
+
+      if (!res.ok || !payload.success) {
+        setIntegrityMessage(
+          payload.message ||
+            "Security integrity check failed."
+        );
+        return;
+      }
+
+      const result =
+        payload.data?.integrity ??
+        payload.integrity;
+
+      if (!result) {
+        setIntegrityMessage(
+          "Security integrity check returned no result."
+        );
+        return;
+      }
+
+      setIntegrity(result as IntegritySummary);
+
+      if (
+        result.modified > 0 ||
+        result.missing > 0 ||
+        result.errors > 0
+      ) {
+        setIntegrityMessage(
+          "Security integrity issues were detected."
+        );
+      } else {
+        setIntegrityMessage(
+          "Security integrity is healthy."
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Security integrity check error:",
+        error
+      );
+
+      setIntegrityMessage(
+        "Security integrity check failed."
+      );
+    } finally {
+      setIntegrityLoading(false);
+    }
+  }
+
+  async function repairDamagedFiles() {
+    if (
+      integrityRepairLoading ||
+      integrityLoading
+    ) {
+      return;
+    }
+
+    if (!integrity) {
+      await runIntegrityCheck();
+      return;
+    }
+
+    const issueCount =
+      integrity.modified +
+      integrity.missing +
+      integrity.errors;
+
+    if (issueCount === 0) {
+      setIntegrityMessage(
+        "No damaged files require repair."
+      );
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "REPAIR DAMAGED FILES\n\n" +
+          `${issueCount} integrity issue(s) were detected.\n\n` +
+          "The current affected files will be backed up before restoration from the trusted repair source.\n\n" +
+          "Continue?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setIntegrityRepairLoading(true);
+      setIntegrityMessage("");
+      setIntegrityRepairResult(null);
+
+      const res = await fetch(
+        "/api/admin/security/integrity/repair",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            confirm: true,
+          }),
+        }
+      );
+
+      const payload = await res.json();
+
+      if (!res.ok || !payload.success) {
+        setIntegrityMessage(
+          payload.message ||
+            "Security integrity repair failed."
+        );
+        return;
+      }
+
+      const data =
+        payload.data ??
+        payload;
+
+      const repairResult: IntegrityRepairSummary = {
+        requested:
+          Number(data.requested) || 0,
+
+        repairedCount:
+          Number(
+            data.repairedCount ??
+              data.repaired
+          ) || 0,
+
+        skipped:
+          Number(data.skipped) || 0,
+
+        failed:
+          Number(data.failed) || 0,
+
+        results:
+          Array.isArray(data.results)
+            ? data.results
+            : [],
+      };
+
+      setIntegrityRepairResult(
+        repairResult
+      );
+
+      if (
+        repairResult.failed === 0
+      ) {
+        setIntegrityMessage(
+          "Security integrity repair completed successfully."
+        );
+      } else {
+        setIntegrityMessage(
+          "Security integrity repair completed with failures."
+        );
+      }
+
+      await runIntegrityCheck();
+    } catch (error) {
+      console.error(
+        "Security integrity repair error:",
+        error
+      );
+
+      setIntegrityMessage(
+        "Security integrity repair failed."
+      );
+    } finally {
+      setIntegrityRepairLoading(false);
+    }
+  }
+
+  // =====================================================
   // Security Event Statistics
   // =====================================================
 
@@ -765,6 +1009,10 @@ export default function SecurityPage() {
   }, []);
 
   useEffect(() => {
+    runIntegrityCheck();
+  }, []);
+
+  useEffect(() => {
     loadSecurityEvents();
   }, [
     eventTypeFilter,
@@ -849,6 +1097,279 @@ export default function SecurityPage() {
             <p className="mt-2 text-sm text-gray-500">
               Requests blocked by firewall
             </p>
+          </div>
+        </section>
+
+        {/* =====================================================
+            Security Integrity
+        ===================================================== */}
+
+        <section className="mt-12 rounded-3xl border border-yellow-500/30 bg-[#101010] p-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`h-3 w-3 rounded-full ${
+                    integrity &&
+                    integrity.modified === 0 &&
+                    integrity.missing === 0 &&
+                    integrity.errors === 0
+                      ? "bg-green-500"
+                      : "animate-pulse bg-yellow-500"
+                  }`}
+                />
+
+                <h2 className="text-2xl font-bold text-yellow-400">
+                  Security Integrity
+                </h2>
+              </div>
+
+              <p className="mt-3 text-gray-400">
+                Verify protected application files against the
+                trusted SHA-256 integrity baseline.
+              </p>
+
+              <p className="mt-3 text-sm text-gray-500">
+                If code has been modified or removed, affected
+                files can be restored from the trusted repair
+                source. The current affected files are backed up
+                before restoration.
+              </p>
+            </div>
+
+            <div
+              className={`rounded-xl border px-4 py-3 text-xs font-bold tracking-[0.15em] ${
+                integrity &&
+                integrity.modified === 0 &&
+                integrity.missing === 0 &&
+                integrity.errors === 0
+                  ? "border-green-500/20 bg-green-500/5 text-green-400"
+                  : "border-yellow-500/20 bg-yellow-500/5 text-yellow-400"
+              }`}
+            >
+              {integrity &&
+              integrity.modified === 0 &&
+              integrity.missing === 0 &&
+              integrity.errors === 0
+                ? "INTEGRITY HEALTHY"
+                : "INTEGRITY CHECK REQUIRED"}
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-5">
+              <p className="text-xs font-bold tracking-[0.15em] text-gray-500">
+                PROTECTED
+              </p>
+              <p className="mt-3 text-3xl font-black text-white">
+                {integrity?.total ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5">
+              <p className="text-xs font-bold tracking-[0.15em] text-gray-500">
+                HEALTHY
+              </p>
+              <p className="mt-3 text-3xl font-black text-green-400">
+                {integrity?.healthy ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+              <p className="text-xs font-bold tracking-[0.15em] text-gray-500">
+                MODIFIED
+              </p>
+              <p className="mt-3 text-3xl font-black text-red-400">
+                {integrity?.modified ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5">
+              <p className="text-xs font-bold tracking-[0.15em] text-gray-500">
+                MISSING
+              </p>
+              <p className="mt-3 text-3xl font-black text-orange-400">
+                {integrity?.missing ?? "—"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5">
+              <p className="text-xs font-bold tracking-[0.15em] text-gray-500">
+                ERRORS
+              </p>
+              <p className="mt-3 text-3xl font-black text-purple-400">
+                {integrity?.errors ?? "—"}
+              </p>
+            </div>
+          </div>
+
+          {integrityMessage && (
+            <div
+              className={`mt-6 rounded-xl border p-4 ${
+                integrity &&
+                integrity.modified === 0 &&
+                integrity.missing === 0 &&
+                integrity.errors === 0
+                  ? "border-green-500/30 bg-green-500/10 text-green-400"
+                  : "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
+              }`}
+            >
+              {integrityMessage}
+            </div>
+          )}
+
+          {integrity &&
+            integrity.results.some(
+              (item) =>
+                item.status === "MODIFIED" ||
+                item.status === "MISSING" ||
+                item.status === "ERROR"
+            ) && (
+              <div className="mt-6 rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+                <h3 className="font-bold text-red-400">
+                  Integrity Issues Detected
+                </h3>
+
+                <div className="mt-4 space-y-3">
+                  {integrity.results
+                    .filter(
+                      (item) =>
+                        item.status === "MODIFIED" ||
+                        item.status === "MISSING" ||
+                        item.status === "ERROR"
+                    )
+                    .map((item) => (
+                      <div
+                        key={item.path}
+                        className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/40 p-4 md:flex-row md:items-center md:justify-between"
+                      >
+                        <span className="break-all text-sm text-white">
+                          {item.path}
+                        </span>
+
+                        <span
+                          className={`w-fit rounded-full border px-3 py-1 text-xs font-bold ${
+                            item.status === "MODIFIED"
+                              ? "border-red-500/30 bg-red-500/10 text-red-400"
+                              : item.status === "MISSING"
+                              ? "border-orange-500/30 bg-orange-500/10 text-orange-400"
+                              : "border-purple-500/30 bg-purple-500/10 text-purple-400"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+          {integrityRepairResult && (
+            <div className="mt-6 rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
+              <h3 className="font-bold text-green-400">
+                Repair Result
+              </h3>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div>
+                  <p className="text-xs font-bold tracking-[0.15em] text-gray-600">
+                    REQUESTED
+                  </p>
+                  <p className="mt-2 text-2xl font-black text-white">
+                    {integrityRepairResult.requested}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold tracking-[0.15em] text-gray-600">
+                    REPAIRED
+                  </p>
+                  <p className="mt-2 text-2xl font-black text-green-400">
+                    {integrityRepairResult.repairedCount}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold tracking-[0.15em] text-gray-600">
+                    SKIPPED
+                  </p>
+                  <p className="mt-2 text-2xl font-black text-yellow-400">
+                    {integrityRepairResult.skipped}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold tracking-[0.15em] text-gray-600">
+                    FAILED
+                  </p>
+                  <p className="mt-2 text-2xl font-black text-red-400">
+                    {integrityRepairResult.failed}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-2">
+                {integrityRepairResult.results.map(
+                  (item) => (
+                    <div
+                      key={`${item.path}-${item.status}`}
+                      className="rounded-xl border border-white/10 bg-black/40 p-4"
+                    >
+                      <p className="break-all text-sm font-bold text-white">
+                        {item.path}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {item.status}: {item.reason}
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-2xl text-xs leading-6 text-gray-600">
+              Integrity repair is limited to files detected as
+              modified or missing. Each affected file is backed
+              up before restoration and verified against the
+              trusted SHA-256 baseline after repair.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={runIntegrityCheck}
+                disabled={
+                  integrityLoading ||
+                  integrityRepairLoading
+                }
+                className="rounded-xl border border-yellow-500/40 px-5 py-3 font-bold text-yellow-400 transition hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {integrityLoading
+                  ? "CHECKING..."
+                  : "RUN INTEGRITY CHECK"}
+              </button>
+
+              <button
+                type="button"
+                onClick={repairDamagedFiles}
+                disabled={
+                  integrityLoading ||
+                  integrityRepairLoading ||
+                  !integrity ||
+                  integrity.modified +
+                    integrity.missing +
+                    integrity.errors ===
+                    0
+                }
+                className="rounded-xl border border-red-500 bg-red-500/10 px-5 py-3 font-black text-red-400 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-gray-600"
+              >
+                {integrityRepairLoading
+                  ? "REPAIRING..."
+                  : "REPAIR DAMAGED FILES"}
+              </button>
+            </div>
           </div>
         </section>
 
