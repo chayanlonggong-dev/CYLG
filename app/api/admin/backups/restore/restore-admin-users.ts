@@ -1,6 +1,20 @@
 import { prisma } from "@/lib/prisma";
 
-export async function restoreAdminUsers(adminUsers: any[]) {
+type BackupAdminUser = {
+  id?: number;
+  username: string;
+  password: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  twoFactorEnabled?: boolean;
+  twoFactorSecret?: string | null;
+  failedLoginAttempts?: number;
+  lockedUntil?: string | Date | null;
+};
+
+export async function restoreAdminUsers(
+  adminUsers: BackupAdminUser[]
+) {
   if (!Array.isArray(adminUsers)) {
     return {
       success: false,
@@ -9,56 +23,120 @@ export async function restoreAdminUsers(adminUsers: any[]) {
   }
 
   try {
-    // 清空现有管理员
-    await prisma.adminUser.deleteMany();
+    const result = await prisma.$transaction(async (tx) => {
+      /*
+       * Sessions are intentionally NOT restored.
+       *
+       * Session tokens are active authentication credentials
+       * and must never be imported from a portable backup.
+       *
+       * Existing sessions are removed first so that the restored
+       * administrators must authenticate again.
+       */
+      await tx.session.deleteMany();
 
-    // 没有资料
-    if (adminUsers.length === 0) {
-      return {
-        success: true,
-        restored: 0,
-      };
-    }
+      /*
+       * Remove the current administrator records before restoring
+       * the administrator records contained in the backup.
+       */
+      await tx.adminUser.deleteMany();
 
-    // 恢复管理员
-    await prisma.adminUser.createMany({
-      data: adminUsers.map((user) => ({
-        username: user.username,
-        password: user.password,
+      if (adminUsers.length === 0) {
+        return {
+          restored: 0,
+        };
+      }
+
+      const data = adminUsers.map((admin) => ({
+        ...(typeof admin.id === "number"
+          ? { id: admin.id }
+          : {}),
+
+        username:
+          typeof admin.username === "string"
+            ? admin.username
+            : "",
+
+        password:
+          typeof admin.password === "string"
+            ? admin.password
+            : "",
+
+        createdAt: admin.createdAt
+          ? new Date(admin.createdAt)
+          : new Date(),
+
+        updatedAt: admin.updatedAt
+          ? new Date(admin.updatedAt)
+          : new Date(),
 
         twoFactorEnabled:
-          user.twoFactorEnabled ?? false,
+          typeof admin.twoFactorEnabled === "boolean"
+            ? admin.twoFactorEnabled
+            : false,
 
         twoFactorSecret:
-          user.twoFactorSecret ?? null,
+          admin.twoFactorSecret ?? null,
 
         failedLoginAttempts:
-          user.failedLoginAttempts ?? 0,
+          typeof admin.failedLoginAttempts === "number"
+            ? admin.failedLoginAttempts
+            : 0,
 
-        lockedUntil: user.lockedUntil
-          ? new Date(user.lockedUntil)
-          : null,
+        lockedUntil:
+          admin.lockedUntil
+            ? new Date(admin.lockedUntil)
+            : null,
+      }));
 
-        createdAt: user.createdAt
-          ? new Date(user.createdAt)
-          : new Date(),
+      await tx.adminUser.createMany({
+        data,
+      });
 
-        updatedAt: user.updatedAt
-          ? new Date(user.updatedAt)
-          : new Date(),
-      })),
+      /*
+       * The AdminUser primary key is PostgreSQL auto-incremented.
+       *
+       * Because backup restore may insert explicit IDs, synchronize
+       * the PostgreSQL sequence with the restored maximum ID so that
+       * the next newly-created administrator does not collide.
+       */
+      await tx.$executeRawUnsafe(`
+        SELECT setval(
+          pg_get_serial_sequence('"AdminUser"', 'id'),
+          COALESCE(
+            (SELECT MAX(id) FROM "AdminUser"),
+            1
+          ),
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM "AdminUser"
+            )
+            THEN true
+            ELSE false
+          END
+        );
+      `);
+
+      return {
+        restored: adminUsers.length,
+      };
     });
 
     return {
       success: true,
-      restored: adminUsers.length,
+      restored: result.restored,
     };
   } catch (error) {
-    console.error(error);
+    console.error(
+      "RESTORE ADMIN USERS ERROR:",
+      error
+    );
 
     return {
       success: false,
-      message: "Failed to restore Admin Users.",
+      message:
+        "Failed to restore Admin Users.",
     };
   }
 }
