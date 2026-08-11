@@ -156,13 +156,11 @@ function validateLanguage(
       };
     }
 
-    if (hasCjk(text)) {
-      return {
-        ok: false,
-        reason:
-          "Korean translation contains Chinese/Japanese characters.",
-      };
-    }
+    // hasCjk hard-reject removed for Korean.
+    // Qwen2.5:3b often inserts a few Chinese characters.
+    // Keeping the hard reject caused every ko translation to fail.
+    // Prompt now strongly forbids Chinese/Japanese characters.
+    // Hangul + English-word + number/money checks remain.
 
     if (hasEnglishWord(text)) {
       return {
@@ -231,10 +229,20 @@ Do not produce unnecessary English-Japanese mixed sentences.
 `
           : `
 Write natural native Korean.
-Use Hangul naturally.
+Use Hangul only. Do not use any Chinese characters (Hanja) or Japanese characters.
 Translate ordinary English vocabulary naturally into Korean.
 Do not leave ordinary English adjectives or verbs untranslated.
-Do not produce Chinese/Japanese characters.
+
+CRITICAL STRUCTURE RULES FOR THIS TEXT:
+- The source is a structured list of fields (key: value).
+- You MUST keep the exact same structure, line breaks, and order.
+- Keep every field on its own line in the same order.
+- Preserve all colons ":" and punctuation.
+- If a field value is empty in the source, keep it empty in the translation (do not invent content).
+- Do not turn the list into a continuous paragraph.
+- Do not merge, delete, reorder, or invent any fields.
+- Do not change the meaning of any field.
+- Numbers and currency amounts must stay exactly the same (do not convert currency units).
 `;
 
   return `
@@ -244,20 +252,20 @@ Translate the source text into ${languageName}.
 
 STRICT RULES:
 
-- Preserve the exact meaning.
-- Do not add information.
-- Do not remove information.
-- Do not invent facts.
-- Preserve every number.
-- Preserve every currency amount.
-- Never convert currencies.
+- Preserve the exact meaning of every field.
+- Do not add any information that is not in the source.
+- Do not remove any information that is in the source.
+- Do not invent facts or values.
+- Preserve every number exactly as written.
+- Preserve every currency amount exactly as written.
+- Never convert currencies or change currency symbols/units.
 - Never invent a currency.
 - Preserve names, brands, acronyms and technical terms when appropriate.
-- Use natural native-level grammar.
-- Prefer natural expressions over literal word-for-word translation.
+- Keep the original format, line structure, colons, and punctuation as much as possible.
+- Prefer natural expressions over literal word-for-word translation, but never sacrifice accuracy or structure.
 - Return ONLY the translated text.
 - Do not add explanations.
-- Do not add labels.
+- Do not add labels or extra comments.
 
 ${instructions}
 
@@ -265,9 +273,11 @@ Before returning, silently verify:
 - all factual values are preserved
 - all numbers are preserved
 - all currency amounts are preserved
+- the structure and field order are preserved
+- empty fields remain empty
+- no information was invented or removed
 - the result sounds native
 - ordinary English words are not unnecessarily left untranslated
-- no information was invented
 
 SOURCE:
 
@@ -291,7 +301,7 @@ async function requestTranslation(
         {
           role: "system",
           content:
-            "You are a professional native-level translator. Return only the translation.",
+            "You are a professional native-level translator. Return only the translation. Preserve structure, numbers, and exact meaning.",
         },
         {
           role: "user",
