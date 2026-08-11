@@ -9,26 +9,33 @@ datasource db {
 }
 
 model Model {
-  id           Int        @id @default(autoincrement())
-  level        ModelLevel
-  number       Int
-  code         String     @unique
-  title        String     @default("")
-  nationality  String     @default("")
-  city         String     @default("")
-  age          Int        @default(18)
-  height       Int        @default(160)
-  weight       Int        @default(50)
-  languages    String     @default("")
-  services     String     @default("")
-  avatar       String     @default("")
-  gallery      String     @default("")
-  videos       String     @default("")
-  introduction String     @default("")
-  online       Boolean    @default(true)
-  featured     Boolean    @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                 Int        @id @default(autoincrement())
+  level              ModelLevel
+  number             Int
+  code               String     @unique
+  title              String     @default("")
+  nationality        String     @default("")
+  city               String     @default("")
+  age                Int        @default(18)
+  height             Int        @default(160)
+  weight             Int        @default(50)
+  languages          String     @default("")
+  services           String     @default("")
+  avatar             String     @default("")
+  gallery            String     @default("")
+  videos             String     @default("")
+
+  introduction       String     @default("")
+  introductionEn     String     @default("")
+  introductionZhTW   String     @default("")
+  introductionZhCN   String     @default("")
+  introductionJa     String     @default("")
+  introductionKo     String     @default("")
+
+  online             Boolean    @default(true)
+  featured           Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 }
 
 model WebsiteSettings {
@@ -101,8 +108,8 @@ model AuditLog {
 model SecurityEvent {
   id          String              @id @default(cuid())
   type        SecurityEventType
-  severity    SecurityEventSeverity
-  status      SecurityEventStatus  @default(OPEN)
+  severity     SecurityEventSeverity
+  status       SecurityEventStatus  @default(OPEN)
 
   ip          String?
   country     String?

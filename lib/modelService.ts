@@ -1,6 +1,5 @@
 import { prisma } from "./prisma";
 
-
 type ModelLevel =
   | "CROWN"
   | "SSS"
@@ -8,293 +7,224 @@ type ModelLevel =
   | "S"
   | "A";
 
-
-
 export async function getAllModels() {
-
   return prisma.model.findMany({
-
     orderBy: [
-
       {
         level: "asc",
       },
-
       {
         number: "asc",
       },
-
     ],
-
   });
-
 }
 
-
-
-export async function getModelById(
-  id:number
-) {
-
+export async function getModelById(id: number) {
   return prisma.model.findUnique({
-
-    where:{
+    where: {
       id,
     },
+  });
+}
 
+export async function generateModelCode(level: ModelLevel) {
+  const latest = await prisma.model.findFirst({
+    where: {
+      level,
+    },
+    orderBy: {
+      number: "desc",
+    },
   });
 
-}
-
-
-
-
-
-export async function generateModelCode(
-  level:ModelLevel
-) {
-
-
-  const latest =
-    await prisma.model.findFirst({
-
-      where:{
-        level,
-      },
-
-      orderBy:{
-        number:"desc",
-      },
-
-    });
-
-
-
-  const nextNumber =
-    latest
-      ? latest.number + 1
-      : 1;
-
-
+  const nextNumber = latest
+    ? latest.number + 1
+    : 1;
 
   return {
-
-    number:nextNumber,
-
-    code:
-      `${level}${String(nextNumber).padStart(3,"0")}`,
-
+    number: nextNumber,
+    code: `${level}${String(nextNumber).padStart(3, "0")}`,
   };
-
 }
 
+export async function createModel(data: {
+  level: ModelLevel;
 
+  title?: string;
 
+  nationality?: string;
 
+  city?: string;
 
+  age?: number;
 
+  height?: number;
 
-export async function createModel(
-data:{
+  weight?: number;
 
-  level:ModelLevel;
+  languages?: string;
 
-  title?:string;
+  services?: string;
 
-  nationality?:string;
+  avatar?: string;
 
-  city?:string;
+  gallery?: string;
 
-  age?:number;
+  videos?: string;
 
-  height?:number;
+  introduction?: string;
 
-  weight?:number;
+  introductionEn?: string;
 
-  languages?:string;
+  introductionZhTW?: string;
 
-  services?:string;
+  introductionZhCN?: string;
 
-  avatar?:string;
+  introductionJa?: string;
 
-  gallery?:string;
+  introductionKo?: string;
 
-  videos?:string;
+  online?: boolean;
 
-  introduction?:string;
-
-  online?:boolean;
-
-  featured?:boolean;
-
-}
-
-){
-
-
+  featured?: boolean;
+}) {
   const generated =
-    await generateModelCode(
-      data.level
-    );
+    await generateModelCode(data.level);
 
-
+  const introduction =
+    data.introduction ?? "";
 
   return prisma.model.create({
+    data: {
+      level: data.level,
 
-    data:{
+      number: generated.number,
 
-      level:
-        data.level,
-
-
-      number:
-        generated.number,
-
-
-      code:
-        generated.code,
-
+      code: generated.code,
 
       title:
         data.title ?? "",
 
-
       nationality:
         data.nationality ?? "",
-
 
       city:
         data.city ?? "",
 
-
       age:
         data.age ?? 18,
-
 
       height:
         data.height ?? 160,
 
-
       weight:
         data.weight ?? 50,
-
 
       languages:
         data.languages ?? "",
 
-
       services:
         data.services ?? "",
-
 
       avatar:
         data.avatar ?? "",
 
-
       gallery:
         data.gallery ?? "",
-
 
       videos:
         data.videos ?? "",
 
+      introduction,
 
-      introduction:
-        data.introduction ?? "",
+      introductionEn:
+        data.introductionEn ??
+        introduction,
 
+      introductionZhTW:
+        data.introductionZhTW ?? "",
+
+      introductionZhCN:
+        data.introductionZhCN ?? "",
+
+      introductionJa:
+        data.introductionJa ?? "",
+
+      introductionKo:
+        data.introductionKo ?? "",
 
       online:
         data.online ?? true,
 
-
       featured:
         data.featured ?? false,
-
-
     },
-
   });
-
 }
-
-
-
-
-
-
-
 
 export async function updateModel(
-id:number,
+  id: number,
 
-data:{
+  data: {
+    level?: ModelLevel;
 
-  level?:ModelLevel;
+    number?: number;
 
-  number?:number;
+    code?: string;
 
-  code?:string;
+    title?: string;
 
-  title?:string;
+    nationality?: string;
 
-  nationality?:string;
+    city?: string;
 
-  city?:string;
+    age?: number;
 
-  age?:number;
+    height?: number;
 
-  height?:number;
+    weight?: number;
 
-  weight?:number;
+    languages?: string;
 
-  languages?:string;
+    services?: string;
 
-  services?:string;
+    avatar?: string;
 
-  avatar?:string;
+    gallery?: string;
 
-  gallery?:string;
+    videos?: string;
 
-  videos?:string;
+    introduction?: string;
 
-  introduction?:string;
+    introductionEn?: string;
 
-  online?:boolean;
+    introductionZhTW?: string;
 
-  featured?:boolean;
+    introductionZhCN?: string;
 
-}
+    introductionJa?: string;
 
-){
+    introductionKo?: string;
 
+    online?: boolean;
 
+    featured?: boolean;
+  }
+) {
   return prisma.model.update({
-
-    where:{
+    where: {
       id,
     },
 
     data,
-
   });
-
 }
 
-
-
-
-
-
-export async function deleteModel(
-id:number
-){
-
+export async function deleteModel(id: number) {
   return prisma.model.delete({
-
-    where:{
+    where: {
       id,
     },
-
   });
-
 }
