@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-09T18:34:47.307Z",
+  "generatedAt": "2026-08-11T04:38:17.461Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -155,8 +155,8 @@
     },
     {
       "path": "app/api/admin/backups/restore/restore-admin-users.ts",
-      "hash": "604c87db6078006be0ae181c4a38c3d1fd8ebae3a359ece0bba8defdf5a0a0e4",
-      "size": 1400
+      "hash": "709669901cfaf3953add9637c5e30285fd5bca74050b4ad45f6704ff9b148943",
+      "size": 3501
     },
     {
       "path": "app/api/admin/backups/restore/restore-analytics.ts",
@@ -280,13 +280,13 @@
     },
     {
       "path": "app/api/models/[id]/route.ts",
-      "hash": "5476cd22b32c549543c52ae6fb14146d07724f62b3e30a1af6f497391ab55261",
-      "size": 8585
+      "hash": "3eb024f4e6f4687eec9bd9cd4c4e0762a055cbad85fa0531129d57f89f12364d",
+      "size": 9766
     },
     {
       "path": "app/api/models/route.ts",
-      "hash": "eac7e471a923d74817205297c0c31ad66030e655ee47b216d79074c02919aa60",
-      "size": 5760
+      "hash": "17a1c5bb12ac54cce072546864c8c0dca43cb5a1102b35e3c033738d53bd69d1",
+      "size": 8737
     },
     {
       "path": "app/api/session/check/route.ts",
@@ -380,8 +380,8 @@
     },
     {
       "path": "app/models/[id]/page.tsx",
-      "hash": "ea31687153b7ccced123d991a3fc1226977cf2f35ad1311205ab5bfd3d00a6cd",
-      "size": 5593
+      "hash": "2ceb136114759d6ac0629815c7e79ba57007cf749a148c957fbbd100c62ec2bc",
+      "size": 5332
     },
     {
       "path": "app/not-found.tsx",
@@ -480,8 +480,8 @@
     },
     {
       "path": "components/admin/AddModelForm.tsx",
-      "hash": "74dc4a7f9756ac9a91667d66f0b678533064a30e3e034d4890d576c29f3ab30a",
-      "size": 5166
+      "hash": "ff3a4fc28bf656ab7204d3653cff54876a80f1f6adef0e1a08860e5a6d46b937",
+      "size": 6658
     },
     {
       "path": "components/admin/AddModelModal.tsx",
@@ -530,8 +530,8 @@
     },
     {
       "path": "components/admin/IntroductionEditor.tsx",
-      "hash": "543f6ddbcfa39ad810f613b079cd5d55f1be18a38bd8f93680d48ebce1b55854",
-      "size": 1873
+      "hash": "00d260fbd4bd9c45f1fd9c2f7c1779653ffb0a2c7da0c616b75287aaa96f44c7",
+      "size": 7513
     },
     {
       "path": "components/admin/MediaBackupCard.tsx",
@@ -1020,8 +1020,8 @@
     },
     {
       "path": "lib/modelService.ts",
-      "hash": "cb312cf8ce89e63088196ebf66df1c86f37315ddfa37484f2d8e234bbd40d550",
-      "size": 2992
+      "hash": "b2b5c260e87d6867dd50d9a1a7ddc505ffcd25028a2d1a91b0b5328833fed1ff",
+      "size": 3474
     },
     {
       "path": "lib/notification/index.ts",

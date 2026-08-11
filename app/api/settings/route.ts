@@ -61,6 +61,10 @@ export async function GET() {
           enableLine: false,
           enableWechat: false,
           enableFeedbackEmail: true,
+      enableChineseTraditional: true,
+      enableChineseSimplified: true,
+      enableJapanese: true,
+      enableKorean: true,
         },
       });
     }
@@ -199,6 +203,14 @@ export async function PUT(
         enableLine: body.enableLine ?? false,
         enableWechat: body.enableWechat ?? false,
         enableFeedbackEmail: body.enableFeedbackEmail ?? true,
+    enableChineseTraditional:
+      body.enableChineseTraditional ?? true,
+    enableChineseSimplified:
+      body.enableChineseSimplified ?? true,
+    enableJapanese:
+      body.enableJapanese ?? true,
+    enableKorean:
+      body.enableKorean ?? true,
       },
       create: {
         id: 1,
@@ -217,6 +229,14 @@ export async function PUT(
         enableLine: body.enableLine ?? false,
         enableWechat: body.enableWechat ?? false,
         enableFeedbackEmail: body.enableFeedbackEmail ?? true,
+    enableChineseTraditional:
+      body.enableChineseTraditional ?? true,
+    enableChineseSimplified:
+      body.enableChineseSimplified ?? true,
+    enableJapanese:
+      body.enableJapanese ?? true,
+    enableKorean:
+      body.enableKorean ?? true,
       },
     });
 

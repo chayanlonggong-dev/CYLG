@@ -9,33 +9,31 @@ datasource db {
 }
 
 model Model {
-  id                 Int        @id @default(autoincrement())
-  level              ModelLevel
-  number             Int
-  code               String     @unique
-  title              String     @default("")
-  nationality        String     @default("")
-  city               String     @default("")
-  age                Int        @default(18)
-  height             Int        @default(160)
-  weight             Int        @default(50)
-  languages          String     @default("")
-  services           String     @default("")
-  avatar             String     @default("")
-  gallery            String     @default("")
-  videos             String     @default("")
-
-  introduction       String     @default("")
-  introductionEn     String     @default("")
-  introductionZhTW   String     @default("")
-  introductionZhCN   String     @default("")
-  introductionJa     String     @default("")
-  introductionKo     String     @default("")
-
-  online             Boolean    @default(true)
-  featured           Boolean    @default(false)
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  id               Int        @id @default(autoincrement())
+  level            ModelLevel
+  number           Int
+  code             String     @unique
+  title            String     @default("")
+  nationality      String     @default("")
+  city             String     @default("")
+  age              Int        @default(18)
+  height           Int        @default(160)
+  weight           Int        @default(50)
+  languages        String     @default("")
+  services         String     @default("")
+  avatar           String     @default("")
+  gallery          String     @default("")
+  videos           String     @default("")
+  introduction     String     @default("")
+  online           Boolean    @default(true)
+  featured         Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  introductionEn   String     @default("")
+  introductionZhTW String     @default("")
+  introductionZhCN String     @default("")
+  introductionJa   String     @default("")
+  introductionKo   String     @default("")
 }
 
 model WebsiteSettings {
@@ -53,9 +51,13 @@ model WebsiteSettings {
   enableSignal        Boolean  @default(false)
   enableLine          Boolean  @default(false)
   enableWechat        Boolean  @default(false)
-  enableFeedbackEmail Boolean  @default(true)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  enableFeedbackEmail      Boolean @default(true)
+  enableChineseTraditional Boolean @default(true)
+  enableChineseSimplified  Boolean @default(true)
+  enableJapanese           Boolean @default(true)
+  enableKorean             Boolean @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
   favicon             String   @default("")
 }
 
@@ -63,8 +65,8 @@ model AdminUser {
   id                  Int       @id @default(autoincrement())
   username            String    @unique
   password            String
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   twoFactorEnabled    Boolean   @default(false)
   twoFactorSecret     String?
   failedLoginAttempts Int       @default(0)
@@ -106,21 +108,17 @@ model AuditLog {
 }
 
 model SecurityEvent {
-  id          String              @id @default(cuid())
+  id          String                @id @default(cuid())
   type        SecurityEventType
-  severity     SecurityEventSeverity
-  status       SecurityEventStatus  @default(OPEN)
-
+  severity    SecurityEventSeverity
+  status      SecurityEventStatus   @default(OPEN)
   ip          String?
   country     String?
   userAgent   String?
-
   adminUserId Int?
-
   description String
   metadata    String?
-
-  createdAt   DateTime             @default(now())
+  createdAt   DateTime              @default(now())
   resolvedAt  DateTime?
 
   @@index([type])
@@ -148,38 +146,38 @@ model AnalyticsVisit {
 }
 
 model BackupRecord {
-  id          String   @id @default(cuid())
-  filename    String
-  type        String
-  size        Int
-  filePath    String   @default("")
-  checksum    String   @default("")
-  status      String   @default("Completed")
-  restoredAt  DateTime?
-  restoredBy  String?
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  filename   String
+  type       String
+  size       Int
+  status     String    @default("Completed")
+  createdAt  DateTime  @default(now())
+  checksum   String    @default("")
+  filePath   String    @default("")
+  restoredAt DateTime?
+  restoredBy String?
 
   @@index([createdAt])
   @@index([status])
 }
 
 model BackupScheduler {
-  id         Int      @id @default(1)
-  enabled    Boolean  @default(false)
-  day        String   @default("Sunday")
-  time       String   @default("03:00")
-  retention  Int      @default(8)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        Int      @id @default(1)
+  enabled   Boolean  @default(false)
+  day       String   @default("Sunday")
+  time      String   @default("03:00")
+  retention Int      @default(8)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model FirewallBlock {
-  id        String           @id @default(cuid())
+  id        String            @id @default(cuid())
   type      FirewallBlockType
-  value     String           @unique
-  enabled   Boolean          @default(true)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  value     String            @unique
+  enabled   Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   @@index([type])
   @@index([enabled])
