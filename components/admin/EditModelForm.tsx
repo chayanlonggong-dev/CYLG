@@ -39,7 +39,14 @@ export default function EditModelForm({
   const [avatar, setAvatar] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
-  const [introduction, setIntroduction] = useState("");
+
+  // 正确使用 introductionEn + 四个翻译字段
+  const [introductionEn, setIntroductionEn] = useState("");
+  const [introductionZhTW, setIntroductionZhTW] = useState("");
+  const [introductionZhCN, setIntroductionZhCN] = useState("");
+  const [introductionJa, setIntroductionJa] = useState("");
+  const [introductionKo, setIntroductionKo] = useState("");
+
   const { addNotification } = useNotifications();
 
   useEffect(() => {
@@ -86,7 +93,12 @@ export default function EditModelForm({
             : []
         );
 
-        setIntroduction(model.introduction ?? "");
+        // 正确读取数据库字段
+        setIntroductionEn(model.introductionEn ?? "");
+        setIntroductionZhTW(model.introductionZhTW ?? "");
+        setIntroductionZhCN(model.introductionZhCN ?? "");
+        setIntroductionJa(model.introductionJa ?? "");
+        setIntroductionKo(model.introductionKo ?? "");
       } finally {
         setLoading(false);
       }
@@ -123,7 +135,12 @@ export default function EditModelForm({
           gallery: gallery.join(","),
           videos: videos.join(","),
 
-          introduction,
+          // 正确提交五个字段
+          introductionEn,
+          introductionZhTW,
+          introductionZhCN,
+          introductionJa,
+          introductionKo,
         }),
       });
 
@@ -173,10 +190,7 @@ export default function EditModelForm({
           className="rounded-xl bg-[#181818] p-4 text-white"
         >
           {LEVELS.map((item) => (
-            <option
-              key={item}
-              value={item}
-            >
+            <option key={item} value={item}>
               {item}
             </option>
           ))}
@@ -215,18 +229,14 @@ export default function EditModelForm({
 
         <input
           value={nationality}
-          onChange={(e) =>
-            setNationality(e.target.value)
-          }
+          onChange={(e) => setNationality(e.target.value)}
           placeholder="Nationality"
           className="rounded-xl bg-[#181818] p-4 text-white"
         />
 
         <input
           value={languages}
-          onChange={(e) =>
-            setLanguages(e.target.value)
-          }
+          onChange={(e) => setLanguages(e.target.value)}
           placeholder="Languages"
           className="rounded-xl bg-[#181818] p-4 text-white md:col-span-3"
         />
@@ -237,9 +247,7 @@ export default function EditModelForm({
           <input
             type="checkbox"
             checked={online}
-            onChange={(e) =>
-              setOnline(e.target.checked)
-            }
+            onChange={(e) => setOnline(e.target.checked)}
           />
           Online
         </label>
@@ -248,39 +256,38 @@ export default function EditModelForm({
           <input
             type="checkbox"
             checked={featured}
-            onChange={(e) =>
-              setFeatured(e.target.checked)
-            }
+            onChange={(e) => setFeatured(e.target.checked)}
           />
           Featured
         </label>
       </div>
 
       <div className="mt-10">
-        <AvatarUpload
-          value={avatar}
-          onChange={setAvatar}
-        />
+        <AvatarUpload value={avatar} onChange={setAvatar} />
       </div>
 
       <div className="mt-10">
-        <GalleryUpload
-          value={gallery}
-          onChange={setGallery}
-        />
+        <GalleryUpload value={gallery} onChange={setGallery} />
       </div>
 
       <div className="mt-10">
-        <VideoUpload
-          value={videos}
-          onChange={setVideos}
-        />
+        <VideoUpload value={videos} onChange={setVideos} />
       </div>
 
       <div className="mt-10">
         <IntroductionEditor
-          value={introduction}
-          onChange={setIntroduction}
+          value={introductionEn}
+          onChange={setIntroductionEn}
+          introductionZhTW={introductionZhTW}
+          introductionZhCN={introductionZhCN}
+          introductionJa={introductionJa}
+          introductionKo={introductionKo}
+          onTranslationChange={(language, value) => {
+            if (language === "zhTW") setIntroductionZhTW(value);
+            if (language === "zhCN") setIntroductionZhCN(value);
+            if (language === "ja") setIntroductionJa(value);
+            if (language === "ko") setIntroductionKo(value);
+          }}
         />
       </div>
 

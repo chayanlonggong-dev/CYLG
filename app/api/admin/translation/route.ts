@@ -23,7 +23,7 @@ import {
 } from "@/lib/rateLimit";
 
 import {
-  translateIntroduction,
+  translateIntroductionBatch,
   type TranslationLanguage,
 } from "@/lib/ai/modelTranslator";
 
@@ -36,7 +36,9 @@ const SUPPORTED_LANGUAGES: TranslationLanguage[] = [
 
 const MAX_SOURCE_LENGTH = 10000;
 
-function getClientIp(request: NextRequest): string {
+function getClientIp(
+  request: NextRequest
+): string {
   return (
     request.headers
       .get("x-forwarded-for")
@@ -129,6 +131,13 @@ export async function POST(
       );
     }
 
+    /*
+     * If languages are supplied, translate only
+     * those languages.
+     *
+     * This allows the frontend to skip languages
+     * that already have translations.
+     */
     let languages: TranslationLanguage[] =
       SUPPORTED_LANGUAGES;
 
@@ -156,50 +165,39 @@ export async function POST(
       ];
     }
 
-    const translations: Partial<
-      Record<
-        TranslationLanguage,
-        string
-      >
-    > = {};
-
-    const errors: Partial<
-      Record<
-        TranslationLanguage,
-        string
-      >
-    > = {};
-
     /*
-     * Run sequentially rather than in parallel.
+     * IMPORTANT:
      *
-     * Qwen3 is running locally and sequential
-     * requests reduce GPU/RAM pressure.
+     * One batch request to Qwen can return
+     * multiple target languages.
+     *
+     * This replaces the old:
+     *
+     * language -> Qwen
+     * language -> Qwen
+     * language -> Qwen
+     * language -> Qwen
+     *
+     * flow.
      */
-    for (const language of languages) {
-      try {
-        const result =
-          await translateIntroduction(
-            language,
-            source
-          );
+    const result =
+      await translateIntroductionBatch(
+        languages,
+        source
+      );
 
-        translations[language] =
-          result.text;
-      } catch (error) {
-        errors[language] =
-          error instanceof Error
-            ? error.message
-            : String(error);
-      }
-    }
+    const translations =
+      result.translations;
+
+    const errors =
+      result.errors;
 
     if (
       Object.keys(translations)
         .length === 0
     ) {
       return apiServerError(
-        "All translation requests failed.",
+        "All requested translation languages failed.",
         "TRANSLATION_FAILED"
       );
     }
@@ -209,7 +207,12 @@ export async function POST(
         source,
         translations,
         errors,
-        model: "qwen3:4b-instruct",
+        requestedLanguages:
+          languages,
+        model:
+          "qwen3:4b-instruct",
+        mode:
+          "batch",
       },
       "Translation completed.",
       200
@@ -222,7 +225,8 @@ export async function POST(
 
     if (
       error instanceof Error &&
-      error.message === "Unauthorized"
+      error.message ===
+        "Unauthorized"
     ) {
       return apiUnauthorized(
         "Unauthorized.",
