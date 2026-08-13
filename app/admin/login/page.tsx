@@ -10,694 +10,192 @@ import {
   useSearchParams,
 } from "next/navigation";
 
-
 export default function AdminLoginPage() {
-
-
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const searchParams =
-    useSearchParams();
-
-
-
-  const [
-    username,
-    setUsername,
-  ] = useState("");
-
-
-
-  const [
-    password,
-    setPassword,
-  ] = useState("");
-
-
-
-  const [
-    twoFactorToken,
-    setTwoFactorToken,
-  ] = useState("");
-
-
-
-  const [
-    requireTwoFactor,
-    setRequireTwoFactor,
-  ] = useState(false);
-
-
-
-  const [
-    showPassword,
-    setShowPassword,
-  ] = useState(false);
-
-
-
-  const [
-    error,
-    setError,
-  ] = useState("");
-
-
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
-
-
-
-  const [
-    sessionExpiredMessage,
-    setSessionExpiredMessage,
-  ] = useState("");
-
-
-
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [twoFactorToken, setTwoFactorToken] = useState("");
+  const [requireTwoFactor, setRequireTwoFactor] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sessionExpiredMessage, setSessionExpiredMessage] = useState("");
 
   useEffect(() => {
-
-
-    if (
-      searchParams.get("expired")
-      ===
-      "1"
-    ) {
-
+    if (searchParams.get("expired") === "1") {
       setSessionExpiredMessage(
         "Your session has expired. Please log in again."
       );
-
     }
+  }, [searchParams]);
 
-
-  }, [
-    searchParams
-  ]);
-
-
-
-
-
-
-
-  function showPasswordTemporarily(){
-
+  function showPasswordTemporarily() {
     setShowPassword(true);
-
   }
 
-
-
-  function hidePasswordTemporarily(){
-
+  function hidePasswordTemporarily() {
     setShowPassword(false);
-
   }
-
-
-
-
-
 
   function handlePasswordKeyDown(
-    e:React.KeyboardEvent<HTMLButtonElement>
-  ){
-
-    if(
-      e.key === "Enter" ||
-      e.key === " "
-    ){
-
+    e: React.KeyboardEvent<HTMLButtonElement>
+  ) {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-
       setShowPassword(true);
-
     }
-
   }
-
-
-
-
 
   function handlePasswordKeyUp(
-    e:React.KeyboardEvent<HTMLButtonElement>
-  ){
-
-    if(
-      e.key === "Enter" ||
-      e.key === " "
-    ){
-
+    e: React.KeyboardEvent<HTMLButtonElement>
+  ) {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-
       setShowPassword(false);
-
     }
-
   }
 
-
-
-
-
-
-  async function handleSubmit(
-    e:React.FormEvent
-  ){
-
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-
     setError("");
-
     setLoading(true);
 
-
-
     try {
-console.time("LOGIN_API");
+      console.time("LOGIN_API");
 
-      const response =
-        await fetch(
-          "/api/admin/login",
-          {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+          twoFactorToken: requireTwoFactor ? twoFactorToken : undefined,
+        }),
+      });
 
-            method:"POST",
+      console.timeEnd("LOGIN_API");
+      console.log("status:", response.status);
 
-            headers:{
-              "Content-Type":
-                "application/json",
-            },
+      const data = await response.json();
 
-
-            body:JSON.stringify({
-
-              username,
-
-              password,
-
-              twoFactorToken:
-                requireTwoFactor
-                ?
-                twoFactorToken
-                :
-                undefined,
-
-            }),
-
-          }
-        );
-console.timeEnd("LOGIN_API");
-console.log("status:", response.status);
-
-
-
-      const data =
-        await response.json();
-
-
-
-
-
-
-      /*
-        第一次密码正确
-        但是开启了2FA
-      */
-
-      if(
-        data.requireTwoFactor
-      ){
-
+      // 第一次密码正确，但开启了 2FA
+      if (data.requireTwoFactor || data.data?.requireTwoFactor) {
         setRequireTwoFactor(true);
-
-        setError(
-          "Please enter your authenticator code."
-        );
-
+        setError("Please enter your authenticator code.");
         setLoading(false);
-
         return;
-
       }
 
-
-
-
-
-
-      if(!response.ok){
-
-        throw new Error(
-          data.message ||
-          "Login failed."
-        );
-
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed.");
       }
 
-
-
-
-
-      router.push(
-        "/admin/dashboard"
-      );
-
-
-      router.refresh();
-
-
-
-
-    }
-    catch(error){
-
-
+      // 真正登录成功：给 cookie 一点时间写入，然后强制整页跳转（最稳）
+      await new Promise((r) => setTimeout(r, 150));
+      window.location.href = "/admin/dashboard";
+    } catch (error) {
       setError(
-
-        error instanceof Error
-        ?
-        error.message
-        :
-        "Login failed."
-
+        error instanceof Error ? error.message : "Login failed."
       );
-
-
-    }
-    finally{
-
-
+    } finally {
       setLoading(false);
-
-
     }
+  }
 
-
-  }  return (
-
-    <main
-      className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        bg-black
-        px-6
-      "
-    >
-
-
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-black px-6">
       <form
-
         onSubmit={handleSubmit}
-
-        className="
-          w-full
-          max-w-md
-          rounded-3xl
-          border
-          border-yellow-500/30
-          bg-[#101010]
-          p-10
-        "
-
+        className="w-full max-w-md rounded-3xl border border-yellow-500/30 bg-[#101010] p-10"
       >
-
-
-
-        <h1
-          className="
-            mb-10
-            text-center
-            text-4xl
-            font-bold
-            text-yellow-400
-          "
-        >
-
+        <h1 className="mb-10 text-center text-4xl font-bold text-yellow-400">
           CYLG ADMIN
-
         </h1>
 
+        {sessionExpiredMessage && (
+          <div className="mb-5 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3 text-center text-yellow-300">
+            {sessionExpiredMessage}
+          </div>
+        )}
 
+        {error && (
+          <div className="mb-5 rounded-lg bg-red-500/10 p-3 text-center text-red-400">
+            {error}
+          </div>
+        )}
 
-
-
-        {
-          sessionExpiredMessage &&
-          (
-
-            <div
-              className="
-                mb-5
-                rounded-lg
-                border
-                border-yellow-500/20
-                bg-yellow-500/10
-                p-3
-                text-center
-                text-yellow-300
-              "
-            >
-
-              {sessionExpiredMessage}
-
-            </div>
-
-          )
-        }
-
-
-
-
-
-        {
-          error &&
-          (
-
-            <div
-              className="
-                mb-5
-                rounded-lg
-                bg-red-500/10
-                p-3
-                text-center
-                text-red-400
-              "
-            >
-
-              {error}
-
-            </div>
-
-          )
-        }
-
-
-
-
-
-        {
-          !requireTwoFactor
-          &&
-          (
-
+        {!requireTwoFactor && (
           <>
-
-
-          <input
-
-            placeholder="Username"
-
-            autoComplete="off"
-
-            value={username}
-
-            onChange={(e)=>
-              setUsername(
-                e.target.value
-              )
-            }
-
-
-            className="
-              mb-5
-              w-full
-              rounded-xl
-              border
-              border-white/20
-              bg-black
-              px-5
-              py-4
-              text-white
-            "
-
-          />
-
-
-
-
-
-
-          <div className="relative mb-8">
-
-
             <input
-
-              type={
-                showPassword
-                ?
-                "text"
-                :
-                "password"
-              }
-
-
-              placeholder="Password"
-
-
-              autoComplete="current-password"
-
-
-              value={password}
-
-
-              onChange={(e)=>
-                setPassword(
-                  e.target.value
-                )
-              }
-
-
-              className="
-                w-full
-                rounded-xl
-                border
-                border-white/20
-                bg-black
-                px-5
-                py-4
-                pr-12
-                text-white
-              "
-
+              placeholder="Username"
+              autoComplete="off"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mb-5 w-full rounded-xl border border-white/20 bg-black px-5 py-4 text-white"
             />
 
-
-
-
-            <button
-
-              type="button"
-
-
-              aria-label={
-                showPassword
-                ?
-                "Hide password"
-                :
-                "Show password"
-              }
-
-
-              onMouseDown={
-                showPasswordTemporarily
-              }
-
-              onMouseUp={
-                hidePasswordTemporarily
-              }
-
-              onMouseLeave={
-                hidePasswordTemporarily
-              }
-
-              onTouchStart={
-                showPasswordTemporarily
-              }
-
-              onTouchEnd={
-                hidePasswordTemporarily
-              }
-
-
-              onKeyDown={
-                handlePasswordKeyDown
-              }
-
-
-              onKeyUp={
-                handlePasswordKeyUp
-              }
-
-
-              onBlur={
-                hidePasswordTemporarily
-              }
-
-
-              className="
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                text-xl
-                text-yellow-400/80
-              "
-
-            >
-
-              👁
-
-            </button>
-
-
-          </div>
-
-
-          </>
-
-          )
-        }
-
-
-
-
-
-
-
-        {
-          requireTwoFactor
-          &&
-          (
-
-            <div
-              className="
-                mb-8
-              "
-            >
-
-
-              <p
-                className="
-                  mb-4
-                  text-center
-                  text-yellow-400
-                  font-bold
-                "
-              >
-
-                Two-Factor Authentication
-
-              </p>
-
-
-
+            <div className="relative mb-8">
               <input
-
-
-                placeholder="
-                  Enter 6 digit code
-                "
-
-
-                maxLength={6}
-
-
-                value={
-                  twoFactorToken
-                }
-
-
-                onChange={(e)=>
-                  setTwoFactorToken(
-                    e.target.value
-                  )
-                }
-
-
-                className="
-                  w-full
-                  rounded-xl
-                  border
-                  border-white/20
-                  bg-black
-                  px-5
-                  py-4
-                  text-center
-                  tracking-[0.5em]
-                  text-white
-                "
-
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-white/20 bg-black px-5 py-4 pr-12 text-white"
               />
 
-
-
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onMouseDown={showPasswordTemporarily}
+                onMouseUp={hidePasswordTemporarily}
+                onMouseLeave={hidePasswordTemporarily}
+                onTouchStart={showPasswordTemporarily}
+                onTouchEnd={hidePasswordTemporarily}
+                onKeyDown={handlePasswordKeyDown}
+                onKeyUp={handlePasswordKeyUp}
+                onBlur={hidePasswordTemporarily}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-yellow-400/80"
+              >
+                👁
+              </button>
             </div>
+          </>
+        )}
 
-          )
-        }
+        {requireTwoFactor && (
+          <div className="mb-8">
+            <p className="mb-4 text-center text-yellow-400 font-bold">
+              Two-Factor Authentication
+            </p>
 
-
-
-
-
-
-
+            <input
+              placeholder="Enter 6 digit code"
+              maxLength={6}
+              value={twoFactorToken}
+              onChange={(e) => setTwoFactorToken(e.target.value)}
+              className="w-full rounded-xl border border-white/20 bg-black px-5 py-4 text-center tracking-[0.5em] text-white"
+            />
+          </div>
+        )}
 
         <button
-
           type="submit"
-
           disabled={loading}
-
-
-          className="
-            w-full
-            rounded-xl
-            bg-yellow-500
-            py-4
-            font-bold
-            text-black
-            hover:bg-yellow-400
-            disabled:opacity-50
-          "
-
+          className="w-full rounded-xl bg-yellow-500 py-4 font-bold text-black hover:bg-yellow-400 disabled:opacity-50"
         >
-
-
-          {
-            loading
-            ?
-            "LOGIN..."
-            :
-            requireTwoFactor
-            ?
-            "VERIFY"
-            :
-            "LOGIN"
-          }
-
-
+          {loading
+            ? "LOGIN..."
+            : requireTwoFactor
+              ? "VERIFY"
+              : "LOGIN"}
         </button>
-
-
-
-
-
       </form>
-
-
     </main>
-
   );
-
-
 }
