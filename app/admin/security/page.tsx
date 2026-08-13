@@ -71,6 +71,9 @@ interface IntegritySummary {
     expectedSize: number;
     actualSize: number | null;
   }>;
+  /** Serverless 环境跳过完整校验时使用 */
+  skipped?: boolean;
+  skipReason?: string;
 }
 
 interface IntegrityRepairResult {
@@ -684,7 +687,12 @@ export default function SecurityPage() {
 
       setIntegrity(result as IntegritySummary);
 
-      if (
+      if (result.skipped) {
+        setIntegrityMessage(
+          result.skipReason ||
+            "正式站（Serverless）不执行完整源文件校验，以本地 / CI 为准"
+        );
+      } else if (
         result.modified > 0 ||
         result.missing > 0 ||
         result.errors > 0
@@ -722,6 +730,13 @@ export default function SecurityPage() {
 
     if (!integrity) {
       await runIntegrityCheck();
+      return;
+    }
+
+    if (integrity.skipped) {
+      setIntegrityBaselineMessage(
+        "Trusted baseline cannot be updated in Serverless environment. Please update on local and deploy via Git."
+      );
       return;
     }
 
@@ -834,6 +849,13 @@ export default function SecurityPage() {
 
     if (!integrity) {
       await runIntegrityCheck();
+      return;
+    }
+
+    if (integrity.skipped) {
+      setIntegrityMessage(
+        "Repair is not available in Serverless environment."
+      );
       return;
     }
 
@@ -1239,10 +1261,12 @@ export default function SecurityPage() {
               <div className="flex items-center gap-3">
                 <span
                   className={`h-3 w-3 rounded-full ${
-                    integrity &&
-                    integrity.modified === 0 &&
-                    integrity.missing === 0 &&
-                    integrity.errors === 0
+                    integrity?.skipped
+                      ? "bg-blue-500"
+                      : integrity &&
+                        integrity.modified === 0 &&
+                        integrity.missing === 0 &&
+                        integrity.errors === 0
                       ? "bg-green-500"
                       : "animate-pulse bg-yellow-500"
                   }`}
@@ -1268,18 +1292,22 @@ export default function SecurityPage() {
 
             <div
               className={`rounded-xl border px-4 py-3 text-xs font-bold tracking-[0.15em] ${
-                integrity &&
-                integrity.modified === 0 &&
-                integrity.missing === 0 &&
-                integrity.errors === 0
+                integrity?.skipped
+                  ? "border-blue-500/20 bg-blue-500/5 text-blue-400"
+                  : integrity &&
+                    integrity.modified === 0 &&
+                    integrity.missing === 0 &&
+                    integrity.errors === 0
                   ? "border-green-500/20 bg-green-500/5 text-green-400"
                   : "border-yellow-500/20 bg-yellow-500/5 text-yellow-400"
               }`}
             >
-              {integrity &&
-              integrity.modified === 0 &&
-              integrity.missing === 0 &&
-              integrity.errors === 0
+              {integrity?.skipped
+                ? "INTEGRITY SKIPPED (SERVERLESS)"
+                : integrity &&
+                  integrity.modified === 0 &&
+                  integrity.missing === 0 &&
+                  integrity.errors === 0
                 ? "INTEGRITY HEALTHY"
                 : "INTEGRITY CHECK REQUIRED"}
             </div>
@@ -1335,10 +1363,12 @@ export default function SecurityPage() {
           {integrityMessage && (
             <div
               className={`mt-6 rounded-xl border p-4 ${
-                integrity &&
-                integrity.modified === 0 &&
-                integrity.missing === 0 &&
-                integrity.errors === 0
+                integrity?.skipped
+                  ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                  : integrity &&
+                    integrity.modified === 0 &&
+                    integrity.missing === 0 &&
+                    integrity.errors === 0
                   ? "border-green-500/30 bg-green-500/10 text-green-400"
                   : "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
               }`}
@@ -1348,6 +1378,7 @@ export default function SecurityPage() {
           )}
 
           {integrity &&
+            !integrity.skipped &&
             integrity.results.some(
               (item) =>
                 item.status === "MODIFIED" ||
@@ -1507,6 +1538,7 @@ export default function SecurityPage() {
                   integrityRepairLoading ||
                   integrityBaselineLoading ||
                   !integrity ||
+                  !!integrity.skipped ||
                   integrity.modified === 0 ||
                   integrity.missing > 0 ||
                   integrity.errors > 0
@@ -1526,6 +1558,7 @@ export default function SecurityPage() {
                   integrityRepairLoading ||
                   integrityBaselineLoading ||
                   !integrity ||
+                  !!integrity.skipped ||
                   integrity.modified +
                     integrity.missing +
                     integrity.errors ===

@@ -37,6 +37,9 @@ export interface IntegritySummary {
   missing: number;
   errors: number;
   results: IntegrityResult[];
+  /** 正式站 Serverless 环境会跳过完整校验 */
+  skipped?: boolean;
+  skipReason?: string;
 }
 
 export interface IntegrityBaselineUpdateResult {
@@ -58,6 +61,20 @@ const MANIFEST_BACKUP_ROOT = path.join(
   ".security",
   "manifest-backups"
 );
+
+// =====================================================
+// Environment Detection (Serverless / Vercel)
+// =====================================================
+
+function isServerlessEnvironment(): boolean {
+  return (
+    process.env.VERCEL === "1" ||
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NEXT_RUNTIME === "edge" ||
+    process.env.NODE_ENV === "production" &&
+      !!process.env.VERCEL_ENV
+  );
+}
 
 // =====================================================
 // Safe Project Path Resolver
@@ -159,6 +176,35 @@ export function loadIntegrityManifest(): IntegrityManifest {
 // =====================================================
 
 export function checkIntegrity(): IntegritySummary {
+  // ---------------------------------------------------
+  // Serverless / Vercel: skip full source file check
+  // ---------------------------------------------------
+  if (isServerlessEnvironment()) {
+    let total = 0;
+
+    try {
+      const manifest = loadManifest();
+      total = manifest.files.length;
+    } catch {
+      // manifest 读不到也不影响跳过逻辑
+    }
+
+    return {
+      total,
+      healthy: total,
+      modified: 0,
+      missing: 0,
+      errors: 0,
+      results: [],
+      skipped: true,
+      skipReason:
+        "正式站（Serverless）不执行完整源文件校验，以本地 / CI 为准",
+    };
+  }
+
+  // ---------------------------------------------------
+  // Local / CI: full check
+  // ---------------------------------------------------
   const manifest = loadManifest();
 
   const results: IntegrityResult[] = [];
@@ -170,10 +216,6 @@ export function checkIntegrity(): IntegritySummary {
           entry.path
         );
 
-      // -----------------------------------------------
-      // Missing
-      // -----------------------------------------------
-
       if (!fs.existsSync(filePath)) {
         results.push({
           status: "MISSING",
@@ -183,20 +225,10 @@ export function checkIntegrity(): IntegritySummary {
           expectedSize: entry.size,
           actualSize: null,
         });
-
         continue;
       }
 
-      // -----------------------------------------------
-      // Stat
-      // -----------------------------------------------
-
-      const stat =
-        fs.statSync(filePath);
-
-      // -----------------------------------------------
-      // Path is not a file
-      // -----------------------------------------------
+      const stat = fs.statSync(filePath);
 
       if (!stat.isFile()) {
         results.push({
@@ -207,13 +239,8 @@ export function checkIntegrity(): IntegritySummary {
           expectedSize: entry.size,
           actualSize: null,
         });
-
         continue;
       }
-
-      // -----------------------------------------------
-      // Calculate actual hash
-      // -----------------------------------------------
 
       const actualHash =
         calculateSha256(filePath);
@@ -247,31 +274,18 @@ export function checkIntegrity(): IntegritySummary {
 
   return {
     total: results.length,
-
-    healthy:
-      results.filter(
-        (item) =>
-          item.status === "HEALTHY"
-      ).length,
-
-    modified:
-      results.filter(
-        (item) =>
-          item.status === "MODIFIED"
-      ).length,
-
-    missing:
-      results.filter(
-        (item) =>
-          item.status === "MISSING"
-      ).length,
-
-    errors:
-      results.filter(
-        (item) =>
-          item.status === "ERROR"
-      ).length,
-
+    healthy: results.filter(
+      (item) => item.status === "HEALTHY"
+    ).length,
+    modified: results.filter(
+      (item) => item.status === "MODIFIED"
+    ).length,
+    missing: results.filter(
+      (item) => item.status === "MISSING"
+    ).length,
+    errors: results.filter(
+      (item) => item.status === "ERROR"
+    ).length,
     results,
   };
 }
@@ -291,21 +305,11 @@ function createManifestFromCurrentFiles(
             entry.path
           );
 
-        // ---------------------------------------------
-        // File must exist
-        // ---------------------------------------------
-
-        if (
-          !fs.existsSync(filePath)
-        ) {
+        if (!fs.existsSync(filePath)) {
           throw new Error(
             `Cannot update trusted baseline because file is missing: ${entry.path}`
           );
         }
-
-        // ---------------------------------------------
-        // File must be a regular file
-        // ---------------------------------------------
 
         const stat =
           fs.statSync(filePath);
@@ -316,16 +320,9 @@ function createManifestFromCurrentFiles(
           );
         }
 
-        // ---------------------------------------------
-        // Generate new SHA-256
-        // ---------------------------------------------
-
         return {
           path: entry.path,
-          hash:
-            calculateSha256(
-              filePath
-            ),
+          hash: calculateSha256(filePath),
           size: stat.size,
         };
       }
@@ -346,24 +343,18 @@ function createManifestFromCurrentFiles(
 
 export function updateIntegrityBaseline():
   IntegrityBaselineUpdateResult {
-  // ---------------------------------------------------
-  // Load existing trusted manifest
-  // ---------------------------------------------------
+  // 正式站禁止更新基准
+  if (isServerlessEnvironment()) {
+    throw new Error(
+      "Trusted baseline cannot be updated in Serverless / production environment. Please update baseline on local development environment and deploy via Git."
+    );
+  }
 
   const currentManifest =
     loadManifest();
 
-  // ---------------------------------------------------
-  // Inspect current project before changing baseline
-  // ---------------------------------------------------
-
   const currentIntegrity =
     checkIntegrity();
-
-  // ---------------------------------------------------
-  // Never update baseline if files are missing
-  // or unreadable.
-  // ---------------------------------------------------
 
   if (
     currentIntegrity.missing > 0 ||
@@ -374,31 +365,16 @@ export function updateIntegrityBaseline():
     );
   }
 
-  // ---------------------------------------------------
-  // Manifest must exist
-  // ---------------------------------------------------
-
-  if (
-    !fs.existsSync(
-      MANIFEST_PATH
-    )
-  ) {
+  if (!fs.existsSync(MANIFEST_PATH)) {
     throw new Error(
       "Integrity manifest not found."
     );
   }
 
-  // ---------------------------------------------------
-  // Create timestamped backup directory
-  // ---------------------------------------------------
-
   const timestamp =
     new Date()
       .toISOString()
-      .replace(
-        /[:.]/g,
-        "-"
-      );
+      .replace(/[:.]/g, "-");
 
   const backupDirectory =
     path.join(
@@ -406,16 +382,9 @@ export function updateIntegrityBaseline():
       timestamp
     );
 
-  fs.mkdirSync(
-    backupDirectory,
-    {
-      recursive: true,
-    }
-  );
-
-  // ---------------------------------------------------
-  // Backup current manifest
-  // ---------------------------------------------------
+  fs.mkdirSync(backupDirectory, {
+    recursive: true,
+  });
 
   const backupPath =
     path.join(
@@ -427,10 +396,6 @@ export function updateIntegrityBaseline():
     MANIFEST_PATH,
     backupPath
   );
-
-  // ---------------------------------------------------
-  // Generate and write new baseline
-  // ---------------------------------------------------
 
   try {
     const updatedManifest =
@@ -448,10 +413,6 @@ export function updateIntegrityBaseline():
       "utf8"
     );
 
-    // -------------------------------------------------
-    // Return update result
-    // -------------------------------------------------
-
     return {
       backupPath,
       generatedAt:
@@ -460,10 +421,6 @@ export function updateIntegrityBaseline():
         updatedManifest.files.length,
     };
   } catch (error) {
-    // -------------------------------------------------
-    // Roll back to previous manifest if anything fails
-    // -------------------------------------------------
-
     try {
       fs.copyFileSync(
         backupPath,
