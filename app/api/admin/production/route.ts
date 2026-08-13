@@ -27,63 +27,70 @@ export async function GET() {
       node: false,
     };
 
-    // Database
+    // Database — runtime connectivity
     try {
       await prisma.$queryRaw`SELECT 1`;
       checks.database = true;
-    } catch {}
+    } catch {
+      checks.database = false;
+    }
 
-    // Upload Folder
-    const uploadPath = path.join(
-      process.cwd(),
-      "public"
-    );
+    // Upload Folder — public assets root exists in the deployment bundle
+    const uploadPath = path.join(process.cwd(), "public");
+    checks.uploads = fs.existsSync(uploadPath);
 
-    checks.uploads =
-      fs.existsSync(uploadPath);
+    /*
+     * Backup readiness (production-correct for Vercel Serverless)
+     *
+     * Local `backup/` on disk is ephemeral on Vercel and is NOT a valid
+     * production readiness signal.
+     *
+     * What is production-relevant today:
+     * - BackupRecord / BackupScheduler live in PostgreSQL
+     * - Export API streams JSON download (no durable local FS required)
+     * - Save-to-disk remains available for non-serverless environments
+     *
+     * Pass when the DB-backed backup subsystem is reachable.
+     */
+    try {
+      await Promise.all([
+        prisma.backupRecord.findFirst(),
+        prisma.backupScheduler.findFirst(),
+      ]);
+      checks.backups = true;
+    } catch {
+      checks.backups = false;
+    }
 
-    // Backup Folder
-    const backupPath = path.join(
-      process.cwd(),
-      "backup"
-    );
-
-    checks.backups =
-      fs.existsSync(backupPath);
-
-    // Environment
+    /*
+     * Environment — align with lib/config/env.ts validateEnv()
+     *
+     * DIRECT_URL is declared in schema for migrations / direct connections.
+     * It is NOT required for production runtime readiness when DATABASE_URL
+     * already serves pooled queries successfully on Vercel.
+     */
     checks.environment =
       !!process.env.DATABASE_URL &&
-      !!process.env.DIRECT_URL;
+      !!process.env.SESSION_SECRET &&
+      !!process.env.ENCRYPTION_KEY;
 
-    // Prisma
+    // Prisma Client is available if this route module loaded
     checks.prisma = true;
 
-    // Node
+    // Node runtime
     checks.node = true;
 
-    const passed =
-      Object.values(checks).filter(Boolean).length;
-
-    const total =
-      Object.keys(checks).length;
-
-    const score = Math.round(
-      (passed / total) * 100
-    );
+    const passed = Object.values(checks).filter(Boolean).length;
+    const total = Object.keys(checks).length;
+    const score = Math.round((passed / total) * 100);
 
     return NextResponse.json({
       success: true,
-
       data: {
         checks,
-
         score,
-
         passed,
-
         total,
-
         ready:
           score === 100
             ? "Production Ready"
@@ -96,8 +103,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Failed to check production readiness.",
+        message: "Failed to check production readiness.",
       },
       {
         status: 500,
