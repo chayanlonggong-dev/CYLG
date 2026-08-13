@@ -9,6 +9,8 @@ import ModelGallery from "@/components/model/ModelGallery";
 import ModelVideos from "@/components/model/ModelVideos";
 import LocalizedModelInfo from "@/components/model/LocalizedModelInfo";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{
     id: string;

@@ -2,91 +2,44 @@ import { prisma } from "@/lib/prisma";
 
 import HomeClient from "./HomeClient";
 
+export const dynamic = "force-dynamic";
 
-
-export default async function Home(){
-
-
-  const settings =
-    await prisma.websiteSettings.findUnique({
-
-      where:{
-        id:1,
-      },
-
-    });
-
-
-
-
+export default async function Home() {
+  const settings = await prisma.websiteSettings.findUnique({
+    where: {
+      id: 1,
+    },
+  });
 
   const websiteSettings = {
+    siteName: settings?.siteName ?? "ChaYanLongGong",
 
-    siteName:
-      settings?.siteName ?? "ChaYanLongGong",
+    whatsapp: settings?.whatsapp ?? "",
 
+    telegram: settings?.telegram ?? "",
 
-    whatsapp:
-      settings?.whatsapp ?? "",
+    signal: settings?.signal ?? "",
 
+    line: settings?.line ?? "",
 
-    telegram:
-      settings?.telegram ?? "",
+    wechatQr: settings?.wechatQr ?? "",
 
+    email: settings?.email ?? "",
 
-    signal:
-      settings?.signal ?? "",
+    enableWhatsapp: settings?.enableWhatsApp ?? true,
 
+    enableTelegram: settings?.enableTelegram ?? true,
 
-    line:
-      settings?.line ?? "",
+    enableSignal: settings?.enableSignal ?? false,
 
+    enableLine: settings?.enableLine ?? false,
 
-    wechatQr:
-      settings?.wechatQr ?? "",
-
-
-    email:
-      settings?.email ?? "",
-
-
-
-    enableWhatsapp:
-      settings?.enableWhatsApp ?? true,
-
-
-    enableTelegram:
-      settings?.enableTelegram ?? true,
-
-
-    enableSignal:
-      settings?.enableSignal ?? false,
-
-
-    enableLine:
-      settings?.enableLine ?? false,
-
-
-    enableWechat:
-      settings?.enableWechat ?? false,
-
-
+    enableWechat: settings?.enableWechat ?? false,
   };
 
-
-
-
-
   return (
-
     <HomeClient
-
-      settings={
-        websiteSettings
-      }
-
+      settings={websiteSettings}
     />
-
   );
-
 }

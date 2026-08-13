@@ -30,6 +30,10 @@ import {
   apiSuccess,
 } from "@/lib/api/response";
 
+import {
+  revalidatePath,
+} from "next/cache";
+
 // =======================
 // GET SETTINGS
 // =======================
@@ -61,10 +65,10 @@ export async function GET() {
           enableLine: false,
           enableWechat: false,
           enableFeedbackEmail: true,
-      enableChineseTraditional: true,
-      enableChineseSimplified: true,
-      enableJapanese: true,
-      enableKorean: true,
+          enableChineseTraditional: true,
+          enableChineseSimplified: true,
+          enableJapanese: true,
+          enableKorean: true,
         },
       });
     }
@@ -152,6 +156,9 @@ export async function DELETE(
           : "Admin deleted website favicon.",
     });
 
+    revalidatePath("/");
+    revalidatePath("/models", "layout");
+
     return apiSuccess({ settings }, "Deleted successfully.", 200);
   } catch (error) {
     console.error(error);
@@ -197,20 +204,20 @@ export async function PUT(
         line: body.line ?? "",
         wechatQr: body.wechatQr ?? "",
         email: body.email ?? "",
-        enableWhatsApp: body.enableWhatsApp ?? true,
+        enableWhatsApp: body.enableWhatsApp ?? body.enableWhatsapp ?? true,
         enableTelegram: body.enableTelegram ?? true,
         enableSignal: body.enableSignal ?? false,
         enableLine: body.enableLine ?? false,
         enableWechat: body.enableWechat ?? false,
         enableFeedbackEmail: body.enableFeedbackEmail ?? true,
-    enableChineseTraditional:
-      body.enableChineseTraditional ?? true,
-    enableChineseSimplified:
-      body.enableChineseSimplified ?? true,
-    enableJapanese:
-      body.enableJapanese ?? true,
-    enableKorean:
-      body.enableKorean ?? true,
+        enableChineseTraditional:
+          body.enableChineseTraditional ?? true,
+        enableChineseSimplified:
+          body.enableChineseSimplified ?? true,
+        enableJapanese:
+          body.enableJapanese ?? true,
+        enableKorean:
+          body.enableKorean ?? true,
       },
       create: {
         id: 1,
@@ -223,20 +230,20 @@ export async function PUT(
         line: body.line ?? "",
         wechatQr: body.wechatQr ?? "",
         email: body.email ?? "",
-        enableWhatsApp: body.enableWhatsApp ?? true,
+        enableWhatsApp: body.enableWhatsApp ?? body.enableWhatsapp ?? true,
         enableTelegram: body.enableTelegram ?? true,
         enableSignal: body.enableSignal ?? false,
         enableLine: body.enableLine ?? false,
         enableWechat: body.enableWechat ?? false,
         enableFeedbackEmail: body.enableFeedbackEmail ?? true,
-    enableChineseTraditional:
-      body.enableChineseTraditional ?? true,
-    enableChineseSimplified:
-      body.enableChineseSimplified ?? true,
-    enableJapanese:
-      body.enableJapanese ?? true,
-    enableKorean:
-      body.enableKorean ?? true,
+        enableChineseTraditional:
+          body.enableChineseTraditional ?? true,
+        enableChineseSimplified:
+          body.enableChineseSimplified ?? true,
+        enableJapanese:
+          body.enableJapanese ?? true,
+        enableKorean:
+          body.enableKorean ?? true,
       },
     });
 
@@ -247,6 +254,9 @@ export async function PUT(
       userId: String(session.adminUserId),
       description: "Admin updated website settings.",
     });
+
+    revalidatePath("/");
+    revalidatePath("/models", "layout");
 
     return apiSuccess({ settings }, "Settings updated.", 200);
   } catch (error) {
