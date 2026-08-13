@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-11T04:38:17.461Z",
+  "generatedAt": "2026-08-13T15:48:06.763Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -10,8 +10,8 @@
     },
     {
       "path": "app/admin/ai-translation/page.tsx",
-      "hash": "78ef41f85e8472b4a215715ab07300d0af4d68b95891a0b568b69adf431c2224",
-      "size": 1119
+      "hash": "5082cd53bfcc439ae2c580baa58db01b66e8bcfaf8f759a92ff444097c3d10ab",
+      "size": 18980
     },
     {
       "path": "app/admin/analytics/page.tsx",
@@ -35,8 +35,8 @@
     },
     {
       "path": "app/admin/languages/page.tsx",
-      "hash": "5ab91bd0c88ba5020c4ae07a8036602d94c01e70ac8f59c93519119e50dcbc8d",
-      "size": 1219
+      "hash": "8b6733df194266f8ef5dc335725e2c9725541e89da54cb8232275e1e33fa6a1b",
+      "size": 11810
     },
     {
       "path": "app/admin/layout.tsx",
@@ -230,8 +230,8 @@
     },
     {
       "path": "app/api/admin/production/route.ts",
-      "hash": "921e496cdc434369d44364ecc4e1162bb29dd47823cec1cf8306499490651865",
-      "size": 1999
+      "hash": "8e3abcfb73cd2ba71ca9704e7706ae9b535299e8810efb4f3a967b2348559c06",
+      "size": 3009
     },
     {
       "path": "app/api/admin/security/events/route.ts",
@@ -295,8 +295,8 @@
     },
     {
       "path": "app/api/settings/route.ts",
-      "hash": "19cff3de4ae72112bbe1d573c9e182ec9dfa11acff3b82b1d89ef16333082171",
-      "size": 5795
+      "hash": "133f675a90e38f98802b38cda45450a7e1dd2a1a8815f0c3a481882ab39faee1",
+      "size": 6771
     },
     {
       "path": "app/api/upload/avatar/route.ts",
@@ -305,8 +305,8 @@
     },
     {
       "path": "app/api/upload/favicon/route.ts",
-      "hash": "0177129184d6d60608f33ab663791687076d2bec3adf21f6a6bd7448d06df4db",
-      "size": 1374
+      "hash": "6c14f3340b6374b1db0056646bf96c75cddadcbf6e12250cb5d2af30ab56aba8",
+      "size": 5470
     },
     {
       "path": "app/api/upload/gallery/route.ts",
@@ -320,8 +320,8 @@
     },
     {
       "path": "app/api/upload/wechat/route.ts",
-      "hash": "06a1e5bbdcb4438236f74d8df32bda66df41452a7fa968a9309ef0b51c3881d1",
-      "size": 1220
+      "hash": "73441f58f4d194908046e4e441bbf2b3db1158a38cff4066ecc6596c15504ee2",
+      "size": 4919
     },
     {
       "path": "app/collection/[level]/layout.tsx",
@@ -380,8 +380,8 @@
     },
     {
       "path": "app/models/[id]/page.tsx",
-      "hash": "2ceb136114759d6ac0629815c7e79ba57007cf749a148c957fbbd100c62ec2bc",
-      "size": 5332
+      "hash": "452bbadde0d3c08e4aa65b1e15b67e1dfa07e2678c6c3bedbcaf40c4e1738eec",
+      "size": 5371
     },
     {
       "path": "app/not-found.tsx",
@@ -390,13 +390,13 @@
     },
     {
       "path": "app/page.tsx",
-      "hash": "070edd3c5a4836aa1b3f52e23a82458a153f64b938b5b7d563ae91dcf8a22b93",
-      "size": 1002
+      "hash": "b1af271820a67008d4dc6e50293c2ea1d23907a98b1eb25586250986d440e78b",
+      "size": 912
     },
     {
       "path": "app/providers/LanguageProvider.tsx",
-      "hash": "fce6ced58c57b055c5c19d65dfab128243a0df95423d00a00bdd1886b79b8640",
-      "size": 1079
+      "hash": "9013d52fd3efd2b1675fe834202583f7a2057c053aed75a2d44444fe5ba33673",
+      "size": 3768
     },
     {
       "path": "app/robots.ts",
@@ -430,8 +430,8 @@
     },
     {
       "path": "components/Header.tsx",
-      "hash": "8c16349b698e7e6aab0365b1b2ec5c38fab63a67a355c72927222c4129f08608",
-      "size": 5979
+      "hash": "368a9f7f53077a368d1881978a2407ac50bb88282e7e36594769e94fb0912cc8",
+      "size": 6615
     },
     {
       "path": "components/Hero.tsx",
@@ -515,13 +515,13 @@
     },
     {
       "path": "components/admin/EditModelForm.tsx",
-      "hash": "8adce8eaef10315ced9f42a75220f0e1533b0388e376cc79cef37615f318a680",
-      "size": 7463
+      "hash": "ca76bab9ecc2e3ac8c1171130b3405af376f92cc6ae10962f1eebe05e3024b59",
+      "size": 8471
     },
     {
       "path": "components/admin/EditModelModal.tsx",
-      "hash": "559f67489b0d93d029867cac3ca253b3b7d56280ccdf1de5a3656b8297e1966a",
-      "size": 18682
+      "hash": "c9f4bfbed3f9e5cd52a9c24f5baf55b7d7693c7f26d82245276142a706e3ecfa",
+      "size": 14192
     },
     {
       "path": "components/admin/GalleryUpload.tsx",
@@ -540,8 +540,8 @@
     },
     {
       "path": "components/admin/ModelsList.tsx",
-      "hash": "f989a206be4a7d75156b1d1446748157e597c1d632eb7271a80e43bccd6fd15c",
-      "size": 38242
+      "hash": "063b92623b5aaafa5d6440ee08cd7e85ea065c3727075ce1eb554c0cb139136d",
+      "size": 33589
     },
     {
       "path": "components/admin/Notification.tsx",
