@@ -64,15 +64,19 @@ export async function GET() {
 
     /*
      * Environment — align with lib/config/env.ts validateEnv()
-     *
-     * DIRECT_URL is declared in schema for migrations / direct connections.
-     * It is NOT required for production runtime readiness when DATABASE_URL
-     * already serves pooled queries successfully on Vercel.
+     * Report which keys are missing so Production UI can be diagnosed.
      */
-    checks.environment =
-      !!process.env.DATABASE_URL &&
-      !!process.env.SESSION_SECRET &&
-      !!process.env.ENCRYPTION_KEY;
+    const requiredEnv = [
+      "DATABASE_URL",
+      "SESSION_SECRET",
+      "ENCRYPTION_KEY",
+    ] as const;
+
+    const missingEnv = requiredEnv.filter(
+      (key) => !process.env[key]?.trim()
+    );
+
+    checks.environment = missingEnv.length === 0;
 
     // Prisma Client is available if this route module loaded
     checks.prisma = true;
@@ -88,6 +92,7 @@ export async function GET() {
       success: true,
       data: {
         checks,
+        missingEnv,
         score,
         passed,
         total,
