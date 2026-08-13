@@ -26,7 +26,7 @@ import {
   sanitizeUploadFilename,
 } from "@/lib/upload";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -169,7 +169,7 @@ export async function POST(
 
       return NextResponse.json(
         createUploadErrorResponse(
-          "File size exceeds 2MB."
+          "File size exceeds 10MB."
         ),
         {
           status: 400,
