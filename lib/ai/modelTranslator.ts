@@ -12,12 +12,6 @@ export interface TranslationResult {
   text: string;
 }
 
-interface ValidationResult {
-  ok: boolean;
-  reason?: string;
-  soft?: boolean;
-}
-
 const LANGUAGE_CONFIG: Record<
   TranslationLanguage,
   { name: string }
@@ -28,330 +22,605 @@ const LANGUAGE_CONFIG: Record<
   ko: { name: "Korean" },
 };
 
-function extractNumbers(text: string): string[] {
-  return text.match(/\d[\d,]*(?:\.\d+)?/g) ?? [];
+/**
+ * 问 / 字段名：固定精准四语，不交给 AI
+ * key = 英文小写（normalize 后）
+ */
+const FIELD_LABELS: Record<
+  string,
+  Record<TranslationLanguage, string>
+> = {
+  // ===== 你的样本字段 =====
+  occupation: {
+    zhTW: "職業",
+    zhCN: "职业",
+    ja: "職業",
+    ko: "직업",
+  },
+  age: {
+    zhTW: "年齡",
+    zhCN: "年龄",
+    ja: "年齢",
+    ko: "나이",
+  },
+  height: {
+    zhTW: "身高",
+    zhCN: "身高",
+    ja: "身長",
+    ko: "키",
+  },
+  weight: {
+    zhTW: "體重",
+    zhCN: "体重",
+    ja: "体重",
+    ko: "몸무게",
+  },
+  "bra size": {
+    zhTW: "罩杯",
+    zhCN: "罩杯",
+    ja: "ブラサイズ",
+    ko: "브라 사이즈",
+  },
+  "does she accept sm": {
+    zhTW: "是否接受 SM",
+    zhCN: "是否接受 SM",
+    ja: "SMを受け入れるか",
+    ko: "SM 가능 여부",
+  },
+  "does she accept unprotected sex after a medical exam by the client": {
+    zhTW: "客戶體檢後是否接受無套",
+    zhCN: "客户体检后是否接受无套",
+    ja: "お客様指定の健診後にノープロテクションを受け入れるか",
+    ko: "고객 지정 검진 후 무보호 가능 여부",
+  },
+  "does she accept anal sex": {
+    zhTW: "是否接受肛交",
+    zhCN: "是否接受肛交",
+    ja: "アナルを受け入れるか",
+    ko: "애널 가능 여부",
+  },
+  "does she accept oral sex": {
+    zhTW: "是否接受口交",
+    zhCN: "是否接受口交",
+    ja: "オーラルを受け入れるか",
+    ko: "오럴 가능 여부",
+  },
+  "does she accept living together": {
+    zhTW: "是否接受同居",
+    zhCN: "是否接受同居",
+    ja: "同棲を受け入れるか",
+    ko: "동거 가능 여부",
+  },
+  "overnight stays": {
+    zhTW: "過夜",
+    zhCN: "过夜",
+    ja: "宿泊",
+    ko: "숙박",
+  },
+  "out-of-town meetings": {
+    zhTW: "外地見面",
+    zhCN: "外地见面",
+    ja: "地方での会合",
+    ko: "지방 만남",
+  },
+  "out of town meetings": {
+    zhTW: "外地見面",
+    zhCN: "外地见面",
+    ja: "地方での会合",
+    ko: "지방 만남",
+  },
+  "absolute no-gos": {
+    zhTW: "絕對禁止事項",
+    zhCN: "绝对禁止事项",
+    ja: "絶対不可事項",
+    ko: "절대 불가 사항",
+  },
+  "absolute no gos": {
+    zhTW: "絕對禁止事項",
+    zhCN: "绝对禁止事项",
+    ja: "絶対不可事項",
+    ko: "절대 불가 사항",
+  },
+  "requirements for a sugar daddy": {
+    zhTW: "對金主的要求",
+    zhCN: "对金主的要求",
+    ja: "スポンサーへの条件",
+    ko: "스폰서에 대한 요구사항",
+  },
+  "reason for seeking a sugar daddy": {
+    zhTW: "尋找金主的原因",
+    zhCN: "寻找金主的原因",
+    ja: "スポンサーを探す理由",
+    ko: "스폰서를 찾는 이유",
+  },
+  "expected daily rate": {
+    zhTW: "預期日薪",
+    zhCN: "预期日薪",
+    ja: "希望日当",
+    ko: "예상 일당",
+  },
+  "number of days available per month": {
+    zhTW: "每月可約天數",
+    zhCN: "每月可约天数",
+    ja: "月間対応可能日数",
+    ko: "월 가능 일수",
+  },
+  threesomes: {
+    zhTW: "3P",
+    zhCN: "3P",
+    ja: "3P",
+    ko: "3P",
+  },
+  threesome: {
+    zhTW: "3P",
+    zhCN: "3P",
+    ja: "3P",
+    ko: "3P",
+  },
+  foursomes: {
+    zhTW: "4P",
+    zhCN: "4P",
+    ja: "4P",
+    ko: "4P",
+  },
+  foursome: {
+    zhTW: "4P",
+    zhCN: "4P",
+    ja: "4P",
+    ko: "4P",
+  },
+  "countries willing to travel to": {
+    zhTW: "願意前往的國家",
+    zhCN: "愿意前往的国家",
+    ja: "渡航可能な国",
+    ko: "방문 가능 국가",
+  },
+
+  // ===== 旧模板兼容 =====
+  location: {
+    zhTW: "地點",
+    zhCN: "地点",
+    ja: "場所",
+    ko: "위치",
+  },
+  sm: {
+    zhTW: "SM",
+    zhCN: "SM",
+    ja: "SM",
+    ko: "SM",
+  },
+  "unprotected sex after medical checkup": {
+    zhTW: "體檢後無套",
+    zhCN: "体检后无套",
+    ja: "健診後のノープロテクション",
+    ko: "검진 후 무보호",
+  },
+  internal: {
+    zhTW: "內射",
+    zhCN: "内射",
+    ja: "中出し",
+    ko: "질내사정",
+  },
+  oral: {
+    zhTW: "口交",
+    zhCN: "口交",
+    ja: "オーラル",
+    ko: "오럴",
+  },
+  "living together": {
+    zhTW: "同居",
+    zhCN: "同居",
+    ja: "同棲",
+    ko: "동거",
+  },
+  "out-of-town visits": {
+    zhTW: "外地出差",
+    zhCN: "外地出差",
+    ja: "地方出張",
+    ko: "지방 출장",
+  },
+  "out of town visits": {
+    zhTW: "外地出差",
+    zhCN: "外地出差",
+    ja: "地方出張",
+    ko: "지방 출장",
+  },
+  "requirements for clients": {
+    zhTW: "對客人要求",
+    zhCN: "对客人要求",
+    ja: "お客様への条件",
+    ko: "고객 요구사항",
+  },
+  "reason for seeking a client": {
+    zhTW: "尋找客人原因",
+    zhCN: "寻找客人原因",
+    ja: "お客様を探す理由",
+    ko: "고객을 찾는 이유",
+  },
+};
+
+/** 答：Yes / No / None / 固定短句 */
+const VALUE_MAP: Record<
+  string,
+  Record<TranslationLanguage, string>
+> = {
+  yes: {
+    zhTW: "是",
+    zhCN: "是",
+    ja: "はい",
+    ko: "예",
+  },
+  no: {
+    zhTW: "否",
+    zhCN: "否",
+    ja: "いいえ",
+    ko: "아니오",
+  },
+  none: {
+    zhTW: "無",
+    zhCN: "无",
+    ja: "なし",
+    ko: "없음",
+  },
+  "need money": {
+    zhTW: "需要錢",
+    zhCN: "需要钱",
+    ja: "お金が必要",
+    ko: "돈이 필요함",
+  },
+  "must be booked in advance": {
+    zhTW: "必須提前預約",
+    zhCN: "必须提前预约",
+    ja: "要事前予約",
+    ko: "사전 예약 필수",
+  },
+  mild: {
+    zhTW: "輕度",
+    zhCN: "轻度",
+    ja: "軽度",
+    ko: "경도",
+  },
+  medium: {
+    zhTW: "中等",
+    zhCN: "中等",
+    ja: "中程度",
+    ko: "중등도",
+  },
+  moderate: {
+    zhTW: "中等",
+    zhCN: "中等",
+    ja: "中程度",
+    ko: "중등도",
+  },
+  strong: {
+    zhTW: "重度",
+    zhCN: "重度",
+    ja: "重度",
+    ko: "고강도",
+  },
+  hard: {
+    zhTW: "重度",
+    zhCN: "重度",
+    ja: "重度",
+    ko: "고강도",
+  },
+};
+
+const PLACE_MAP: Record<
+  string,
+  Record<TranslationLanguage, string>
+> = {
+  hangzhou: {
+    zhTW: "杭州",
+    zhCN: "杭州",
+    ja: "杭州",
+    ko: "항저우",
+  },
+  "south korea": {
+    zhTW: "韓國",
+    zhCN: "韩国",
+    ja: "韓国",
+    ko: "한국",
+  },
+  korea: {
+    zhTW: "韓國",
+    zhCN: "韩国",
+    ja: "韓国",
+    ko: "한국",
+  },
+  japan: {
+    zhTW: "日本",
+    zhCN: "日本",
+    ja: "日本",
+    ko: "일본",
+  },
+  singapore: {
+    zhTW: "新加坡",
+    zhCN: "新加坡",
+    ja: "シンガポール",
+    ko: "싱가포르",
+  },
+  malaysia: {
+    zhTW: "馬來西亞",
+    zhCN: "马来西亚",
+    ja: "マレーシア",
+    ko: "말레이시아",
+  },
+  "the united states": {
+    zhTW: "美國",
+    zhCN: "美国",
+    ja: "アメリカ",
+    ko: "미국",
+  },
+  "united states": {
+    zhTW: "美國",
+    zhCN: "美国",
+    ja: "アメリカ",
+    ko: "미국",
+  },
+  usa: {
+    zhTW: "美國",
+    zhCN: "美国",
+    ja: "アメリカ",
+    ko: "미국",
+  },
+  "the united kingdom": {
+    zhTW: "英國",
+    zhCN: "英国",
+    ja: "イギリス",
+    ko: "영국",
+  },
+  "united kingdom": {
+    zhTW: "英國",
+    zhCN: "英国",
+    ja: "イギリス",
+    ko: "영국",
+  },
+  uk: {
+    zhTW: "英國",
+    zhCN: "英国",
+    ja: "イギリス",
+    ko: "영국",
+  },
+  china: {
+    zhTW: "中國",
+    zhCN: "中国",
+    ja: "中国",
+    ko: "중국",
+  },
+};
+
+interface FieldLine {
+  raw: string;
+  key: string;
+  value: string;
+  hasColon: boolean;
 }
 
-function normalizeNumber(value: string): string {
-  return value.replace(/,/g, "");
+function normalizeKey(key: string): string {
+  return key
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[?？]/g, "");
 }
 
-function hasCjk(text: string): boolean {
-  return /[\u4E00-\u9FFF]/.test(text);
-}
-
-function hasKana(text: string): boolean {
-  return /[\u3040-\u30FF]/.test(text);
-}
-
-function hasHangul(text: string): boolean {
-  return /[\uAC00-\uD7AF]/.test(text);
-}
-
-function sourceMentionsUsd(text: string): boolean {
-  return /(?:\bUSD\b|\bUS\$|\$|dollars?\b)/i.test(text);
-}
-
-function countNonEmptyLines(text: string): number {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean).length;
-}
-
-function countColonLines(text: string): number {
-  return text
-    .split(/\r?\n/)
-    .filter((line) => line.includes(":")).length;
+function parseFieldLines(source: string): FieldLine[] {
+  return source.split(/\r?\n/).map((raw) => {
+    const idx = raw.indexOf(":");
+    if (idx === -1) {
+      return {
+        raw,
+        key: "",
+        value: raw,
+        hasColon: false,
+      };
+    }
+    return {
+      raw,
+      key: raw.slice(0, idx).trim(),
+      value: raw.slice(idx + 1).trim(),
+      hasColon: true,
+    };
+  });
 }
 
 function isStructuredSource(source: string): boolean {
-  const lines = source
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (lines.length < 3) {
-    return false;
-  }
-
-  const colonLines = lines.filter((line) =>
-    line.includes(":")
-  ).length;
-
+  const lines = parseFieldLines(source).filter((l) => l.raw.trim());
+  if (lines.length < 3) return false;
+  const colonLines = lines.filter((l) => l.hasColon).length;
   return colonLines / lines.length >= 0.5;
 }
 
-function validateLanguageHard(
-  language: TranslationLanguage,
-  text: string
-): ValidationResult {
-  if (!text.trim()) {
-    return {
-      ok: false,
-      reason: "Translation is empty.",
-    };
-  }
-
-  if (language === "zhTW" || language === "zhCN") {
-    if (!hasCjk(text)) {
-      return {
-        ok: false,
-        reason: "Chinese translation contains no Chinese characters.",
-      };
-    }
-    return { ok: true };
-  }
-
-  if (language === "ja") {
-    if (!hasKana(text) && !hasCjk(text)) {
-      return {
-        ok: false,
-        reason: "Japanese translation contains no Japanese characters.",
-      };
-    }
-    return { ok: true };
-  }
-
-  if (language === "ko") {
-    if (!hasHangul(text)) {
-      return {
-        ok: false,
-        reason: "Korean translation contains no Hangul.",
-      };
-    }
-    return { ok: true };
-  }
-
-  return { ok: true };
-}
-
-function validateSoft(
-  language: TranslationLanguage,
-  source: string,
-  translated: string
-): ValidationResult {
-  const sourceNumbers = [
-    ...new Set(extractNumbers(source).map(normalizeNumber)),
-  ];
-  const translatedNumbers = new Set(
-    extractNumbers(translated).map(normalizeNumber)
-  );
-
-  if (sourceNumbers.length > 0) {
-    const missing = sourceNumbers.filter(
-      (n) => !translatedNumbers.has(n)
-    );
-    if (missing.length > Math.ceil(sourceNumbers.length * 0.5)) {
-      return {
-        ok: false,
-        soft: true,
-        reason: `Many source numbers missing (e.g. ${missing.slice(0, 3).join(", ")}).`,
-      };
-    }
-  }
-
-  if (isStructuredSource(source)) {
-    const sourceLines = countNonEmptyLines(source);
-    const translatedLines = countNonEmptyLines(translated);
-
-    if (
-      sourceLines >= 8 &&
-      translatedLines > 0 &&
-      translatedLines < Math.max(3, Math.floor(sourceLines * 0.35))
-    ) {
-      return {
-        ok: false,
-        soft: true,
-        reason:
-          "Translation collapsed field list into a short paragraph.",
-      };
-    }
-
-    const sourceColon = countColonLines(source);
-    const translatedColon = countColonLines(translated);
-
-    if (
-      sourceColon >= 8 &&
-      translatedColon < Math.max(2, Math.floor(sourceColon * 0.3))
-    ) {
-      return {
-        ok: false,
-        soft: true,
-        reason: "Translation lost most Label: Value field lines.",
-      };
-    }
-  }
-
-  if (sourceMentionsUsd(source)) {
-    const t = translated;
-    const keepsUsd = /(?:\bUSD\b|\$|美元|美金|米ドル|ドル|달러)/i.test(
-      t
-    );
-
-    if (!keepsUsd) {
-      if (
-        (language === "zhTW" || language === "zhCN") &&
-        /元/.test(t) &&
-        !/(?:美元|美金)/.test(t)
-      ) {
-        return {
-          ok: false,
-          soft: true,
-          reason:
-            "USD appears converted to bare 元. Prefer 美元 / 美金 / USD.",
-        };
-      }
-      if (language === "ja" && /円/.test(t) && !/ドル/.test(t)) {
-        return {
-          ok: false,
-          soft: true,
-          reason:
-            "USD appears converted to 円. Prefer USD / ドル / 米ドル.",
-        };
-      }
-      if (language === "ko" && /원/.test(t) && !/달러/.test(t)) {
-        return {
-          ok: false,
-          soft: true,
-          reason:
-            "USD appears converted to 원. Prefer USD / 달러.",
-        };
-      }
-    }
-  }
-
-  return { ok: true };
-}
-
-function validateTranslation(
-  language: TranslationLanguage,
-  source: string,
-  translated: string,
-  isLastAttempt: boolean
-): ValidationResult {
-  const hard = validateLanguageHard(language, translated);
-  if (!hard.ok) {
-    return hard;
-  }
-
-  const soft = validateSoft(language, source, translated);
-  if (!soft.ok) {
-    if (isLastAttempt) {
-      return { ok: true };
-    }
-    return soft;
-  }
-
-  return { ok: true };
-}
-
-function buildPrompt(
-  language: TranslationLanguage,
-  source: string
+function translateLabel(
+  key: string,
+  language: TranslationLanguage
 ): string {
+  const mapped = FIELD_LABELS[normalizeKey(key)];
+  return mapped ? mapped[language] : key;
+}
+
+function translateCountryList(
+  value: string,
+  language: TranslationLanguage
+): string | null {
+  const parts = value
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) return null;
+
+  const translated: string[] = [];
+  for (const part of parts) {
+    const place = PLACE_MAP[part.toLowerCase()];
+    if (!place) return null;
+    translated.push(place[language]);
+  }
+
+  return translated.join(language === "ko" ? ", " : "、");
+}
+
+function translateValueDeterministic(
+  value: string,
+  language: TranslationLanguage
+): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  // 数字：22 / +300 / 1500
+  if (/^[+]?\d[\d,]*(?:\.\d+)?$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // 罩杯字母：C / G
+  if (/^[A-Za-z]$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  const lower = trimmed.toLowerCase();
+
+  if (VALUE_MAP[lower]) {
+    return VALUE_MAP[lower][language];
+  }
+
+  if (PLACE_MAP[lower]) {
+    return PLACE_MAP[lower][language];
+  }
+
+  // 1500 USD / $1500
+  const usdSuffix = trimmed.match(
+    /^([+]?\d[\d,]*(?:\.\d+)?)\s*(?:USD|US\$|\$|dollars?)$/i
+  );
+  if (usdSuffix) {
+    const amount = usdSuffix[1];
+    if (language === "zhTW" || language === "zhCN") {
+      return `${amount} 美元`;
+    }
+    return `${amount} USD`;
+  }
+
+  const usdPrefix = trimmed.match(
+    /^(?:USD|US\$|\$)\s*([+]?\d[\d,]*(?:\.\d+)?)$/i
+  );
+  if (usdPrefix) {
+    const amount = usdPrefix[1];
+    if (language === "zhTW" || language === "zhCN") {
+      return `${amount} 美元`;
+    }
+    return `${amount} USD`;
+  }
+
+  const countries = translateCountryList(trimmed, language);
+  if (countries !== null) {
+    return countries;
+  }
+
+  return null;
+}
+
+async function ollamaTranslateShort(
+  language: TranslationLanguage,
+  value: string
+): Promise<string> {
   const languageName = LANGUAGE_CONFIG[language].name;
 
-  const languageSpecific =
-    language === "zhTW"
-      ? `
-Target language: Traditional Chinese (繁體中文) ONLY.
-- Every label and every value must be written in Traditional Chinese.
-- Do NOT leave English words mixed in (except unavoidable proper nouns, codes, or USD).
-- Do NOT output Simplified Chinese characters when Traditional exists.
-- For US dollars: write "美元" or "美金" or keep "USD". Never write only "元".
-`
-      : language === "zhCN"
-        ? `
-Target language: Simplified Chinese (简体中文) ONLY.
-- Every label and every value must be written in Simplified Chinese.
-- Do NOT leave English words mixed in (except unavoidable proper nouns, codes, or USD).
-- For US dollars: write "美元" or "美金" or keep "USD". Never write only "元".
-`
-        : language === "ja"
-          ? `
-Target language: Japanese ONLY.
-- Use natural Japanese (漢字 / ひらがな / カタカナ).
-- Do NOT leave ordinary English sentences untranslated.
-- Do NOT write a narrative paragraph if the source is a field list.
-- One source line → one Japanese line, same order.
-- For US dollars: write "USD" or "米ドル" or "ドル". Never convert to "円".
-`
-          : `
-Target language: Korean (Hangul) ONLY.
-- Write in Hangul.
-- Do NOT leave ordinary English sentences untranslated.
-- Do NOT write a narrative paragraph if the source is a field list.
-- One source line → one Korean line, same order.
-- For US dollars: write "USD" or "달러". Never convert to "원".
-`;
+  const response = await fetch(OLLAMA_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      stream: false,
+      options: {
+        temperature: 0.1,
+        top_p: 0.9,
+      },
+      messages: [
+        {
+          role: "system",
+          content: `Translate short answer phrases into ${languageName} only. Return only the translation. No quotes. No explanation. Keep numbers unchanged. If money/USD, keep US dollar meaning (美元/美金/USD), never bare 元/円/원.`,
+        },
+        {
+          role: "user",
+          content: `Translate into ${languageName}:\n${value}`,
+        },
+      ],
+    }),
+  });
 
-  const structureBlock = isStructuredSource(source)
-    ? `
-STRUCTURE (REQUIRED):
-The source is a "Label: Value" field list.
-- Keep the SAME number of lines and the SAME order.
-- Keep the colon ":" on each field line.
-- Translate BOTH the label and the value.
-- If a value is empty (e.g. "Foursome:"), keep the label and colon with an empty value.
-- Do NOT merge fields into a paragraph.
-- Do NOT add or remove fields.
-`
-    : `
-STRUCTURE:
-- Preserve line breaks and overall layout when present.
-- Do not add commentary.
-`;
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Ollama HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`
+    );
+  }
 
-  const currencyBlock = sourceMentionsUsd(source)
-    ? `
-CURRENCY:
-This source uses US dollars (USD / $ / dollar).
-Preserve US-dollar meaning. Do not convert to local yuan/yen/won.
-`
-    : "";
+  const data = await response.json();
+  const text = data?.message?.content;
 
-  return `
-You are a professional native translator specializing in ${languageName}.
+  if (typeof text !== "string" || !text.trim()) {
+    throw new Error(
+      `Ollama returned an empty value translation for ${language}.`
+    );
+  }
 
-Translate the SOURCE into ${languageName}.
-
-${languageSpecific}
-
-${structureBlock}
-
-${currencyBlock}
-
-ACCURACY RULES:
-1. Keep the exact factual meaning. Do not invent, omit, or change facts.
-2. Keep every number exactly as written (23, 173, +300, 1500, etc.).
-3. Do not convert currencies or change units.
-4. Translate field labels and values fully into the target language.
-5. Do not mix the target language with English prose.
-6. Return ONLY the translation text. No markdown. No explanations. No title.
-
-SOURCE:
-${source}
-`.trim();
+  return text
+    .trim()
+    .replace(/^["'「『]|["'」』]$/g, "")
+    .trim();
 }
 
-function cleanModelOutput(text: string): string {
-  let result = text.trim();
-
-  result = result.replace(/^```[a-zA-Z]*\s*/m, "").replace(/```$/m, "");
-
-  result = result.replace(
-    /^(?:translation|translated\s*text|output|結果|翻译|翻譯|日本語|한국어)\s*[:：]\s*/i,
-    ""
-  );
-
-  return result.trim();
+async function translateValue(
+  value: string,
+  language: TranslationLanguage
+): Promise<string> {
+  const deterministic = translateValueDeterministic(value, language);
+  if (deterministic !== null) {
+    return deterministic;
+  }
+  // 仅职业等少数自由文本才走 AI
+  return ollamaTranslateShort(language, value);
 }
 
-async function requestTranslation(
+async function translateStructured(
   language: TranslationLanguage,
   source: string
 ): Promise<string> {
+  const lines = parseFieldLines(source);
+  const output: string[] = [];
+
+  for (const line of lines) {
+    if (!line.raw.trim()) {
+      output.push("");
+      continue;
+    }
+
+    if (!line.hasColon) {
+      output.push(await translateValue(line.value, language));
+      continue;
+    }
+
+    const label = translateLabel(line.key, language);
+    const translatedValue = await translateValue(line.value, language);
+
+    if (translatedValue === "") {
+      output.push(`${label}:`);
+    } else {
+      output.push(`${label}: ${translatedValue}`);
+    }
+  }
+
+  return output.join("\n");
+}
+
+async function translateFreeText(
+  language: TranslationLanguage,
+  source: string
+): Promise<string> {
+  const languageName = LANGUAGE_CONFIG[language].name;
+
   const response = await fetch(OLLAMA_URL, {
     method: "POST",
     headers: {
@@ -367,16 +636,11 @@ async function requestTranslation(
       messages: [
         {
           role: "system",
-          content: `You are a careful professional translator into ${LANGUAGE_CONFIG[language].name}.
-Return only the translation.
-Preserve field-list structure (one Label: Value per line) when the source is structured.
-Never convert currencies. USD/dollar must stay USD meaning (美元/美金/USD/ドル/달러), never bare 元/円/원.
-Do not mix English into Chinese/Japanese/Korean output except for USD, codes, or proper nouns.
-Keep numbers unchanged.`,
+          content: `You are a professional translator into ${languageName}. Return only the translation. Keep numbers and USD meaning unchanged.`,
         },
         {
           role: "user",
-          content: buildPrompt(language, source),
+          content: `Translate into ${languageName}:\n\n${source}`,
         },
       ],
     }),
@@ -398,13 +662,12 @@ Keep numbers unchanged.`,
     );
   }
 
-  return cleanModelOutput(text);
+  return text.trim();
 }
 
 export async function translateIntroduction(
   language: TranslationLanguage,
-  source: string,
-  maxAttempts = 3
+  source: string
 ): Promise<TranslationResult> {
   const cleanSource = source.trim();
 
@@ -412,43 +675,20 @@ export async function translateIntroduction(
     throw new Error("Cannot translate an empty introduction.");
   }
 
-  let lastValidationError = "Unknown validation error.";
-  let lastText = "";
+  const text = isStructuredSource(cleanSource)
+    ? await translateStructured(language, cleanSource)
+    : await translateFreeText(language, cleanSource);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const isLastAttempt = attempt === maxAttempts;
-    const text = await requestTranslation(language, cleanSource);
-    lastText = text;
-
-    const validation = validateTranslation(
-      language,
-      cleanSource,
-      text,
-      isLastAttempt
+  if (!text.trim()) {
+    throw new Error(
+      `Translation result was empty for ${language}.`
     );
-
-    if (validation.ok) {
-      return {
-        language,
-        text,
-      };
-    }
-
-    lastValidationError =
-      validation.reason ?? "Translation validation failed.";
   }
 
-  const hard = validateLanguageHard(language, lastText);
-  if (hard.ok && lastText.trim()) {
-    return {
-      language,
-      text: lastText,
-    };
-  }
-
-  throw new Error(
-    `Translation validation failed for ${language} after ${maxAttempts} attempts: ${lastValidationError}`
-  );
+  return {
+    language,
+    text,
+  };
 }
 
 export async function translateIntroductionBatch(
@@ -468,17 +708,11 @@ export async function translateIntroductionBatch(
 
   for (const language of languages) {
     try {
-      const result = await translateIntroduction(
-        language,
-        source
-      );
-
+      const result = await translateIntroduction(language, source);
       translations[language] = result.text;
     } catch (error) {
       errors[language] =
-        error instanceof Error
-          ? error.message
-          : String(error);
+        error instanceof Error ? error.message : String(error);
     }
   }
 
