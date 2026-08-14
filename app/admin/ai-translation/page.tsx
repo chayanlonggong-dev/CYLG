@@ -141,7 +141,8 @@ export default function AITranslationPage() {
     useState(0);
 
   async function translateModel(
-    model: Model
+    model: Model,
+    force: boolean
   ): Promise<"completed" | "skipped" | "failed"> {
     const source = getSource(model);
 
@@ -158,10 +159,11 @@ export default function AITranslationPage() {
       return "skipped";
     }
 
-    const missingLanguages =
-      getMissingLanguages(model);
+    const languagesToTranslate = force
+      ? [...LANGUAGES]
+      : getMissingLanguages(model);
 
-    if (missingLanguages.length === 0) {
+    if (languagesToTranslate.length === 0) {
       updateProgressItem(
         setProgress,
         model.id,
@@ -179,7 +181,9 @@ export default function AITranslationPage() {
       model.id,
       {
         status: "translating",
-        message: `Translating ${missingLanguages.length} language(s)...`,
+        message: force
+          ? `Force re-translating ${languagesToTranslate.length} language(s)...`
+          : `Translating ${languagesToTranslate.length} language(s)...`,
       }
     );
 
@@ -195,7 +199,7 @@ export default function AITranslationPage() {
             },
             body: JSON.stringify({
               source,
-              languages: missingLanguages,
+              languages: languagesToTranslate,
             }),
           }
         );
@@ -227,7 +231,7 @@ export default function AITranslationPage() {
       const savedLanguages: string[] = [];
       const failedLanguages: string[] = [];
 
-      if (missingLanguages.includes("zhTW")) {
+      if (languagesToTranslate.includes("zhTW")) {
         if (translations.zhTW?.trim()) {
           updateBody.introductionZhTW =
             translations.zhTW.trim();
@@ -237,7 +241,7 @@ export default function AITranslationPage() {
         }
       }
 
-      if (missingLanguages.includes("zhCN")) {
+      if (languagesToTranslate.includes("zhCN")) {
         if (translations.zhCN?.trim()) {
           updateBody.introductionZhCN =
             translations.zhCN.trim();
@@ -247,7 +251,7 @@ export default function AITranslationPage() {
         }
       }
 
-      if (missingLanguages.includes("ja")) {
+      if (languagesToTranslate.includes("ja")) {
         if (translations.ja?.trim()) {
           updateBody.introductionJa =
             translations.ja.trim();
@@ -257,7 +261,7 @@ export default function AITranslationPage() {
         }
       }
 
-      if (missingLanguages.includes("ko")) {
+      if (languagesToTranslate.includes("ko")) {
         if (translations.ko?.trim()) {
           updateBody.introductionKo =
             translations.ko.trim();
@@ -302,7 +306,9 @@ export default function AITranslationPage() {
         model.id,
         {
           status: "completed",
-          message: `Translated ${missingLanguages.length} language(s).`,
+          message: force
+            ? `Force re-translated ${savedLanguages.join(", ")}.`
+            : `Translated ${savedLanguages.join(", ")}.`,
         }
       );
 
@@ -326,9 +332,24 @@ export default function AITranslationPage() {
     }
   }
 
-  async function handleTranslateAll() {
+  async function handleTranslateAll(
+    force: boolean
+  ) {
     if (isTranslating) {
       return;
+    }
+
+    if (force) {
+      const confirmed = window.confirm(
+        "Force re-translate ALL models?\n\n" +
+          "This will OVERWRITE existing Traditional Chinese, Simplified Chinese, Japanese, and Korean introductions using the English source.\n\n" +
+          "Make sure Ollama is running locally.\n\n" +
+          "Continue?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
     }
 
     setIsTranslating(true);
@@ -385,7 +406,10 @@ export default function AITranslationPage() {
             };
           }
 
-          if (getMissingLanguages(model).length === 0) {
+          if (
+            !force &&
+            getMissingLanguages(model).length === 0
+          ) {
             return {
               id: model.id,
               code: model.code,
@@ -405,11 +429,17 @@ export default function AITranslationPage() {
       setTotal(models.length);
 
       const queue =
-        models.filter(
-          (model) =>
-            getSource(model) &&
-            getMissingLanguages(model).length > 0
-        );
+        models.filter((model) => {
+          if (!getSource(model)) {
+            return false;
+          }
+
+          if (force) {
+            return true;
+          }
+
+          return getMissingLanguages(model).length > 0;
+        });
 
       const batches = Math.ceil(
         queue.length / CONCURRENCY
@@ -442,7 +472,7 @@ export default function AITranslationPage() {
 
         await Promise.all(
           batch.map((model) =>
-            translateModel(model)
+            translateModel(model, force)
           )
         );
 
@@ -457,8 +487,12 @@ export default function AITranslationPage() {
 
       setMessage(
         queue.length === 0
-          ? `All ${models.length} models already have complete translations. No Qwen requests were needed.`
-          : `Translation completed. ${queue.length} model(s) processed with ${batches} batch(es). ${skippedCount} model(s) skipped.`
+          ? force
+            ? `No models with English introduction found among ${models.length} models.`
+            : `All ${models.length} models already have complete translations. No Qwen requests were needed.`
+          : force
+            ? `Force re-translation completed. ${queue.length} model(s) processed with ${batches} batch(es). ${skippedCount} model(s) skipped (no English).`
+            : `Translation completed. ${queue.length} model(s) processed with ${batches} batch(es). ${skippedCount} model(s) skipped.`
       );
     } catch (requestError) {
       const requestMessage =
@@ -532,7 +566,8 @@ export default function AITranslationPage() {
           Automatically translate only models that are
           missing one or more language versions. Each
           model uses one Batch Qwen request for all
-          required languages.
+          required languages. Use Force Re-translate to
+          overwrite all existing translations.
         </p>
 
         <div className="mt-10 rounded-3xl border border-yellow-500/20 bg-[#101010] p-6 sm:p-10">
@@ -551,35 +586,65 @@ export default function AITranslationPage() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleTranslateAll}
-              disabled={isTranslating}
-              className="
-                rounded-full
-                bg-yellow-500
-                px-8
-                py-4
-                font-bold
-                text-black
-                transition
-                hover:bg-yellow-400
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-              "
-            >
-              {isTranslating
-                ? "TRANSLATING..."
-                : "TRANSLATE MISSING MODELS"}
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => handleTranslateAll(false)}
+                disabled={isTranslating}
+                className="
+                  rounded-full
+                  border
+                  border-yellow-500
+                  px-8
+                  py-4
+                  font-bold
+                  text-yellow-500
+                  transition
+                  hover:bg-yellow-500/10
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+                {isTranslating
+                  ? "TRANSLATING..."
+                  : "TRANSLATE MISSING MODELS"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTranslateAll(true)}
+                disabled={isTranslating}
+                className="
+                  rounded-full
+                  bg-yellow-500
+                  px-8
+                  py-4
+                  font-bold
+                  text-black
+                  transition
+                  hover:bg-yellow-400
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+                {isTranslating
+                  ? "TRANSLATING..."
+                  : "FORCE RE-TRANSLATE ALL"}
+              </button>
+            </div>
           </div>
 
           <div className="mt-8 rounded-2xl border border-white/5 bg-black/30 p-5">
             <p className="text-sm leading-7 text-gray-400">
-              Existing complete translations are skipped
-              automatically. New models or models missing
-              translations are sent to Qwen only for the
-              missing languages.
+              <span className="text-yellow-400">TRANSLATE MISSING MODELS</span>
+              {" "}— existing complete translations are skipped.
+              Only missing languages are requested.
+            </p>
+
+            <p className="mt-2 text-sm leading-7 text-gray-400">
+              <span className="text-yellow-400">FORCE RE-TRANSLATE ALL</span>
+              {" "}— overwrite 繁中 / 简中 / 日本語 / 한국어 for every
+              model that has an English introduction. Local Ollama required.
             </p>
 
             <p className="mt-2 text-sm text-gray-500">
@@ -711,10 +776,10 @@ export default function AITranslationPage() {
                         "Waiting"}
 
                       {item.status === "translating" &&
-                        "Translating..."}
+                        (item.message || "Translating...")}
 
                       {item.status === "completed" &&
-                        "✓ Completed"}
+                        `✓ ${item.message || "Completed"}`}
 
                       {item.status === "skipped" &&
                         `Skipped · ${
