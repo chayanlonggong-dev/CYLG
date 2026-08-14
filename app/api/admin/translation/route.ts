@@ -64,14 +64,14 @@ export async function POST(
   request: NextRequest
 ) {
   try {
-    await requireAdminSession();
+    const session = await requireAdminSession();
 
     const ip = getClientIp(request);
 
     const limit = rateLimit(
-      `admin-translation:${ip}`,
+      `admin-translation:${session.adminUserId}`,
       {
-        limit: 20,
+        limit: 500,
         windowMs: 60 * 60 * 1000,
       }
     );
