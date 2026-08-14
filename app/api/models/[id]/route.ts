@@ -106,7 +106,7 @@ export async function PUT(
       rateLimit(
         `model-update:${session.adminUserId}`,
         {
-          limit: 30,
+          limit: 500,
           windowMs:
             60 * 60 * 1000,
         }
