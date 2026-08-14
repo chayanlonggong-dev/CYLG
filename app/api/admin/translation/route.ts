@@ -131,13 +131,6 @@ export async function POST(
       );
     }
 
-    /*
-     * If languages are supplied, translate only
-     * those languages.
-     *
-     * This allows the frontend to skip languages
-     * that already have translations.
-     */
     let languages: TranslationLanguage[] =
       SUPPORTED_LANGUAGES;
 
@@ -165,21 +158,6 @@ export async function POST(
       ];
     }
 
-    /*
-     * IMPORTANT:
-     *
-     * One batch request to Qwen can return
-     * multiple target languages.
-     *
-     * This replaces the old:
-     *
-     * language -> Qwen
-     * language -> Qwen
-     * language -> Qwen
-     * language -> Qwen
-     *
-     * flow.
-     */
     const result =
       await translateIntroductionBatch(
         languages,
@@ -196,8 +174,15 @@ export async function POST(
       Object.keys(translations)
         .length === 0
     ) {
-      return apiServerError(
-        "All requested translation languages failed.",
+      const errorSummary = Object.entries(errors)
+        .map(([lang, message]) => `${lang}: ${message}`)
+        .join(" | ");
+
+      return apiError(
+        errorSummary
+          ? `All requested translation languages failed. ${errorSummary}`
+          : "All requested translation languages failed. Check that Ollama is running[](http://127.0.0.1:11434) and model qwen2.5:3b is available.",
+        500,
         "TRANSLATION_FAILED"
       );
     }
@@ -210,7 +195,7 @@ export async function POST(
         requestedLanguages:
           languages,
         model:
-          "qwen3:4b-instruct",
+          "qwen2.5:3b",
         mode:
           "batch",
       },

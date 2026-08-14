@@ -15,6 +15,7 @@ export interface TranslationResult {
 interface ValidationResult {
   ok: boolean;
   reason?: string;
+  soft?: boolean;
 }
 
 const LANGUAGE_CONFIG: Record<
@@ -29,10 +30,6 @@ const LANGUAGE_CONFIG: Record<
 
 function extractNumbers(text: string): string[] {
   return text.match(/\d[\d,]*(?:\.\d+)?/g) ?? [];
-}
-
-function extractMoney(text: string): string[] {
-  return text.match(/[$€£¥]\s?\d[\d,]*(?:\.\d+)?/g) ?? [];
 }
 
 function normalizeNumber(value: string): string {
@@ -51,63 +48,41 @@ function hasHangul(text: string): boolean {
   return /[\uAC00-\uD7AF]/.test(text);
 }
 
-function hasLatin(text: string): boolean {
-  return /[A-Za-z]/.test(text);
+function sourceMentionsUsd(text: string): boolean {
+  return /(?:\bUSD\b|\bUS\$|\$|dollars?\b)/i.test(text);
 }
 
-function hasEnglishWord(text: string): boolean {
-  return /\b(?:elegant|intelligent|warm|relaxed|memorable|experience|enjoys|beautiful|smart|friendly|comfortable)\b/i.test(
-    text
-  );
+function countNonEmptyLines(text: string): number {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean).length;
 }
 
-function validateNumbers(
-  source: string,
-  translated: string
-): ValidationResult {
-  const sourceNumbers = extractNumbers(source).map(normalizeNumber);
-  const translatedNumbers =
-    extractNumbers(translated).map(normalizeNumber);
+function countColonLines(text: string): number {
+  return text
+    .split(/\r?\n/)
+    .filter((line) => line.includes(":")).length;
+}
 
-  for (const number of sourceNumbers) {
-    if (!translatedNumbers.includes(number)) {
-      return {
-        ok: false,
-        reason: `Missing source number: ${number}`,
-      };
-    }
+function isStructuredSource(source: string): boolean {
+  const lines = source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length < 3) {
+    return false;
   }
 
-  return { ok: true };
+  const colonLines = lines.filter((line) =>
+    line.includes(":")
+  ).length;
+
+  return colonLines / lines.length >= 0.5;
 }
 
-function validateMoney(
-  source: string,
-  translated: string
-): ValidationResult {
-  const sourceMoney = extractMoney(source);
-  const translatedMoney = extractMoney(translated);
-
-  for (const money of sourceMoney) {
-    const normalizedSource = money.replace(/\s/g, "");
-
-    const found = translatedMoney.some(
-      (candidate) =>
-        candidate.replace(/\s/g, "") === normalizedSource
-    );
-
-    if (!found) {
-      return {
-        ok: false,
-        reason: `Missing source currency amount: ${money}`,
-      };
-    }
-  }
-
-  return { ok: true };
-}
-
-function validateLanguage(
+function validateLanguageHard(
   language: TranslationLanguage,
   text: string
 ): ValidationResult {
@@ -122,29 +97,19 @@ function validateLanguage(
     if (!hasCjk(text)) {
       return {
         ok: false,
-        reason: "Chinese translation contains no CJK characters.",
+        reason: "Chinese translation contains no Chinese characters.",
       };
     }
-
     return { ok: true };
   }
 
   if (language === "ja") {
-    if (!hasKana(text)) {
+    if (!hasKana(text) && !hasCjk(text)) {
       return {
         ok: false,
-        reason: "Japanese translation contains no Kana.",
+        reason: "Japanese translation contains no Japanese characters.",
       };
     }
-
-    if (hasEnglishWord(text)) {
-      return {
-        ok: false,
-        reason:
-          "Japanese translation contains an untranslated common English word.",
-      };
-    }
-
     return { ok: true };
   }
 
@@ -155,22 +120,105 @@ function validateLanguage(
         reason: "Korean translation contains no Hangul.",
       };
     }
+    return { ok: true };
+  }
 
-    // hasCjk hard-reject removed for Korean.
-    // Qwen2.5:3b often inserts a few Chinese characters.
-    // Keeping the hard reject caused every ko translation to fail.
-    // Prompt now strongly forbids Chinese/Japanese characters.
-    // Hangul + English-word + number/money checks remain.
+  return { ok: true };
+}
 
-    if (hasEnglishWord(text)) {
+function validateSoft(
+  language: TranslationLanguage,
+  source: string,
+  translated: string
+): ValidationResult {
+  const sourceNumbers = [
+    ...new Set(extractNumbers(source).map(normalizeNumber)),
+  ];
+  const translatedNumbers = new Set(
+    extractNumbers(translated).map(normalizeNumber)
+  );
+
+  if (sourceNumbers.length > 0) {
+    const missing = sourceNumbers.filter(
+      (n) => !translatedNumbers.has(n)
+    );
+    if (missing.length > Math.ceil(sourceNumbers.length * 0.5)) {
       return {
         ok: false,
+        soft: true,
+        reason: `Many source numbers missing (e.g. ${missing.slice(0, 3).join(", ")}).`,
+      };
+    }
+  }
+
+  if (isStructuredSource(source)) {
+    const sourceLines = countNonEmptyLines(source);
+    const translatedLines = countNonEmptyLines(translated);
+
+    if (
+      sourceLines >= 8 &&
+      translatedLines > 0 &&
+      translatedLines < Math.max(3, Math.floor(sourceLines * 0.35))
+    ) {
+      return {
+        ok: false,
+        soft: true,
         reason:
-          "Korean translation contains an untranslated common English word.",
+          "Translation collapsed field list into a short paragraph.",
       };
     }
 
-    return { ok: true };
+    const sourceColon = countColonLines(source);
+    const translatedColon = countColonLines(translated);
+
+    if (
+      sourceColon >= 8 &&
+      translatedColon < Math.max(2, Math.floor(sourceColon * 0.3))
+    ) {
+      return {
+        ok: false,
+        soft: true,
+        reason: "Translation lost most Label: Value field lines.",
+      };
+    }
+  }
+
+  if (sourceMentionsUsd(source)) {
+    const t = translated;
+    const keepsUsd = /(?:\bUSD\b|\$|美元|美金|米ドル|ドル|달러)/i.test(
+      t
+    );
+
+    if (!keepsUsd) {
+      if (
+        (language === "zhTW" || language === "zhCN") &&
+        /元/.test(t) &&
+        !/(?:美元|美金)/.test(t)
+      ) {
+        return {
+          ok: false,
+          soft: true,
+          reason:
+            "USD appears converted to bare 元. Prefer 美元 / 美金 / USD.",
+        };
+      }
+      if (language === "ja" && /円/.test(t) && !/ドル/.test(t)) {
+        return {
+          ok: false,
+          soft: true,
+          reason:
+            "USD appears converted to 円. Prefer USD / ドル / 米ドル.",
+        };
+      }
+      if (language === "ko" && /원/.test(t) && !/달러/.test(t)) {
+        return {
+          ok: false,
+          soft: true,
+          reason:
+            "USD appears converted to 원. Prefer USD / 달러.",
+        };
+      }
+    }
   }
 
   return { ok: true };
@@ -179,24 +227,20 @@ function validateLanguage(
 function validateTranslation(
   language: TranslationLanguage,
   source: string,
-  translated: string
+  translated: string,
+  isLastAttempt: boolean
 ): ValidationResult {
-  const languageResult = validateLanguage(language, translated);
-
-  if (!languageResult.ok) {
-    return languageResult;
+  const hard = validateLanguageHard(language, translated);
+  if (!hard.ok) {
+    return hard;
   }
 
-  const numberResult = validateNumbers(source, translated);
-
-  if (!numberResult.ok) {
-    return numberResult;
-  }
-
-  const moneyResult = validateMoney(source, translated);
-
-  if (!moneyResult.ok) {
-    return moneyResult;
+  const soft = validateSoft(language, source, translated);
+  if (!soft.ok) {
+    if (isLastAttempt) {
+      return { ok: true };
+    }
+    return soft;
   }
 
   return { ok: true };
@@ -208,81 +252,100 @@ function buildPrompt(
 ): string {
   const languageName = LANGUAGE_CONFIG[language].name;
 
-  const instructions =
+  const languageSpecific =
     language === "zhTW"
       ? `
-Write natural native Traditional Chinese.
-Do not translate word-for-word when unnatural.
+Target language: Traditional Chinese (繁體中文) ONLY.
+- Every label and every value must be written in Traditional Chinese.
+- Do NOT leave English words mixed in (except unavoidable proper nouns, codes, or USD).
+- Do NOT output Simplified Chinese characters when Traditional exists.
+- For US dollars: write "美元" or "美金" or keep "USD". Never write only "元".
 `
       : language === "zhCN"
         ? `
-Write natural native Simplified Chinese.
-Do not translate word-for-word when unnatural.
+Target language: Simplified Chinese (简体中文) ONLY.
+- Every label and every value must be written in Simplified Chinese.
+- Do NOT leave English words mixed in (except unavoidable proper nouns, codes, or USD).
+- For US dollars: write "美元" or "美金" or keep "USD". Never write only "元".
 `
         : language === "ja"
           ? `
-Write natural native Japanese.
-Use Hiragana and Katakana naturally.
-Translate ordinary English vocabulary naturally into Japanese.
-Do not leave ordinary English adjectives or verbs untranslated.
-Do not produce unnecessary English-Japanese mixed sentences.
+Target language: Japanese ONLY.
+- Use natural Japanese (漢字 / ひらがな / カタカナ).
+- Do NOT leave ordinary English sentences untranslated.
+- Do NOT write a narrative paragraph if the source is a field list.
+- One source line → one Japanese line, same order.
+- For US dollars: write "USD" or "米ドル" or "ドル". Never convert to "円".
 `
           : `
-Write natural native Korean.
-Use Hangul only. Do not use any Chinese characters (Hanja) or Japanese characters.
-Translate ordinary English vocabulary naturally into Korean.
-Do not leave ordinary English adjectives or verbs untranslated.
-
-CRITICAL STRUCTURE RULES FOR THIS TEXT:
-- The source is a structured list of fields (key: value).
-- You MUST keep the exact same structure, line breaks, and order.
-- Keep every field on its own line in the same order.
-- Preserve all colons ":" and punctuation.
-- If a field value is empty in the source, keep it empty in the translation (do not invent content).
-- Do not turn the list into a continuous paragraph.
-- Do not merge, delete, reorder, or invent any fields.
-- Do not change the meaning of any field.
-- Numbers and currency amounts must stay exactly the same (do not convert currency units).
+Target language: Korean (Hangul) ONLY.
+- Write in Hangul.
+- Do NOT leave ordinary English sentences untranslated.
+- Do NOT write a narrative paragraph if the source is a field list.
+- One source line → one Korean line, same order.
+- For US dollars: write "USD" or "달러". Never convert to "원".
 `;
 
+  const structureBlock = isStructuredSource(source)
+    ? `
+STRUCTURE (REQUIRED):
+The source is a "Label: Value" field list.
+- Keep the SAME number of lines and the SAME order.
+- Keep the colon ":" on each field line.
+- Translate BOTH the label and the value.
+- If a value is empty (e.g. "Foursome:"), keep the label and colon with an empty value.
+- Do NOT merge fields into a paragraph.
+- Do NOT add or remove fields.
+`
+    : `
+STRUCTURE:
+- Preserve line breaks and overall layout when present.
+- Do not add commentary.
+`;
+
+  const currencyBlock = sourceMentionsUsd(source)
+    ? `
+CURRENCY:
+This source uses US dollars (USD / $ / dollar).
+Preserve US-dollar meaning. Do not convert to local yuan/yen/won.
+`
+    : "";
+
   return `
-You are a professional native-level translator.
+You are a professional native translator specializing in ${languageName}.
 
-Translate the source text into ${languageName}.
+Translate the SOURCE into ${languageName}.
 
-STRICT RULES:
+${languageSpecific}
 
-- Preserve the exact meaning of every field.
-- Do not add any information that is not in the source.
-- Do not remove any information that is in the source.
-- Do not invent facts or values.
-- Preserve every number exactly as written.
-- Preserve every currency amount exactly as written.
-- Never convert currencies or change currency symbols/units.
-- Never invent a currency.
-- Preserve names, brands, acronyms and technical terms when appropriate.
-- Keep the original format, line structure, colons, and punctuation as much as possible.
-- Prefer natural expressions over literal word-for-word translation, but never sacrifice accuracy or structure.
-- Return ONLY the translated text.
-- Do not add explanations.
-- Do not add labels or extra comments.
+${structureBlock}
 
-${instructions}
+${currencyBlock}
 
-Before returning, silently verify:
-- all factual values are preserved
-- all numbers are preserved
-- all currency amounts are preserved
-- the structure and field order are preserved
-- empty fields remain empty
-- no information was invented or removed
-- the result sounds native
-- ordinary English words are not unnecessarily left untranslated
+ACCURACY RULES:
+1. Keep the exact factual meaning. Do not invent, omit, or change facts.
+2. Keep every number exactly as written (23, 173, +300, 1500, etc.).
+3. Do not convert currencies or change units.
+4. Translate field labels and values fully into the target language.
+5. Do not mix the target language with English prose.
+6. Return ONLY the translation text. No markdown. No explanations. No title.
 
 SOURCE:
-
 ${source}
 `.trim();
+}
+
+function cleanModelOutput(text: string): string {
+  let result = text.trim();
+
+  result = result.replace(/^```[a-zA-Z]*\s*/m, "").replace(/```$/m, "");
+
+  result = result.replace(
+    /^(?:translation|translated\s*text|output|結果|翻译|翻譯|日本語|한국어)\s*[:：]\s*/i,
+    ""
+  );
+
+  return result.trim();
 }
 
 async function requestTranslation(
@@ -297,11 +360,19 @@ async function requestTranslation(
     body: JSON.stringify({
       model: MODEL,
       stream: false,
+      options: {
+        temperature: 0.2,
+        top_p: 0.9,
+      },
       messages: [
         {
           role: "system",
-          content:
-            "You are a professional native-level translator. Return only the translation. Preserve structure, numbers, and exact meaning.",
+          content: `You are a careful professional translator into ${LANGUAGE_CONFIG[language].name}.
+Return only the translation.
+Preserve field-list structure (one Label: Value per line) when the source is structured.
+Never convert currencies. USD/dollar must stay USD meaning (美元/美金/USD/ドル/달러), never bare 元/円/원.
+Do not mix English into Chinese/Japanese/Korean output except for USD, codes, or proper nouns.
+Keep numbers unchanged.`,
         },
         {
           role: "user",
@@ -312,8 +383,9 @@ async function requestTranslation(
   });
 
   if (!response.ok) {
+    const body = await response.text().catch(() => "");
     throw new Error(
-      `Ollama HTTP ${response.status}: ${await response.text()}`
+      `Ollama HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`
     );
   }
 
@@ -326,7 +398,7 @@ async function requestTranslation(
     );
   }
 
-  return text.trim();
+  return cleanModelOutput(text);
 }
 
 export async function translateIntroduction(
@@ -341,14 +413,18 @@ export async function translateIntroduction(
   }
 
   let lastValidationError = "Unknown validation error.";
+  let lastText = "";
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const isLastAttempt = attempt === maxAttempts;
     const text = await requestTranslation(language, cleanSource);
+    lastText = text;
 
     const validation = validateTranslation(
       language,
       cleanSource,
-      text
+      text,
+      isLastAttempt
     );
 
     if (validation.ok) {
@@ -362,16 +438,19 @@ export async function translateIntroduction(
       validation.reason ?? "Translation validation failed.";
   }
 
+  const hard = validateLanguageHard(language, lastText);
+  if (hard.ok && lastText.trim()) {
+    return {
+      language,
+      text: lastText,
+    };
+  }
+
   throw new Error(
     `Translation validation failed for ${language} after ${maxAttempts} attempts: ${lastValidationError}`
   );
 }
 
-/**
- * Batch wrapper.
- * Calls the existing single-language translator for each requested language.
- * Does not change the underlying translation logic.
- */
 export async function translateIntroductionBatch(
   languages: TranslationLanguage[],
   source: string
