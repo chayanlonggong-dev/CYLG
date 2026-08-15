@@ -23,14 +23,14 @@ const LANGUAGE_CONFIG: Record<
 };
 
 /**
- * 问 / 字段名：固定精准四语，不交给 AI
+ * 问 / 字段名：固定精准四语
  * key = 英文小写（normalize 后）
  */
 const FIELD_LABELS: Record<
   string,
   Record<TranslationLanguage, string>
 > = {
-  // ===== 你的样本字段 =====
+  // ===== 新模板 =====
   occupation: {
     zhTW: "職業",
     zhCN: "职业",
@@ -58,9 +58,163 @@ const FIELD_LABELS: Record<
   "bra size": {
     zhTW: "罩杯",
     zhCN: "罩杯",
-    ja: "ブラサイズ",
-    ko: "브라 사이즈",
+    ja: "カップサイズ",
+    ko: "컵 사이즈",
   },
+  sm: {
+    zhTW: "是否接受 SM",
+    zhCN: "是否接受 SM",
+    ja: "SMを受け入れるか",
+    ko: "SM 가능 여부",
+  },
+  "unprotected sex after medical checkup": {
+    zhTW: "體檢後是否接受無套",
+    zhCN: "体检后是否接受无套",
+    ja: "健診後のノープロテクションを受け入れるか",
+    ko: "검진 후 무보호 가능 여부",
+  },
+  internal: {
+    zhTW: "是否接受內射",
+    zhCN: "是否接受内射",
+    ja: "中出しを受け入れるか",
+    ko: "질내사정 가능 여부",
+  },
+  oral: {
+    zhTW: "是否接受口交",
+    zhCN: "是否接受口交",
+    ja: "オーラルを受け入れるか",
+    ko: "오럴 가능 여부",
+  },
+  "living together": {
+    zhTW: "是否接受同居",
+    zhCN: "是否接受同居",
+    ja: "同棲を受け入れるか",
+    ko: "동거 가능 여부",
+  },
+  "overnight stays": {
+    zhTW: "過夜",
+    zhCN: "过夜",
+    ja: "泊まり",
+    ko: "숙박",
+  },
+  "out-of-town visits": {
+    zhTW: "外地見面",
+    zhCN: "外地见面",
+    ja: "遠方での出会い",
+    ko: "지방 만남",
+  },
+  "out of town visits": {
+    zhTW: "外地見面",
+    zhCN: "外地见面",
+    ja: "遠方での出会い",
+    ko: "지방 만남",
+  },
+  "absolute no-gos": {
+    zhTW: "絕對禁止事項",
+    zhCN: "绝对禁止事项",
+    ja: "絶対禁止事項",
+    ko: "절대 금지 사항",
+  },
+  "absolute no gos": {
+    zhTW: "絕對禁止事項",
+    zhCN: "绝对禁止事项",
+    ja: "絶対禁止事項",
+    ko: "절대 금지 사항",
+  },
+  "requirements for clients": {
+    zhTW: "對金主的要求",
+    zhCN: "对金主的要求",
+    ja: "クライアントへの要望",
+    ko: "고객에 대한 요구사항",
+  },
+  "reason for seeking a client": {
+    zhTW: "尋找金主的原因",
+    zhCN: "寻找金主的原因",
+    ja: "クライアントを探す理由",
+    ko: "고객을 찾는 이유",
+  },
+  "expected daily rate": {
+    zhTW: "預期日薪",
+    zhCN: "预期日薪",
+    ja: "希望日給",
+    ko: "희망 일급",
+  },
+  "number of days available per month": {
+    zhTW: "每月可約天數",
+    zhCN: "每月可约天数",
+    ja: "月間可能日数",
+    ko: "월간 가능 일수",
+  },
+  threesome: {
+    zhTW: "3P",
+    zhCN: "3P",
+    ja: "3P",
+    ko: "3P",
+  },
+  threesomes: {
+    zhTW: "3P",
+    zhCN: "3P",
+    ja: "3P",
+    ko: "3P",
+  },
+  foursome: {
+    zhTW: "4P",
+    zhCN: "4P",
+    ja: "4P",
+    ko: "4P",
+  },
+  foursomes: {
+    zhTW: "4P",
+    zhCN: "4P",
+    ja: "4P",
+    ko: "4P",
+  },
+  "countries willing to travel to": {
+    zhTW: "願意前往的國家",
+    zhCN: "愿意前往的国家",
+    ja: "渡航可能な国",
+    ko: "방문 가능 국가",
+  },
+
+  // ===== Open to ... =====
+  "open to sm": {
+    zhTW: "是否接受 SM",
+    zhCN: "是否接受 SM",
+    ja: "SMを受け入れるか",
+    ko: "SM 가능 여부",
+  },
+  "open to unprotected sex after a medical exam": {
+    zhTW: "體檢後是否接受無套",
+    zhCN: "体检后是否接受无套",
+    ja: "健診後のノープロテクションを受け入れるか",
+    ko: "검진 후 무보호 가능 여부",
+  },
+  "open to internal": {
+    zhTW: "是否接受內射",
+    zhCN: "是否接受内射",
+    ja: "中出しを受け入れるか",
+    ko: "질내사정 가능 여부",
+  },
+  "open to oral": {
+    zhTW: "是否接受口交",
+    zhCN: "是否接受口交",
+    ja: "オーラルを受け入れるか",
+    ko: "오럴 가능 여부",
+  },
+  "open to living together": {
+    zhTW: "是否接受同居",
+    zhCN: "是否接受同居",
+    ja: "同棲を受け入れるか",
+    ko: "동거 가능 여부",
+  },
+  "open to anal sex": {
+    zhTW: "是否接受肛交",
+    zhCN: "是否接受肛交",
+    ja: "アナルを受け入れるか",
+    ko: "애널 가능 여부",
+  },
+
+  // ===== 旧模板兼容 =====
   "does she accept sm": {
     zhTW: "是否接受 SM",
     zhCN: "是否接受 SM",
@@ -68,10 +222,10 @@ const FIELD_LABELS: Record<
     ko: "SM 가능 여부",
   },
   "does she accept unprotected sex after a medical exam by the client": {
-    zhTW: "客戶體檢後是否接受無套",
-    zhCN: "客户体检后是否接受无套",
-    ja: "お客様指定の健診後にノープロテクションを受け入れるか",
-    ko: "고객 지정 검진 후 무보호 가능 여부",
+    zhTW: "體檢後是否接受無套",
+    zhCN: "体检后是否接受无套",
+    ja: "健診後のノープロテクションを受け入れるか",
+    ko: "검진 후 무보호 가능 여부",
   },
   "does she accept anal sex": {
     zhTW: "是否接受肛交",
@@ -91,155 +245,84 @@ const FIELD_LABELS: Record<
     ja: "同棲を受け入れるか",
     ko: "동거 가능 여부",
   },
-  "overnight stays": {
-    zhTW: "過夜",
-    zhCN: "过夜",
-    ja: "宿泊",
-    ko: "숙박",
-  },
   "out-of-town meetings": {
     zhTW: "外地見面",
     zhCN: "外地见面",
-    ja: "地方での会合",
+    ja: "遠方での出会い",
     ko: "지방 만남",
   },
   "out of town meetings": {
     zhTW: "外地見面",
     zhCN: "外地见面",
-    ja: "地方での会合",
+    ja: "遠方での出会い",
     ko: "지방 만남",
-  },
-  "absolute no-gos": {
-    zhTW: "絕對禁止事項",
-    zhCN: "绝对禁止事项",
-    ja: "絶対不可事項",
-    ko: "절대 불가 사항",
-  },
-  "absolute no gos": {
-    zhTW: "絕對禁止事項",
-    zhCN: "绝对禁止事项",
-    ja: "絶対不可事項",
-    ko: "절대 불가 사항",
   },
   "requirements for a sugar daddy": {
     zhTW: "對金主的要求",
     zhCN: "对金主的要求",
-    ja: "スポンサーへの条件",
-    ko: "스폰서에 대한 요구사항",
+    ja: "クライアントへの要望",
+    ko: "고객에 대한 요구사항",
   },
   "reason for seeking a sugar daddy": {
     zhTW: "尋找金主的原因",
     zhCN: "寻找金主的原因",
-    ja: "スポンサーを探す理由",
-    ko: "스폰서를 찾는 이유",
+    ja: "クライアントを探す理由",
+    ko: "고객을 찾는 이유",
   },
-  "expected daily rate": {
-    zhTW: "預期日薪",
-    zhCN: "预期日薪",
-    ja: "希望日当",
-    ko: "예상 일당",
-  },
-  "number of days available per month": {
-    zhTW: "每月可約天數",
-    zhCN: "每月可约天数",
-    ja: "月間対応可能日数",
-    ko: "월 가능 일수",
-  },
-  threesomes: {
-    zhTW: "3P",
-    zhCN: "3P",
-    ja: "3P",
-    ko: "3P",
-  },
-  threesome: {
-    zhTW: "3P",
-    zhCN: "3P",
-    ja: "3P",
-    ko: "3P",
-  },
-  foursomes: {
-    zhTW: "4P",
-    zhCN: "4P",
-    ja: "4P",
-    ko: "4P",
-  },
-  foursome: {
-    zhTW: "4P",
-    zhCN: "4P",
-    ja: "4P",
-    ko: "4P",
-  },
-  "countries willing to travel to": {
-    zhTW: "願意前往的國家",
-    zhCN: "愿意前往的国家",
-    ja: "渡航可能な国",
-    ko: "방문 가능 국가",
-  },
-
-  // ===== 旧模板兼容 =====
   location: {
     zhTW: "地點",
     zhCN: "地点",
     ja: "場所",
     ko: "위치",
   },
-  sm: {
-    zhTW: "SM",
-    zhCN: "SM",
-    ja: "SM",
-    ko: "SM",
-  },
-  "unprotected sex after medical checkup": {
-    zhTW: "體檢後無套",
-    zhCN: "体检后无套",
-    ja: "健診後のノープロテクション",
-    ko: "검진 후 무보호",
-  },
-  internal: {
-    zhTW: "內射",
-    zhCN: "内射",
-    ja: "中出し",
-    ko: "질내사정",
-  },
-  oral: {
-    zhTW: "口交",
-    zhCN: "口交",
-    ja: "オーラル",
-    ko: "오럴",
-  },
-  "living together": {
-    zhTW: "同居",
-    zhCN: "同居",
-    ja: "同棲",
-    ko: "동거",
-  },
-  "out-of-town visits": {
-    zhTW: "外地出差",
-    zhCN: "外地出差",
-    ja: "地方出張",
-    ko: "지방 출장",
-  },
-  "out of town visits": {
-    zhTW: "外地出差",
-    zhCN: "外地出差",
-    ja: "地方出張",
-    ko: "지방 출장",
-  },
-  "requirements for clients": {
-    zhTW: "對客人要求",
-    zhCN: "对客人要求",
-    ja: "お客様への条件",
-    ko: "고객 요구사항",
-  },
-  "reason for seeking a client": {
-    zhTW: "尋找客人原因",
-    zhCN: "寻找客人原因",
-    ja: "お客様を探す理由",
-    ko: "고객을 찾는 이유",
-  },
 };
 
-/** 答：Yes / No / None / 固定短句 */
+/** 模糊匹配：措辞略有不同也能命中 */
+const FIELD_ALIASES: Array<{
+  test: RegExp;
+  key: string;
+}> = [
+  { test: /\boccupation\b|\bjob\b|\bwork\b/i, key: "occupation" },
+  { test: /\bage\b/i, key: "age" },
+  { test: /\bheight\b/i, key: "height" },
+  { test: /\bweight\b/i, key: "weight" },
+  { test: /bra\s*size|cup\s*size/i, key: "bra size" },
+  { test: /\bsm\b|sadomasoch/i, key: "sm" },
+  {
+    test: /unprotected|no\s*condom|bareback|medical\s*(exam|checkup)/i,
+    key: "unprotected sex after medical checkup",
+  },
+  { test: /\binternal\b|creampie/i, key: "internal" },
+  { test: /\boral\b|blow\s*job/i, key: "oral" },
+  { test: /living\s*together|cohabit|live\s*together/i, key: "living together" },
+  { test: /overnight|stay\s*over|sleep\s*over/i, key: "overnight stays" },
+  {
+    test: /out[-\s]?of[-\s]?town|travel\s*meet/i,
+    key: "out-of-town visits",
+  },
+  { test: /no[-\s]?gos?|absolute\s*no/i, key: "absolute no-gos" },
+  {
+    test: /requirements?\s+for\s+(clients?|sugar|sponsors?)/i,
+    key: "requirements for clients",
+  },
+  {
+    test: /reason\s+for\s+seeking|why\s+seeking/i,
+    key: "reason for seeking a client",
+  },
+  { test: /daily\s*rate|expected\s*rate/i, key: "expected daily rate" },
+  {
+    test: /days?\s+available|per\s+month/i,
+    key: "number of days available per month",
+  },
+  { test: /threesome|3\s*p\b/i, key: "threesome" },
+  { test: /foursome|4\s*p\b/i, key: "foursome" },
+  {
+    test: /countries?\s+willing|travel\s+to/i,
+    key: "countries willing to travel to",
+  },
+  { test: /\banal\b/i, key: "open to anal sex" },
+];
+
 const VALUE_MAP: Record<
   string,
   Record<TranslationLanguage, string>
@@ -262,6 +345,18 @@ const VALUE_MAP: Record<
     ja: "なし",
     ko: "없음",
   },
+  "n/a": {
+    zhTW: "無",
+    zhCN: "无",
+    ja: "なし",
+    ko: "없음",
+  },
+  na: {
+    zhTW: "無",
+    zhCN: "无",
+    ja: "なし",
+    ko: "없음",
+  },
   "need money": {
     zhTW: "需要錢",
     zhCN: "需要钱",
@@ -275,6 +370,12 @@ const VALUE_MAP: Record<
     ko: "사전 예약 필수",
   },
   mild: {
+    zhTW: "輕度",
+    zhCN: "轻度",
+    ja: "軽度",
+    ko: "경도",
+  },
+  light: {
     zhTW: "輕度",
     zhCN: "轻度",
     ja: "軽度",
@@ -303,6 +404,30 @@ const VALUE_MAP: Record<
     zhCN: "重度",
     ja: "重度",
     ko: "고강도",
+  },
+  "1,500 per day": {
+    zhTW: "1,500 美元/天",
+    zhCN: "1,500 美元/天",
+    ja: "1,500 USD/日",
+    ko: "1,500 USD/일",
+  },
+  "1500 per day": {
+    zhTW: "1500 美元/天",
+    zhCN: "1500 美元/天",
+    ja: "1500 USD/日",
+    ko: "1500 USD/일",
+  },
+  "1,500/day": {
+    zhTW: "1,500 美元/天",
+    zhCN: "1,500 美元/天",
+    ja: "1,500 USD/日",
+    ko: "1,500 USD/일",
+  },
+  "1500/day": {
+    zhTW: "1500 美元/天",
+    zhCN: "1500 美元/天",
+    ja: "1500 USD/日",
+    ko: "1500 USD/일",
   },
 };
 
@@ -405,6 +530,22 @@ function normalizeKey(key: string): string {
     .replace(/[?？]/g, "");
 }
 
+function resolveFieldKey(key: string): string {
+  const normalized = normalizeKey(key);
+
+  if (FIELD_LABELS[normalized]) {
+    return normalized;
+  }
+
+  for (const alias of FIELD_ALIASES) {
+    if (alias.test.test(key)) {
+      return alias.key;
+    }
+  }
+
+  return normalized;
+}
+
 function parseFieldLines(source: string): FieldLine[] {
   return source.split(/\r?\n/).map((raw) => {
     const idx = raw.indexOf(":");
@@ -432,12 +573,21 @@ function isStructuredSource(source: string): boolean {
   return colonLines / lines.length >= 0.5;
 }
 
+function looksLikeEnglish(text: string): boolean {
+  const letters = text.replace(/[^A-Za-z]/g, "");
+  return letters.length >= 3;
+}
+
 function translateLabel(
   key: string,
   language: TranslationLanguage
 ): string {
-  const mapped = FIELD_LABELS[normalizeKey(key)];
-  return mapped ? mapped[language] : key;
+  const resolved = resolveFieldKey(key);
+  const mapped = FIELD_LABELS[resolved];
+  if (mapped) {
+    return mapped[language];
+  }
+  return key;
 }
 
 function translateCountryList(
@@ -445,7 +595,7 @@ function translateCountryList(
   language: TranslationLanguage
 ): string | null {
   const parts = value
-    .split(",")
+    .split(/[,，、]/)
     .map((p) => p.trim())
     .filter(Boolean);
 
@@ -468,14 +618,12 @@ function translateValueDeterministic(
   const trimmed = value.trim();
   if (!trimmed) return "";
 
-  // 数字：22 / +300 / 1500
   if (/^[+]?\d[\d,]*(?:\.\d+)?$/.test(trimmed)) {
     return trimmed;
   }
 
-  // 罩杯字母：C / G
   if (/^[A-Za-z]$/.test(trimmed)) {
-    return trimmed;
+    return trimmed.toUpperCase();
   }
 
   const lower = trimmed.toLowerCase();
@@ -488,7 +636,21 @@ function translateValueDeterministic(
     return PLACE_MAP[lower][language];
   }
 
-  // 1500 USD / $1500
+  // 1,500 per day / 1500 per day / 1,500/day
+  const perDay = trimmed.match(
+    /^([+]?\d[\d,]*(?:\.\d+)?)\s*(?:per\s*day|\/\s*day|\/day)$/i
+  );
+  if (perDay) {
+    const amount = perDay[1];
+    if (language === "zhTW" || language === "zhCN") {
+      return `${amount} 美元/天`;
+    }
+    if (language === "ja") {
+      return `${amount} USD/日`;
+    }
+    return `${amount} USD/일`;
+  }
+
   const usdSuffix = trimmed.match(
     /^([+]?\d[\d,]*(?:\.\d+)?)\s*(?:USD|US\$|\$|dollars?)$/i
   );
@@ -521,9 +683,23 @@ function translateValueDeterministic(
 
 async function ollamaTranslateShort(
   language: TranslationLanguage,
-  value: string
+  value: string,
+  mode: "label" | "value" = "value"
 ): Promise<string> {
   const languageName = LANGUAGE_CONFIG[language].name;
+
+  const system =
+    mode === "label"
+      ? `You translate profile field labels into ${languageName}.
+Return ONLY the translated field name.
+No quotes. No explanation. No colon.
+Keep SM / 3P / 4P style terms natural.`
+      : `You translate short escort-profile answers into natural ${languageName}.
+Return ONLY the translation.
+No quotes. No explanation.
+Keep numbers unchanged.
+Money must keep US dollar meaning (美元 / USD). Never bare 元 / 円 / 원.
+Do NOT leave ordinary English words untranslated.`;
 
   const response = await fetch(OLLAMA_URL, {
     method: "POST",
@@ -534,13 +710,13 @@ async function ollamaTranslateShort(
       model: MODEL,
       stream: false,
       options: {
-        temperature: 0.1,
-        top_p: 0.9,
+        temperature: 0.05,
+        top_p: 0.85,
       },
       messages: [
         {
           role: "system",
-          content: `Translate short answer phrases into ${languageName} only. Return only the translation. No quotes. No explanation. Keep numbers unchanged. If money/USD, keep US dollar meaning (美元/美金/USD), never bare 元/円/원.`,
+          content: system,
         },
         {
           role: "user",
@@ -562,14 +738,38 @@ async function ollamaTranslateShort(
 
   if (typeof text !== "string" || !text.trim()) {
     throw new Error(
-      `Ollama returned an empty value translation for ${language}.`
+      `Ollama returned an empty ${mode} translation for ${language}.`
     );
   }
 
   return text
     .trim()
     .replace(/^["'「『]|["'」』]$/g, "")
+    .replace(/[:：]\s*$/g, "")
     .trim();
+}
+
+async function translateLabelSafe(
+  key: string,
+  language: TranslationLanguage
+): Promise<string> {
+  const direct = translateLabel(key, language);
+
+  // 已命中词典
+  if (direct !== key) {
+    return direct;
+  }
+
+  // 没命中，但看起来还是英文 → 用 AI 翻字段名
+  if (looksLikeEnglish(key)) {
+    try {
+      return await ollamaTranslateShort(language, key, "label");
+    } catch {
+      return key;
+    }
+  }
+
+  return key;
 }
 
 async function translateValue(
@@ -580,8 +780,12 @@ async function translateValue(
   if (deterministic !== null) {
     return deterministic;
   }
-  // 仅职业等少数自由文本才走 AI
-  return ollamaTranslateShort(language, value);
+
+  try {
+    return await ollamaTranslateShort(language, value, "value");
+  } catch {
+    return value;
+  }
 }
 
 async function translateStructured(
@@ -602,7 +806,7 @@ async function translateStructured(
       continue;
     }
 
-    const label = translateLabel(line.key, language);
+    const label = await translateLabelSafe(line.key, language);
     const translatedValue = await translateValue(line.value, language);
 
     if (translatedValue === "") {
@@ -630,13 +834,17 @@ async function translateFreeText(
       model: MODEL,
       stream: false,
       options: {
-        temperature: 0.2,
+        temperature: 0.15,
         top_p: 0.9,
       },
       messages: [
         {
           role: "system",
-          content: `You are a professional translator into ${languageName}. Return only the translation. Keep numbers and USD meaning unchanged.`,
+          content: `You are a professional native translator into ${languageName}.
+Return only the translation.
+Keep numbers unchanged.
+Keep USD meaning (美元 / USD).
+Do not leave ordinary English words untranslated.`,
         },
         {
           role: "user",
