@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-13T15:48:06.763Z",
+  "generatedAt": "2026-08-21T14:47:05.076Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -10,8 +10,8 @@
     },
     {
       "path": "app/admin/ai-translation/page.tsx",
-      "hash": "5082cd53bfcc439ae2c580baa58db01b66e8bcfaf8f759a92ff444097c3d10ab",
-      "size": 18980
+      "hash": "35b0d8708404e00e5cf4487cb077bbc90c116325763bf7f4bf8f08fb7b1727e7",
+      "size": 21363
     },
     {
       "path": "app/admin/analytics/page.tsx",
@@ -45,8 +45,8 @@
     },
     {
       "path": "app/admin/login/page.tsx",
-      "hash": "77d27437f3410230c028394439ad83a2e3ca0ed1210ef253c79903dc0428429e",
-      "size": 9573
+      "hash": "5420a53818de414f0965601556d516f4d1a2f12127bd1de3c59478dbeb95ec6c",
+      "size": 6146
     },
     {
       "path": "app/admin/logs/page.tsx",
@@ -85,8 +85,8 @@
     },
     {
       "path": "app/admin/security/page.tsx",
-      "hash": "6c2d80daa28f18a2fcd53fb8b4f61650e61e685980c70c71bc17ec20ff0f16a2",
-      "size": 71691
+      "hash": "427204491cb7ae09dcf3755627581d893dc7d88096a16d1e1675870c7a90231a",
+      "size": 72895
     },
     {
       "path": "app/admin/settings/page.tsx",
@@ -280,8 +280,8 @@
     },
     {
       "path": "app/api/models/[id]/route.ts",
-      "hash": "3eb024f4e6f4687eec9bd9cd4c4e0762a055cbad85fa0531129d57f89f12364d",
-      "size": 9766
+      "hash": "dfabe301c36629ffd39582f57cedff4c32359ae361ec57f16fd86a511558efe1",
+      "size": 9767
     },
     {
       "path": "app/api/models/route.ts",
@@ -1165,8 +1165,8 @@
     },
     {
       "path": "lib/security/integrity.ts",
-      "hash": "ecd5d5404218a5291d9def27e8f9db11242dc5b94e5c3963b04d08fca90168a6",
-      "size": 10502
+      "hash": "3d82fb3bbd50bf49f011a4d93abbc7bbf84b07cddc649fa85de042ac3f0cc0aa",
+      "size": 9460
     },
     {
       "path": "lib/security/loginProtection.ts",
