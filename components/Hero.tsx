@@ -20,26 +20,26 @@ export default function Hero() {
       "
     >
       <video
-  className="
-    absolute
-    inset-0
-    h-full
-    w-full
-    object-cover
-  "
+        className="
+          absolute
+          inset-0
+          h-full
+          w-full
+          object-cover
+        "
         autoPlay
         muted
         loop
         playsInline
         preload="auto"
-      onLoadedData={(e) => {
-  e.currentTarget.play().catch(() => {});
-}}
+        onLoadedData={(e) => {
+          e.currentTarget.play().catch(() => {});
+        }}
       >
         <source
-  src={video}
-  type="video/mp4"
-/>
+          src={video}
+          type="video/mp4"
+        />
       </video>
 
       <div
@@ -81,9 +81,7 @@ export default function Hero() {
               tracking-[0.34em]
               text-yellow-400
               font-semibold
-
               sm:text-xs
-
               lg:text-sm
               lg:tracking-[0.35em]
             "
@@ -93,12 +91,12 @@ export default function Hero() {
 
           <p
             className="
-              mt-4
+              mt-9
               text-[2.55rem]
               font-semibold
               leading-none
               text-white
-              sm:hidden
+              sm:text-[5.775rem]
             "
             style={{
               fontFamily: "var(--font-cinzel)",
@@ -153,7 +151,7 @@ export default function Hero() {
               text-[0.95rem]
               leading-6.5
               text-white
-              sm:mt-6
+              sm:mt-9
               sm:max-w-2xl
               sm:text-lg
               sm:leading-9
