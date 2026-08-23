@@ -112,35 +112,40 @@ export function LanguageProvider({
     );
 
   async function loadLanguageSettings() {
-    try {
-      const response = await fetch(
-        "/api/settings",
-        {
-          method: "GET",
-          cache: "no-store",
-          credentials: "include",
-        }
-      );
+    const fetchSettings = async () => {
+      const response = await fetch("/api/settings", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      });
 
       if (!response.ok) {
+        return null;
+      }
+
+      return (await response.json()) as SettingsResponse;
+    };
+
+    try {
+      let json = await fetchSettings();
+
+      // 偶发网络/冷启动失败时重试一次
+      if (!json) {
+        await new Promise((r) => setTimeout(r, 400));
+        json = await fetchSettings();
+      }
+
+      if (!json) {
         return;
       }
 
-      const json =
-        (await response.json()) as SettingsResponse;
-
-      const settings =
-        extractSettings(json);
-
-      const enabled =
-        getEnabledLocales(settings);
+      const settings = extractSettings(json);
+      const enabled = getEnabledLocales(settings);
 
       setEnabledLocales(enabled);
 
       setLocaleState((currentLocale) => {
-        if (
-          enabled.includes(currentLocale)
-        ) {
+        if (enabled.includes(currentLocale)) {
           return currentLocale;
         }
 

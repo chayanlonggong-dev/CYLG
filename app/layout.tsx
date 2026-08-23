@@ -15,18 +15,10 @@ import {
   prisma,
 } from "@/lib/prisma";
 
-
-
 const cinzel = Cinzel({
-
-  variable:
-    "--font-cinzel",
-
-  subsets:[
-    "latin",
-  ],
-
-  weight:[
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: [
     "400",
     "500",
     "600",
@@ -34,416 +26,194 @@ const cinzel = Cinzel({
     "800",
     "900",
   ],
-
 });
 
-
-
-
 export async function generateMetadata(): Promise<Metadata> {
+  const settings = await prisma.websiteSettings.findUnique({
+    where: {
+      id: 1,
+    },
+  });
 
-
-  const settings =
-    await prisma.websiteSettings.findUnique({
-
-      where:{
-        id:1,
-      },
-
-    });
-
-
+  const siteName =
+    settings?.siteName?.trim() || "ChaYanLongGong";
 
   const favicon =
-    settings?.favicon || "/favicon.ico";
+    settings?.favicon?.trim() || "/favicon.ico";
 
-
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://chayanlonggong.vercel.app";
 
   return {
-
-
     verification: {
-
       google:
         "97OYqRCTX_X37leMlAgujXq6QrtoKq7qGzHpSWu0lU0",
-
     },
 
+    metadataBase: new URL(siteUrl),
 
+    alternates: {
+      canonical: "/",
+    },
 
-    metadataBase:
-  new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://chayanlonggong.vercel.app"
-  ),
-
-alternates: {
-  canonical: "/",
-},
-
-title: {
-  default:
-    "ChaYanLongGong | Luxury Elite Companion Agency",
-
-  template:
-    "%s | ChaYanLongGong",
-},
-
-
+    title: {
+      default: `${siteName} | Luxury Elite Companion Agency`,
+      template: `%s | ${siteName}`,
+    },
 
     description:
+      `${siteName} is a luxury elite companion agency providing a premium private experience.`,
 
-      "ChaYanLongGong is a luxury elite companion agency providing a premium private experience.",
-
-
-
-    keywords:[
-
+    keywords: [
       "Luxury Elite Companion",
-
       "Luxury Lifestyle",
-
       "Private Experience",
-
       "Elite Companion Agency",
-
-      "ChaYanLongGong",
-
+      siteName,
     ],
 
-
-
-    authors:[
-
+    authors: [
       {
-
-        name:
-
-          "ChaYanLongGong",
-
+        name: siteName,
       },
-
     ],
 
-
-
-    creator:
-
-      "ChaYanLongGong",
-
-
+    creator: siteName,
 
     icons: {
-  icon: favicon,
-  apple: "/apple-touch-icon.png",
-},
-
-manifest: "/site.webmanifest",
-
-
-
-    openGraph:{
-
-
-      title:
-
-        "ChaYanLongGong | Luxury Elite Companion Agency",
-
-
-
-      description:
-
-        "Luxury private experience with an elite collection.",
-
-
-
-      url:
-
-        "https://chayanlonggong.vercel.app",
-
-
-
-      siteName:
-
-        "ChaYanLongGong",
-
-
-
-      locale:
-
-        "en_US",
-
-
-
-      type:
-
-        "website",
-
-
-
-      images:[
-
+      icon: [
         {
-
-          url:
-
-            "/logo.png",
-
-          width:
-
-            1200,
-
-          height:
-
-            630,
-
-          alt:
-
-            "ChaYanLongGong",
-
+          url: favicon,
         },
-
       ],
-
-
+      shortcut: favicon,
+      apple: favicon,
     },
 
+    manifest: "/site.webmanifest",
 
-
-    twitter:{
-
-
-      card:
-
-        "summary_large_image",
-
-
-
-      title:
-
-        "ChaYanLongGong | Luxury Elite Companion Agency",
-
-
-
+    openGraph: {
+      title: `${siteName} | Luxury Elite Companion Agency`,
       description:
-
         "Luxury private experience with an elite collection.",
-
-
+      url: siteUrl,
+      siteName: siteName,
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/logo.png",
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        },
+      ],
     },
 
-
-
-    robots:{
-
-
-      index:true,
-
-      follow:true,
-
-
+    twitter: {
+      card: "summary_large_image",
+      title: `${siteName} | Luxury Elite Companion Agency`,
+      description:
+        "Luxury private experience with an elite collection.",
     },
 
-
+    robots: {
+      index: true,
+      follow: true,
+    },
   };
-
-
 }
-
-
-
-
-
-
-
 
 export default function RootLayout({
-
   children,
-
-}:Readonly<{
-
-  children:React.ReactNode;
-
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-
-
   return (
-
-
     <html
-
       lang="en"
-
       className={`
-
         ${cinzel.variable}
-
         h-full
-
         antialiased
-
       `}
-
     >
-
-
-
       <body
-
         className="
-
           min-h-full
-
           flex
-
           flex-col
-
           bg-black
-
           text-white
-
         "
-
       >
-
-
-
-
         {/* Google Analytics */}
-
         <Script
-
           src="https://www.googletagmanager.com/gtag/js?id=G-28KCE5VPMT"
-
           strategy="afterInteractive"
-
         />
 
-
-
         <Script
-
           id="google-analytics"
-
           strategy="afterInteractive"
-
         >
-
-{`
-
+          {`
 window.dataLayer = window.dataLayer || [];
-
 function gtag(){
-
   window.dataLayer.push(arguments);
-
 }
-
 gtag('js', new Date());
-
 gtag(
   'config',
   'G-28KCE5VPMT'
 );
-
 `}
-
         </Script>
 
-
-
-
-
-
         {/* Organization Schema */}
-
         <Script
-
           id="organization-schema"
-
           type="application/ld+json"
-
           dangerouslySetInnerHTML={{
-
-            __html:
-
-              JSON.stringify({
-
-                "@context":
-
-                  "https://schema.org",
-
-
-                "@type":
-
-                  "Organization",
-
-
-                name:
-
-                  "ChaYanLongGong",
-
-
-                url:
-
-                  "https://chayanlonggong.vercel.app",
-
-
-                logo:
-
-                  "https://chayanlonggong.vercel.app/logo.png",
-
-              }),
-
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "ChaYanLongGong",
+              url: "https://chayanlonggong.vercel.app",
+              logo: "https://chayanlonggong.vercel.app/logo.png",
+            }),
           }}
-
         />
-{/* Website Schema */}
 
-<Script
-  id="website-schema"
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "ChaYanLongGong",
-      url: "https://chayanlonggong.vercel.app",
-      inLanguage: "en",
-      publisher: {
-        "@type": "Organization",
-        name: "ChaYanLongGong",
-        logo: {
-          "@type": "ImageObject",
-          url: "https://chayanlonggong.vercel.app/logo.png",
-        },
-      },
-    }),
-  }}
-/>
-
-
-
-
+        {/* Website Schema */}
+        <Script
+          id="website-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "ChaYanLongGong",
+              url: "https://chayanlonggong.vercel.app",
+              inLanguage: "en",
+              publisher: {
+                "@type": "Organization",
+                name: "ChaYanLongGong",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://chayanlonggong.vercel.app/logo.png",
+                },
+              },
+            }),
+          }}
+        />
 
         <LanguageProvider>
-
-  <AnalyticsTracker />
-
-  {children}
-
-</LanguageProvider>
-
-
-
+          <AnalyticsTracker />
+          {children}
+        </LanguageProvider>
       </body>
-
-
     </html>
-
-
   );
-
-
 }
