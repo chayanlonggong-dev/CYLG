@@ -42,7 +42,9 @@ type SchedulerConfig = {
   day: string;
   time: string;
   retention: number;
+  lastRunAt: Date | null;
 };
+
 /**
  * Get CRON secret from environment.
  */
@@ -121,16 +123,14 @@ async function loadSchedulerConfig(): Promise<SchedulerConfig> {
           created.retention
         )
       ),
+      lastRunAt: created.lastRunAt ?? null,
     };
   }
 
   return {
     enabled: scheduler.enabled,
-
     day: scheduler.day,
-
     time: scheduler.time,
-
     retention: Math.max(
       1,
       Math.min(
@@ -138,6 +138,7 @@ async function loadSchedulerConfig(): Promise<SchedulerConfig> {
         scheduler.retention
       )
     ),
+    lastRunAt: scheduler.lastRunAt ?? null,
   };
 }
 
@@ -194,6 +195,38 @@ function getCurrentTime(): string {
       : hour;
 
   return `${normalizedHour}:${minute}`;
+}
+
+/**
+ * Get current Malaysia calendar date key: YYYY-MM-DD
+ */
+function getCurrentMalaysiaDateKey(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+/**
+ * Convert a Date to Malaysia calendar date key.
+ */
+function toMalaysiaDateKey(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/**
+ * Extract HH from "HH:mm".
+ */
+function getHourFromTime(time: string): string {
+  const hour = (time || "00:00").split(":")[0] ?? "00";
+  return hour === "24" ? "00" : hour.padStart(2, "0");
 }
 
 /**
@@ -353,34 +386,24 @@ async function createDatabaseBackup() {
     analytics,
   ] = await Promise.all([
     prisma.model.findMany(),
-
     prisma.websiteSettings.findMany(),
-
     prisma.adminUser.findMany(),
-
     prisma.session.findMany(),
-
     prisma.auditLog.findMany(),
-
     prisma.analyticsVisit.findMany(),
   ]);
 
   const backup = {
     exportedAt:
       new Date().toISOString(),
-
     version:
       "1.0.0",
-
     application:
       "ChaYanLongGong",
-
     database:
       "PostgreSQL",
-
     schema:
       "public",
-
     data: {
       models,
       websiteSettings,
@@ -451,16 +474,11 @@ async function createDatabaseBackup() {
       data: {
         filename:
           fileName,
-
         type:
           "Database",
-
         size,
-
         filePath,
-
         checksum,
-
         status:
           "Completed",
       },
@@ -570,19 +588,14 @@ async function createMediaBackup() {
       data: {
         filename:
           folderName,
-
         type:
           "Media",
-
         size:
           total,
-
         filePath:
           backupFolder,
-
         checksum:
           "",
-
         status:
           "Completed",
       },
@@ -590,13 +603,9 @@ async function createMediaBackup() {
 
   return {
     record,
-
     folderName,
-
     images,
-
     videos,
-
     total,
   };
 }
@@ -834,221 +843,3 @@ export async function GET(
 
     const currentTime =
       getCurrentTime();
-
-    /**
-     * 5. Check scheduled day.
-     */
-    if (
-      currentDay !==
-      config.day
-    ) {
-      return NextResponse.json({
-        success:
-          true,
-
-        skipped:
-          true,
-
-        reason:
-          "Scheduled day does not match.",
-
-        currentDay,
-
-        scheduledDay:
-          config.day,
-
-        currentTime,
-
-        scheduledTime:
-          config.time,
-      });
-    }
-
-    /**
-     * 6. Check scheduled time.
-     */
-    if (
-      currentTime !==
-      config.time
-    ) {
-      return NextResponse.json({
-        success:
-          true,
-
-        skipped:
-          true,
-
-        reason:
-          "Scheduled time does not match.",
-
-        currentDay,
-
-        scheduledDay:
-          config.day,
-
-        currentTime,
-
-        scheduledTime:
-          config.time,
-      });
-    }
-
-    /**
-     * 7. Database backup.
-     */
-    const databaseBackup =
-      await createDatabaseBackup();
-
-    /**
-     * 8. Media backup.
-     */
-    const mediaBackup =
-      await createMediaBackup();
-
-    /**
-     * 9. Retention cleanup.
-     */
-    const deleted =
-      await applyRetention(
-        config.retention
-      );
-
-    /**
-     * 10. Audit log.
-     */
-    await createAuditLog({
-      action:
-        "CREATE",
-
-      entity:
-        "Backup",
-
-      entityId:
-        databaseBackup
-          .record.id,
-
-      description:
-        "Automatic scheduled backup completed.",
-
-      metadata: {
-        operator:
-          "System Scheduler",
-
-        result:
-          "Success",
-
-        actionLabel:
-          "AUTOMATIC_BACKUP",
-
-        databaseBackup:
-          databaseBackup
-            .filename,
-
-        mediaBackup:
-          mediaBackup
-            .folderName,
-
-        mediaImages:
-          mediaBackup
-            .images,
-
-        mediaVideos:
-          mediaBackup
-            .videos,
-
-        retention:
-          config.retention,
-
-        deletedBackups:
-          deleted.length,
-      },
-    });
-
-    /**
-     * 11. Final response.
-     */
-    return NextResponse.json({
-      success:
-        true,
-
-      message:
-        "Automatic backup completed.",
-
-      scheduler: {
-        enabled:
-          config.enabled,
-
-        day:
-          config.day,
-
-        time:
-          config.time,
-
-        retention:
-          config.retention,
-
-        timezone:
-          "Asia/Kuala_Lumpur",
-      },
-
-      database: {
-        filename:
-          databaseBackup
-            .filename,
-
-        size:
-          databaseBackup
-            .size,
-
-        checksum:
-          databaseBackup
-            .checksum,
-      },
-
-      media: {
-        folder:
-          mediaBackup
-            .folderName,
-
-        images:
-          mediaBackup
-            .images,
-
-        videos:
-          mediaBackup
-            .videos,
-
-        total:
-          mediaBackup
-            .total,
-      },
-
-      retention: {
-        limit:
-          config.retention,
-
-        deleted:
-          deleted.length,
-      },
-    });
-  } catch (error) {
-    console.error(
-      "AUTOMATIC BACKUP ERROR:",
-      error
-    );
-
-    return NextResponse.json(
-      {
-        success:
-          false,
-
-        message:
-          "Automatic backup failed.",
-      },
-      {
-        status:
-          500,
-      }
-    );
-  }
-}
