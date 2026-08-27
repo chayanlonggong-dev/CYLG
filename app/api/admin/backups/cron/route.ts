@@ -843,3 +843,334 @@ export async function GET(
 
     const currentTime =
       getCurrentTime();
+
+    const currentDateKey =
+      getCurrentMalaysiaDateKey();
+
+    /**
+     * 5. Check if today matches the configured day.
+     */
+    if (
+      currentDay !==
+      config.day
+    ) {
+      return NextResponse.json({
+        success:
+          true,
+
+        skipped:
+          true,
+
+        message:
+          `Today is ${currentDay}, scheduled day is ${config.day}.`,
+
+        scheduler: {
+          enabled:
+            config.enabled,
+
+          day:
+            config.day,
+
+          time:
+            config.time,
+
+          retention:
+            config.retention,
+        },
+
+        current: {
+          day:
+            currentDay,
+
+          time:
+            currentTime,
+
+          dateKey:
+            currentDateKey,
+        },
+      });
+    }
+
+    /**
+     * 6. Check if current hour matches the scheduled hour.
+     *    (Vercel Cron usually triggers once per hour)
+     */
+    const scheduledHour =
+      getHourFromTime(
+        config.time
+      );
+
+    const currentHour =
+      getHourFromTime(
+        currentTime
+      );
+
+    if (
+      currentHour !==
+      scheduledHour
+    ) {
+      return NextResponse.json({
+        success:
+          true,
+
+        skipped:
+          true,
+
+        message:
+          `Current hour is ${currentHour}, scheduled hour is ${scheduledHour}.`,
+
+        scheduler: {
+          enabled:
+            config.enabled,
+
+          day:
+            config.day,
+
+          time:
+            config.time,
+
+          retention:
+            config.retention,
+        },
+
+        current: {
+          day:
+            currentDay,
+
+          time:
+            currentTime,
+
+          dateKey:
+            currentDateKey,
+        },
+      });
+    }
+
+    /**
+     * 7. Prevent running more than once on the same Malaysia calendar day.
+     */
+    if (
+      config.lastRunAt
+    ) {
+      const lastRunDateKey =
+        toMalaysiaDateKey(
+          config.lastRunAt
+        );
+
+      if (
+        lastRunDateKey ===
+        currentDateKey
+      ) {
+        return NextResponse.json({
+          success:
+            true,
+
+          skipped:
+            true,
+
+          message:
+            "Backup already ran today (Malaysia time).",
+
+          scheduler: {
+            enabled:
+              config.enabled,
+
+            day:
+              config.day,
+
+            time:
+              config.time,
+
+            retention:
+              config.retention,
+
+            lastRunAt:
+              config.lastRunAt,
+          },
+
+          current: {
+            day:
+              currentDay,
+
+            time:
+              currentTime,
+
+            dateKey:
+              currentDateKey,
+          },
+        });
+      }
+    }
+
+    /**
+     * 8. Execute backups.
+     */
+    const databaseBackup =
+      await createDatabaseBackup();
+
+    const mediaBackup =
+      await createMediaBackup();
+
+    /**
+     * 9. Apply retention policy.
+     */
+    const deletedIds =
+      await applyRetention(
+        config.retention
+      );
+
+    /**
+     * 10. Update lastRunAt.
+     */
+    const now =
+      new Date();
+
+    await prisma.backupScheduler.update({
+      where: {
+        id: 1,
+      },
+      data: {
+        lastRunAt:
+          now,
+      },
+    });
+
+    /**
+     * 11. Audit log.
+     */
+    try {
+      await createAuditLog({
+        action: "SETTINGS_CHANGE",
+
+        description:
+          "Scheduled automatic backup completed successfully.",
+
+        entity:
+          "BackupScheduler",
+
+        entityId:
+          1,
+
+        metadata: {
+          databaseFilename:
+            databaseBackup.filename,
+
+          mediaFolder:
+            mediaBackup.folderName,
+
+          images:
+            mediaBackup.images,
+
+          videos:
+            mediaBackup.videos,
+
+          retention:
+            config.retention,
+
+          deletedCount:
+            deletedIds.length,
+
+          deletedIds,
+        },
+      });
+    } catch (auditError) {
+      console.error(
+        "AUDIT LOG ERROR:",
+        auditError
+      );
+    }
+
+    /**
+     * 12. Success response.
+     */
+    return NextResponse.json({
+      success:
+        true,
+
+      message:
+        "Scheduled backup completed successfully.",
+
+      database: {
+        filename:
+          databaseBackup.filename,
+
+        size:
+          databaseBackup.size,
+
+        checksum:
+          databaseBackup.checksum,
+      },
+
+      media: {
+        folderName:
+          mediaBackup.folderName,
+
+        images:
+          mediaBackup.images,
+
+        videos:
+          mediaBackup.videos,
+
+        total:
+          mediaBackup.total,
+      },
+
+      retention: {
+        kept:
+          config.retention,
+
+        deleted:
+          deletedIds.length,
+      },
+
+      scheduler: {
+        enabled:
+          config.enabled,
+
+        day:
+          config.day,
+
+        time:
+          config.time,
+
+        retention:
+          config.retention,
+
+        lastRunAt:
+          now,
+      },
+
+      current: {
+        day:
+          currentDay,
+
+        time:
+          currentTime,
+
+        dateKey:
+          currentDateKey,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "CRON BACKUP ERROR:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        success:
+          false,
+
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unknown error during scheduled backup.",
+      },
+      {
+        status:
+          500,
+      }
+    );
+  }
+}
