@@ -19,8 +19,8 @@ export type AuditAction =
   | "BATCH_ONLINE"
   | "BATCH_OFFLINE"
   | "TOGGLE_ONLINE"
-  | "TOGGLE_OFFLINE";
-
+  | "TOGGLE_OFFLINE"
+  | "BACKUP_CRON_RUN";
 
 
 export interface AuditLog {
