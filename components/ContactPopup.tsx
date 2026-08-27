@@ -70,9 +70,9 @@ function buildContactMessage(
 
   // 统一改成一整段（无任何换行符号），不管有无 modelId
   // 所有语言（简体/繁体/日语/韩语）也改成一行连贯的句子
-  const fullMessage = `${greeting} ${interestedInModel} ${interestedInServices} ${requestInfo} ${thankYou}`;
+  const fullMessage = `${greeting} ${interestedInModel} ${requestInfo} ${thankYou}`;
   if (modelId) {
-    return interestedInServices; // 只剩“我感兴趣的服务”这句话（删除了“小姐点击客服那边 这段话”）
+    return fullMessage;
   }
 
   // 首页联系客服：改成一行，避免 WhatsApp / Telegram 显示成四排
