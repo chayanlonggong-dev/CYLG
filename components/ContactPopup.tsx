@@ -68,6 +68,7 @@ function buildContactMessage(
     contact.thankYou ||
     "Thank you.";
 
+  // 有 modelId（小姐详情页）保持原来的多行格式
   if (modelId) {
     return [
       greeting,
@@ -80,15 +81,8 @@ function buildContactMessage(
     ].join("\n");
   }
 
-  return [
-    greeting,
-    "",
-    interestedInServices,
-    "",
-    requestInfo,
-    "",
-    thankYou,
-  ].join("\n");
+  // 首页联系客服：改成一行，避免 WhatsApp / Telegram 显示成四排
+  return `${greeting} ${interestedInServices} ${requestInfo} ${thankYou}`;
 }
 
 
@@ -284,7 +278,7 @@ await fetch("/api/analytics/book", {
         if(username){
 
           url =
-            `https://t.me/${username}?start=${text}`;
+            `https://t.me/${username}?text=${text}`;
 
         }
 
