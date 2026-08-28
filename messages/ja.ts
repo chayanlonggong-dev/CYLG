@@ -191,7 +191,8 @@ const ja = {
 
     line: "LINE",
 
-    choosePlatform: "希望の連絡方法を選択してください。",
+    choosePlatform:
+      "希望の連絡方法を選択してください。",
 
     wechat: "WeChat",
 
@@ -199,13 +200,17 @@ const ja = {
 
     greeting: "こんにちは、",
 
-    interestedInModel: "モデル {modelId} に興味があります。",
+    interestedInModel:
+      "こんにちは、{modelId}に興味があります。詳しい情報をご提供いただけますでしょうか？ありがとうございます。",
 
-    interestedInServices: "あなたのサービスに興味があります。",
+    interestedInServices:
+      "こんにちは、サービスについて詳しく知りたいと思っています。詳しい情報をご提供いただけますでしょうか？ありがとうございます。",
 
-    requestInfo: "詳細を教えてください。",
+    requestInfo:
+      "詳細を教えてください。",
 
-    thankYou: "ありがとうございます。",
+    thankYou:
+      "ありがとうございます。",
   },
 };
 

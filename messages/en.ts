@@ -191,7 +191,8 @@ const en = {
 
     line: "LINE",
 
-    choosePlatform: "Choose your preferred contact platform.",
+    choosePlatform:
+      "Choose your preferred contact platform.",
 
     wechat: "WeChat",
 
@@ -199,9 +200,11 @@ const en = {
 
     greeting: "Hello,",
 
-    interestedInModel: "I am interested in model {modelId}.",
+    interestedInModel:
+      "Hello, I am interested in {modelId}. Could you please provide me with more information? Thank you.",
 
-    interestedInServices: "I am interested in your services.",
+    interestedInServices:
+      "Hello, I’m interested in learning more about your services. Could you please provide me with more information? Thank you.",
 
     requestInfo: "Please let me know the details.",
 

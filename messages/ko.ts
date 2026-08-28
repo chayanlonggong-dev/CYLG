@@ -131,7 +131,6 @@ const ko = {
 
     a: "A 컬렉션",
 
-
     profiles: "명",
 
     noModels:
@@ -168,13 +167,11 @@ const ko = {
 
     languages: "언어",
 
-
     aboutHer:
       "그녀에 대해",
 
     introduction:
       "소개",
-
 
     readFullProfile:
       "전체 프로필 보기",
@@ -189,10 +186,8 @@ const ko = {
     bookNow:
       "지금 예약",
 
-
     feedback:
       "피드백",
-
 
     whatsapp:
       "WhatsApp",
@@ -219,10 +214,10 @@ const ko = {
       "안녕하세요,",
 
     interestedInModel:
-      "모델 {modelId}에 관심이 있습니다.",
+      "안녕하세요, {modelId}에 관심이 있습니다. 자세한 정보를 제공해 주시겠습니까? 감사합니다.",
 
     interestedInServices:
-      "서비스에 관심이 있습니다.",
+      "안녕하세요, 서비스에 대해 더 자세히 알아보고 싶습니다. 자세한 정보를 제공해 주시겠습니까? 감사합니다.",
 
     requestInfo:
       "자세한 정보를 알려주세요.",

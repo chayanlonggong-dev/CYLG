@@ -131,7 +131,6 @@ const zhCN = {
 
     a: "A 系列",
 
-
     profiles: "位佳丽",
 
     noModels:
@@ -168,13 +167,11 @@ const zhCN = {
 
     languages: "语言",
 
-
     aboutHer:
       "关于她",
 
     introduction:
       "介绍",
-
 
     readFullProfile:
       "阅读完整资料",
@@ -189,10 +186,8 @@ const zhCN = {
     bookNow:
       "立即预约",
 
-
     feedback:
       "意见反馈",
-
 
     whatsapp:
       "WhatsApp",
@@ -219,10 +214,10 @@ const zhCN = {
       "您好，",
 
     interestedInModel:
-      "我对型号 {modelId} 感兴趣。",
+      "您好，我对 {modelId} 感兴趣。请问可以向我提供更多相关信息吗？谢谢。",
 
     interestedInServices:
-      "我对您的服务感兴趣。",
+      "您好，我想进一步了解贵方的服务。请问可以向我提供更多相关信息吗？谢谢。",
 
     requestInfo:
       "请告诉我详细信息。",

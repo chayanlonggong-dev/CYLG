@@ -129,8 +129,7 @@ const zhTW = {
 
     s: "S 系列",
 
-    a: "A 系列",  
-
+    a: "A 系列",
 
     profiles: "位佳麗",
 
@@ -168,13 +167,11 @@ const zhTW = {
 
     languages: "語言",
 
-
     aboutHer:
       "關於她",
 
     introduction:
       "介紹",
-
 
     readFullProfile:
       "閱讀完整介紹",
@@ -189,10 +186,8 @@ const zhTW = {
     bookNow:
       "立即預約",
 
-
     feedback:
       "意見回饋",
-
 
     whatsapp:
       "WhatsApp",
@@ -219,10 +214,10 @@ const zhTW = {
       "您好，",
 
     interestedInModel:
-      "我對型號 {modelId} 感興趣。",
+      "您好，我對 {modelId} 感興趣。請問可以向我提供更多相關資訊嗎？謝謝。",
 
     interestedInServices:
-      "我對您的服務感興趣。",
+      "您好，我想進一步了解貴方的服務。請問可以向我提供更多相關資訊嗎？謝謝。",
 
     requestInfo:
       "請告訴我詳細信息。",

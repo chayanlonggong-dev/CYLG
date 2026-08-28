@@ -30,26 +30,20 @@ function buildContactMessage(
 ) {
   const contact = messages?.contact || {};
 
-  const greeting = "Hello,";
-
-  const interestedInModel = modelId
-    ? `I am interested in ${modelId}.`
-    : "";
-
-  const interestedInServices =
-    "I’m interested in learning more about your services.";
-
-  const requestInfo =
-    "Could you please provide me with more information?";
-
-  const thankYou =
-    "Thank you.";
-
   if (modelId) {
-    return `${greeting} ${interestedInModel} ${requestInfo} ${thankYou}`;
+    return (
+      contact.interestedInModel?.replace(
+        "{modelId}",
+        modelId
+      ) ||
+      `Hello, I am interested in ${modelId}. Could you please provide me with more information? Thank you.`
+    );
   }
 
-  return `${greeting} ${interestedInServices} ${requestInfo} ${thankYou}`;
+  return (
+    contact.interestedInServices ||
+    "Hello, I’m interested in learning more about your services. Could you please provide me with more information? Thank you."
+  );
 }
 
 function normalizeSignalTarget(
@@ -94,7 +88,11 @@ export default function ContactPopup({
 
   const message =
     useMemo(
-      () => buildContactMessage(modelId, messages),
+      () =>
+        buildContactMessage(
+          modelId,
+          messages
+        ),
       [modelId, messages]
     );
 
@@ -280,8 +278,7 @@ export default function ContactPopup({
               space-y-4
             "
           >
-            {
-              enableWhatsapp &&
+            {enableWhatsapp &&
               whatsapp && (
                 <ContactButton
                   text="WhatsApp"
@@ -292,11 +289,9 @@ export default function ContactPopup({
                     )
                   }
                 />
-              )
-            }
+              )}
 
-            {
-              enableTelegram &&
+            {enableTelegram &&
               telegram && (
                 <ContactButton
                   text="Telegram"
@@ -307,11 +302,9 @@ export default function ContactPopup({
                     )
                   }
                 />
-              )
-            }
+              )}
 
-            {
-              enableSignal &&
+            {enableSignal &&
               signal && (
                 <ContactButton
                   text="Signal"
@@ -322,11 +315,9 @@ export default function ContactPopup({
                     )
                   }
                 />
-              )
-            }
+              )}
 
-            {
-              enableLine &&
+            {enableLine &&
               line && (
                 <ContactButton
                   text="LINE"
@@ -337,11 +328,9 @@ export default function ContactPopup({
                     )
                   }
                 />
-              )
-            }
+              )}
 
-            {
-              enableWechat &&
+            {enableWechat &&
               wechatQr && (
                 <ContactButton
                   text="WeChat"
@@ -352,8 +341,7 @@ export default function ContactPopup({
                     )
                   }
                 />
-              )
-            }
+              )}
           </div>
         </div>
       </div>
