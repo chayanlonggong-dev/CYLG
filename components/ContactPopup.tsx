@@ -62,7 +62,7 @@ function buildContactMessage(
 
   const requestInfo =
     contact.requestInfo ||
-    "Please let me know the details.";
+    "Could you please provide me with more information?";
 
   const thankYou =
     contact.thankYou ||
