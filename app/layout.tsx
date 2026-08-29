@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://chayanlonggong.vercel.app";
+    "https://chayanlonggong.com";
 
   return {
     verification: {
@@ -180,8 +180,8 @@ gtag(
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "ChaYanLongGong",
-              url: "https://chayanlonggong.vercel.app",
-              logo: "https://chayanlonggong.vercel.app/logo.png",
+              url: "https://chayanlonggong.com",
+              logo: "https://chayanlonggong.com/logo.png",
             }),
           }}
         />
@@ -195,14 +195,14 @@ gtag(
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "ChaYanLongGong",
-              url: "https://chayanlonggong.vercel.app",
+              url: "https://chayanlonggong.com",
               inLanguage: "en",
               publisher: {
                 "@type": "Organization",
                 name: "ChaYanLongGong",
                 logo: {
                   "@type": "ImageObject",
-                  url: "https://chayanlonggong.vercel.app/logo.png",
+                  url: "https://chayanlonggong.com/logo.png",
                 },
               },
             }),

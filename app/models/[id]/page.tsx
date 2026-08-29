@@ -36,7 +36,7 @@ export async function generateMetadata({
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://chayanlonggong.vercel.app";
+    "https://chayanlonggong.com";
 
   const title =
     `${model.code} | ChaYanLongGong Luxury Elite Collection`;

@@ -109,13 +109,27 @@ export default function ContactPopup({
       | "wechat"
   ) {
     if (platform === "wechat") {
-      if (!wechatQr) {
-        return;
-      }
+  if (!wechatQr) {
+    return;
+  }
 
-      setIsWechatQrOpen(true);
-      return;
-    }
+  await fetch("/api/analytics/book", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      platform,
+      modelId,
+      visitorId:
+        localStorage.getItem("visitor-id") ??
+        crypto.randomUUID(),
+    }),
+  }).catch(() => {});
+
+  setIsWechatQrOpen(true);
+  return;
+}
 
     await fetch("/api/analytics/book", {
       method: "POST",

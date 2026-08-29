@@ -24,7 +24,7 @@ export default async function sitemap()
 
     process.env.NEXT_PUBLIC_SITE_URL ||
 
-    "https://chayanlonggong.vercel.app";
+    "https://chayanlonggong.com";
 
 
 

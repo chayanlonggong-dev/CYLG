@@ -1,4 +1,4 @@
-type BookingPlatform = {
+﻿type BookingPlatform = {
   referrer: string | null;
   _count: {
     referrer: number;
@@ -9,40 +9,54 @@ type Props = {
   bookingPlatforms: BookingPlatform[];
 };
 
-function getPlatformInfo(platform: string | null) {
+const PLATFORM_ORDER = [
+  "whatsapp",
+  "telegram",
+  "signal",
+  "line",
+  "wechat",
+];
+
+function getPlatformInfo(platform: string) {
   switch (platform) {
-    case "WhatsApp":
+    case "whatsapp":
       return {
+        name: "WhatsApp",
         icon: "💬",
         color: "text-green-500",
       };
 
-    case "Telegram":
+    case "telegram":
       return {
+        name: "Telegram",
         icon: "✈️",
         color: "text-sky-400",
       };
 
-    case "LINE":
+    case "signal":
       return {
-        icon: "🟩",
-        color: "text-green-400",
-      };
-
-    case "WeChat":
-      return {
-        icon: "💚",
-        color: "text-green-500",
-      };
-
-    case "Signal":
-      return {
+        name: "Signal",
         icon: "🟦",
         color: "text-blue-400",
       };
 
+    case "line":
+      return {
+        name: "LINE",
+        icon: "🟩",
+        color: "text-green-400",
+      };
+
+    case "wechat":
+      return {
+        name: "WeChat",
+        icon: "💚",
+        color: "text-green-500",
+      };
+
     default:
       return {
+        name: platform || "Unknown",
         icon: "🌐",
         color: "text-gray-400",
       };
@@ -52,8 +66,29 @@ function getPlatformInfo(platform: string | null) {
 export default function BookingPlatformsCard({
   bookingPlatforms,
 }: Props) {
-  const total = bookingPlatforms.reduce(
-    (sum, item) => sum + item._count.referrer,
+  const platformMap = new Map<string, number>();
+
+  for (const item of bookingPlatforms) {
+    const platform = item.referrer?.toLowerCase();
+
+    if (!platform) {
+      continue;
+    }
+
+    platformMap.set(
+      platform,
+      (platformMap.get(platform) ?? 0) +
+        item._count.referrer
+    );
+  }
+
+  const platforms = PLATFORM_ORDER.map((platform) => ({
+    platform,
+    count: platformMap.get(platform) ?? 0,
+  }));
+
+  const total = platforms.reduce(
+    (sum, item) => sum + item.count,
     0
   );
 
@@ -70,25 +105,19 @@ export default function BookingPlatformsCard({
       </div>
 
       <div className="mt-6 space-y-5">
-        {bookingPlatforms.length === 0 && (
-          <p className="text-gray-500">
-            No booking data
-          </p>
-        )}
-
-        {bookingPlatforms.map((item, index) => {
-          const info = getPlatformInfo(item.referrer);
+        {platforms.map(({ platform, count }) => {
+          const info = getPlatformInfo(platform);
 
           const percent =
             total === 0
               ? 0
               : Math.round(
-                  (item._count.referrer / total) * 100
+                  (count / total) * 100
                 );
 
           return (
             <div
-              key={index}
+              key={platform}
               className="rounded-2xl border border-white/10 bg-[#151515] p-4 transition-all hover:border-yellow-500/30"
             >
               <div className="flex items-center justify-between">
@@ -98,8 +127,10 @@ export default function BookingPlatformsCard({
                   </span>
 
                   <div>
-                    <p className={`font-bold ${info.color}`}>
-                      {item.referrer ?? "Unknown"}
+                    <p
+                      className={`font-bold ${info.color}`}
+                    >
+                      {info.name}
                     </p>
 
                     <p className="text-sm text-gray-500">
@@ -110,7 +141,7 @@ export default function BookingPlatformsCard({
 
                 <div className="text-right">
                   <p className="text-xl font-black text-yellow-400">
-                    {item._count.referrer}
+                    {count}
                   </p>
 
                   <p className="text-xs text-gray-500">

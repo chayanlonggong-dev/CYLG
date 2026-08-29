@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-21T14:47:05.076Z",
+  "generatedAt": "2026-08-29T08:56:14.008Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -140,8 +140,8 @@
     },
     {
       "path": "app/api/admin/backups/cron/route.ts",
-      "hash": "606afc626dcb25925e707d7e2fe61f5fa709b217104b359f2ee35fc206e76487",
-      "size": 16854
+      "hash": "0c0c7081ee497f94b62e2ffb720bb349e8a098208b2e2bea5f64e48483d8d6f1",
+      "size": 19967
     },
     {
       "path": "app/api/admin/backups/export/route.ts",
@@ -370,8 +370,8 @@
     },
     {
       "path": "app/layout.tsx",
-      "hash": "09235f1c2dd53e2f75a0913d68e46204dd377f74e226836e0326b719badbd7d4",
-      "size": 4732
+      "hash": "17345c9bfc4bd78bd64d6e4561288f90a258061e1ca601f758c8c23b0c936cdf",
+      "size": 4593
     },
     {
       "path": "app/loading.tsx",
@@ -395,8 +395,8 @@
     },
     {
       "path": "app/providers/LanguageProvider.tsx",
-      "hash": "9013d52fd3efd2b1675fe834202583f7a2057c053aed75a2d44444fe5ba33673",
-      "size": 3768
+      "hash": "1719cc8934a19b4f1869f106c300a4280023efe9b14e008ab52504b6ec463c55",
+      "size": 3993
     },
     {
       "path": "app/robots.ts",
@@ -415,8 +415,8 @@
     },
     {
       "path": "components/ContactPopup.tsx",
-      "hash": "573bd63d56f87d32af22a6ded4e054dd3082ca2b7d609d69ca402c61242559e3",
-      "size": 8695
+      "hash": "9cfdf510aae3e95cf44057058c52a1c9ed7dbb5b522f2121238e75d7479ff30b",
+      "size": 8320
     },
     {
       "path": "components/FloatingContact.tsx",
@@ -435,8 +435,8 @@
     },
     {
       "path": "components/Hero.tsx",
-      "hash": "d0d0e5dfeee053fe77b2f25042e728bd0535bce8b267324997015303a8b44943",
-      "size": 4352
+      "hash": "cdbb1fab90c1b3a288a82943a965e8336bb502889baf3440ce7c72e66c4e3b30",
+      "size": 4441
     },
     {
       "path": "components/HomeContactPopup.tsx",
@@ -600,8 +600,8 @@
     },
     {
       "path": "components/admin/analytics/BookingPlatformsCard.tsx",
-      "hash": "58cb3dc3e62c0fa8ec2263bacf7beb49e3837a1c083fc59e6fbd0eb1679f6ff0",
-      "size": 3547
+      "hash": "5cd3afe4945d9f7c9ed3538f1eed542b3706f39e8da8d6dbcedd6a51f9b75eef",
+      "size": 3926
     },
     {
       "path": "components/admin/analytics/RecentVisitorsCard.tsx",
@@ -790,8 +790,8 @@
     },
     {
       "path": "lib/audit/audit.ts",
-      "hash": "ae85ac3dc10bfe602ba622de4b0a5368b4303f41e2c29a3f66da134bbcef3bc9",
-      "size": 3704
+      "hash": "752a47321e367be47aa8c431c1d95efaedf7ac7472c81440628da92d616241b8",
+      "size": 3725
     },
     {
       "path": "lib/audit/index.ts",
