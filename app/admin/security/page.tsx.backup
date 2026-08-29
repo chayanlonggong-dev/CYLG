@@ -1,5 +1,5 @@
-﻿"use client";
-import { adminFetch } from "@/lib/admin/adminFetch";
+﻿import { adminFetch } from "@/lib/admin/adminFetch";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -275,7 +275,7 @@ export default function SecurityPage() {
     }
 
     try {
-      const res = await adminFetch(
+      const res = await fetch(
         "/api/admin/sessions",
         {
           method: "DELETE",
@@ -2424,7 +2424,3 @@ export default function SecurityPage() {
     </main>
   );
 }
-
-
-
-
