@@ -776,7 +776,7 @@ export default function SecurityPage() {
       setIntegrityBaselineMessage("");
       setIntegrityRepairResult(null);
 
-      const res = await fetch(
+      const res = await adminFetch(
         "/api/admin/security/integrity",
         {
           method: "POST",
@@ -2424,6 +2424,7 @@ export default function SecurityPage() {
     </main>
   );
 }
+
 
 
 
