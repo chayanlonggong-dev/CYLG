@@ -1,16 +1,23 @@
 import type { NextConfig } from "next";
 
+const CSP = [
+  "default-src 'self'",
+  "img-src 'self' data: blob: https://res.cloudinary.com",
+  "media-src 'self' blob: https://res.cloudinary.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 const nextConfig: NextConfig = {
-  // React
   reactStrictMode: true,
-
-  // Remove x-powered-by
   poweredByHeader: false,
-
-  // Enable gzip / brotli compression
   compress: true,
 
-  // Images
   images: {
     remotePatterns: [
       {
@@ -18,16 +25,10 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
-
-    formats: [
-      "image/avif",
-      "image/webp",
-    ],
-
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 365,
   },
 
-  // Turbopack
   turbopack: {
     root: process.cwd(),
   },
@@ -36,11 +37,10 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-
         headers: [
           {
             key: "X-Frame-Options",
-            value: "SAMEORIGIN",
+            value: "DENY",
           },
           {
             key: "X-Content-Type-Options",
@@ -61,6 +61,10 @@ const nextConfig: NextConfig = {
           {
             key: "X-DNS-Prefetch-Control",
             value: "on",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: CSP,
           },
         ],
       },

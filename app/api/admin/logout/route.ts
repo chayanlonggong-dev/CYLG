@@ -1,19 +1,8 @@
-import {
-  NextRequest,
-  NextResponse,
-} from "next/server";
-
-import {
-  prisma,
-} from "@/lib/prisma";
-
-import {
-  createAuditLog,
-} from "@/lib/audit/audit";
-
-import {
-  apiMethodNotAllowed,
-} from "@/lib/api/response";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { createAuditLog } from "@/lib/audit/audit";
+import { apiMethodNotAllowed } from "@/lib/api/response";
+import { clearCsrfCookie } from "@/lib/security/csrf";
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,9 +41,12 @@ export async function POST(request: NextRequest) {
     );
 
     response.cookies.delete("cylg_admin_session");
+    clearCsrfCookie(response);
+
     return response;
   } catch (error) {
     console.error("Admin logout error:", error);
+
     const response = NextResponse.json(
       {
         success: true,
@@ -64,10 +56,15 @@ export async function POST(request: NextRequest) {
     );
 
     response.cookies.delete("cylg_admin_session");
+    clearCsrfCookie(response);
+
     return response;
   }
 }
 
 export async function OPTIONS() {
-  return apiMethodNotAllowed("Method not allowed for this route.", "METHOD_NOT_ALLOWED");
+  return apiMethodNotAllowed(
+    "Method not allowed for this route.",
+    "METHOD_NOT_ALLOWED"
+  );
 }

@@ -1,48 +1,60 @@
 import { NextRequest } from "next/server";
-
 import {
-  getSession,
+  getSessionByToken,
+  getSessionWithUser,
 } from "@/lib/security/session";
 
-export function getSessionFromRequest(
+/**
+ * 從 cookie 讀取並驗證 Admin session（查 Prisma）
+ */
+export async function getSessionFromRequest(
   request: NextRequest
 ) {
-  const sessionId =
-  request.cookies.get(
-    "cylg_admin_session"
-  )?.value;
+  const token =
+    request.cookies.get("cylg_admin_session")?.value;
 
-  if (!sessionId) {
+  if (!token) {
     return null;
   }
 
-  return getSession(sessionId);
+  return getSessionByToken(token);
 }
 
-export function isAuthenticated(
+/**
+ * 取得 session + adminUser
+ */
+export async function getSessionWithUserFromRequest(
   request: NextRequest
 ) {
-  const session =
-    getSessionFromRequest(request);
+  const token =
+    request.cookies.get("cylg_admin_session")?.value;
 
+  if (!token) {
+    return null;
+  }
+
+  return getSessionWithUser(token);
+}
+
+export async function isAuthenticated(
+  request: NextRequest
+): Promise<boolean> {
+  const session = await getSessionFromRequest(request);
   return Boolean(session);
 }
 
-export function requireAuth(
-  request: NextRequest
-) {
-  const session =
-    getSessionFromRequest(request);
+export async function requireAuth(request: NextRequest) {
+  const session = await getSessionFromRequest(request);
 
   if (!session) {
     return {
-      authenticated: false,
+      authenticated: false as const,
       session: null,
     };
   }
 
   return {
-    authenticated: true,
+    authenticated: true as const,
     session,
   };
 }

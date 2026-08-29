@@ -1,3 +1,4 @@
+import { setCsrfCookie } from "@/lib/security/csrf";
 import {
   NextRequest,
 } from "next/server";
@@ -962,28 +963,19 @@ export async function POST(
         200
       );
 
-    response.cookies.set(
+        response.cookies.set(
       "cylg_admin_session",
       token,
       {
         httpOnly: true,
-
-        secure:
-          process.env.NODE_ENV ===
-          "production",
-
-        sameSite:
-          "lax",
-
-        maxAge:
-          60 *
-          60 *
-          24 *
-          7,
-
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
         path: "/",
       }
     );
+
+    setCsrfCookie(response);
 
     return response;
   } catch (error) {

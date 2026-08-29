@@ -1,0 +1,101 @@
+﻿diff --git a/proxy.ts b/proxy.ts
+index fd270f9..b2e82f4 100644
+--- a/proxy.ts
++++ b/proxy.ts
+@@ -1,18 +1,13 @@
+-import {
+-  NextRequest,
+-  NextResponse,
+-} from "next/server";
+-
+-import {
+-  firewall,
+-} from "@/lib/security/firewall";
+-
+-export async function proxy(
+-  request: NextRequest
+-) {
+-  // Firewall
+-  const result =
+-    await firewall(request);
++import { NextRequest, NextResponse } from "next/server";
++import { firewall } from "@/lib/security/firewall";
++import { verifyCsrf } from "@/lib/security/csrf";
++import { verifyAdminOrigin } from "@/lib/security/origin";
++
++export async function proxy(request: NextRequest) {
++  const pathname = request.nextUrl.pathname;
++
++  // Firewall๏ผAdmin ้  + API๏ผ
++  const result = await firewall(request);
+ 
+   if (!result.allowed) {
+     return NextResponse.json(
+@@ -26,26 +21,44 @@ export async function proxy(
+     );
+   }
+ 
+-  const pathname =
+-    request.nextUrl.pathname;
+-
+-  // Protect Admin Pages
++  // Admin ้ ้ขไฟ่ญท๏ผ้ค login๏ผ
+   const isAdminPage =
+     pathname.startsWith("/admin") &&
+     !pathname.startsWith("/admin/login");
+ 
+   if (isAdminPage) {
+-    const session =
+-      request.cookies.get(
+-        "cylg_admin_session"
+-      );
++    const session = request.cookies.get("cylg_admin_session");
+ 
+     if (!session?.value) {
+       return NextResponse.redirect(
+-        new URL(
+-          "/admin/login",
+-          request.url
+-        )
++        new URL("/admin/login", request.url)
++      );
++    }
++  }
++
++  // Admin API๏ผOrigin + CSRF๏ผlogin ้คๅค–๏ผ
++  const isAdminApi =
++    pathname.startsWith("/api/admin") &&
++    !pathname.startsWith("/api/admin/login");
++
++  if (isAdminApi) {
++    if (!verifyAdminOrigin(request)) {
++      return NextResponse.json(
++        {
++          success: false,
++          message: "Invalid origin.",
++        },
++        { status: 403 }
++      );
++    }
++
++    if (!verifyCsrf(request)) {
++      return NextResponse.json(
++        {
++          success: false,
++          message: "Invalid CSRF token.",
++        },
++        { status: 403 }
+       );
+     }
+   }
+@@ -54,8 +67,5 @@ export async function proxy(
+ }
+ 
+ export const config = {
+-  matcher: [
+-    "/admin/:path*",
+-    "/api/:path*",
+-  ],
++  matcher: ["/admin/:path*", "/api/:path*"],
+ };
+\ No newline at end of file
