@@ -38,8 +38,9 @@ export async function proxy(request: NextRequest) {
 
   // Admin API：Origin + CSRF（login 除外）
   const isAdminApi =
-    pathname.startsWith("/api/admin") &&
-    !pathname.startsWith("/api/admin/login");
+  pathname.startsWith("/api/admin") &&
+  !pathname.startsWith("/api/admin/login") &&
+  pathname !== "/api/admin/backups/cron";
 
   if (isAdminApi) {
     if (!verifyAdminOrigin(request)) {
