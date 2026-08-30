@@ -27,7 +27,6 @@ export default async function AdminIndexPage() {
   const now = new Date();
 
   if (!session || session.expiresAt <= now) {
-    // Cookie 還在但 session 已無效（例如已 logout）→ 必須重新登入
     redirect("/admin/login");
   }
 
