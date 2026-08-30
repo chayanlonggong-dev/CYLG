@@ -153,7 +153,7 @@ export async function POST(
     // =================================================
 
     const result =
-      repairAllIntegrityIssues();
+      await repairAllIntegrityIssues();
 
     // =================================================
     // Audit Log

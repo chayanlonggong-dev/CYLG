@@ -25,10 +25,6 @@ export async function GET(
   _request: NextRequest
 ) {
   try {
-    // =================================================
-    // Authenticate administrator
-    // =================================================
-
     const session =
       await getAdminSession();
 
@@ -39,16 +35,8 @@ export async function GET(
       );
     }
 
-    // =================================================
-    // Run read-only integrity check
-    // =================================================
-
     const result =
-      checkIntegrity();
-
-    // =================================================
-    // Return result
-    // =================================================
+      await checkIntegrity();
 
     return apiSuccess(
       {
@@ -79,10 +67,6 @@ export async function POST(
   request: NextRequest
 ) {
   try {
-    // =================================================
-    // Authenticate administrator
-    // =================================================
-
     const session =
       await getAdminSession();
 
@@ -92,10 +76,6 @@ export async function POST(
         "UNAUTHORIZED"
       );
     }
-
-    // =================================================
-    // Explicit confirmation is required
-    // =================================================
 
     let body: unknown = {};
 
@@ -135,19 +115,8 @@ export async function POST(
       );
     }
 
-    // =================================================
-    // Inspect current integrity state first
-    // =================================================
-
     const before =
-      checkIntegrity();
-
-    // =================================================
-    // Missing or unreadable files must block baseline
-    // update. Modified files are allowed because this
-    // operation explicitly accepts the current code as
-    // the new trusted version.
-    // =================================================
+      await checkIntegrity();
 
     if (
       before.missing > 0 ||
@@ -164,19 +133,11 @@ export async function POST(
       );
     }
 
-    // =================================================
-    // Update baseline
-    // =================================================
-
     const result =
-      updateIntegrityBaseline();
-
-    // =================================================
-    // Verify immediately after update
-    // =================================================
+      await updateIntegrityBaseline();
 
     const after =
-      checkIntegrity();
+      await checkIntegrity();
 
     if (
       after.modified !== 0 ||
@@ -188,10 +149,6 @@ export async function POST(
         "INTEGRITY_BASELINE_VERIFICATION_FAILED"
       );
     }
-
-    // =================================================
-    // Return verified result
-    // =================================================
 
     return apiSuccess(
       {

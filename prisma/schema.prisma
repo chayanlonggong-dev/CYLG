@@ -184,6 +184,18 @@ model FirewallBlock {
   @@index([enabled])
 }
 
+/// Trusted Security Integrity Baseline (SHA-256 of protected source files).
+/// Persisted in DB so "Update Baseline" survives restarts and new deployments.
+model IntegrityBaseline {
+  id          Int      @id @default(1)
+  version     Int      @default(1)
+  algorithm   String   @default("sha256")
+  generatedAt DateTime
+  files       Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum ModelLevel {
   CROWN
   SSS

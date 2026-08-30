@@ -100,38 +100,9 @@ export default function ContactPopup({
     return null;
   }
 
-  async function openContact(
-    platform:
-      | "whatsapp"
-      | "telegram"
-      | "signal"
-      | "line"
-      | "wechat"
-  ) {
-    if (platform === "wechat") {
-  if (!wechatQr) {
-    return;
-  }
-
-  await fetch("/api/analytics/book", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      platform,
-      modelId,
-      visitorId:
-        localStorage.getItem("visitor-id") ??
-        crypto.randomUUID(),
-    }),
-  }).catch(() => {});
-
-  setIsWechatQrOpen(true);
-  return;
-}
-
-    await fetch("/api/analytics/book", {
+  function trackBookClick(platform: string) {
+    // Fire-and-forget: never block navigation / user gesture
+    fetch("/api/analytics/book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,77 +115,73 @@ export default function ContactPopup({
           crypto.randomUUID(),
       }),
     }).catch(() => {});
+  }
 
-    const text =
-      encodeURIComponent(message);
+  function openContact(
+    platform:
+      | "whatsapp"
+      | "telegram"
+      | "signal"
+      | "line"
+      | "wechat"
+  ) {
+    // WeChat: open QR modal immediately (no external navigation)
+    if (platform === "wechat") {
+      if (!wechatQr) return;
+      setIsWechatQrOpen(true);
+      trackBookClick(platform);
+      return;
+    }
 
+    // Build external URL synchronously so window.open stays inside user gesture
+    const text = encodeURIComponent(message);
     let url = "";
 
     switch (platform) {
       case "whatsapp": {
-        const phone =
-          whatsapp?.replace(
-            /\D/g,
-            ""
-          );
-
+        const phone = whatsapp?.replace(/\D/g, "");
         if (phone) {
-          url =
-            `https://wa.me/${phone}?text=${text}`;
+          url = `https://wa.me/${phone}?text=${text}`;
         }
-
         break;
       }
-
       case "telegram": {
-        const username =
-          telegram
-            ?.replace(
-              /^https?:\/\/t\.me\//i,
-              ""
-            )
-            .replace(
-              /^@/,
-              ""
-            );
-
+        const username = telegram
+          ?.replace(/^https?:\/\/t\.me\//i, "")
+          .replace(/^@/, "");
         if (username) {
-          url =
-            `https://t.me/${username}?text=${text}`;
+          url = `https://t.me/${username}?text=${text}`;
         }
-
         break;
       }
-
       case "signal": {
-        const target =
-          normalizeSignalTarget(signal);
-
+        const target = normalizeSignalTarget(signal);
         if (target) {
-          url =
-            `https://signal.me/#p/${target}`;
+          url = `https://signal.me/#p/${target}`;
         }
-
         break;
       }
-
       case "line": {
         if (line) {
-          url =
-            `https://line.me/R/msg/text/${text}`;
+          url = `https://line.me/R/msg/text/${text}`;
         }
-
         break;
       }
     }
 
-    if (url) {
-      window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer"
-      );
+    if (!url) return;
+
+    // CRITICAL for iOS Safari: open while still inside the click user gesture.
+    // Any await before this causes Safari to lose transient activation and block the popup.
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+
+    // Fallback when popup is blocked (rare if called synchronously)
+    if (!opened) {
+      window.location.href = url;
     }
+
+    // Analytics after navigation is triggered — does not affect user gesture
+    trackBookClick(platform);
   }
 
   return (

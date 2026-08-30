@@ -164,10 +164,10 @@ function backupFile(
 // Repair One File
 // =====================================================
 
-function repairFile(
+async function repairFile(
   item: IntegrityResult,
   backupRoot: string
-): RepairResult {
+): Promise<RepairResult> {
   try {
     const currentPath =
       resolveProjectPath(
@@ -268,7 +268,7 @@ function repairFile(
     // =================================================
 
     const manifest =
-      loadIntegrityManifest();
+      await loadIntegrityManifest();
 
     const manifestEntry =
       manifest.files.find(
@@ -290,7 +290,7 @@ function repairFile(
     }
 
     const verification =
-      checkIntegrity();
+      await checkIntegrity();
 
     const verified =
       verification.results.find(
@@ -349,8 +349,7 @@ function repairFile(
 // Repair All Integrity Issues
 // =====================================================
 
-export function repairAllIntegrityIssues():
-  RepairSummary {
+export async function repairAllIntegrityIssues(): Promise<RepairSummary> {
   // ===================================================
   // Verify trusted source
   // ===================================================
@@ -370,7 +369,7 @@ export function repairAllIntegrityIssues():
   // ===================================================
 
   const integrity =
-    checkIntegrity();
+    await checkIntegrity();
 
   const targets =
     integrity.results.filter(
@@ -433,7 +432,7 @@ export function repairAllIntegrityIssues():
     const item of targets
   ) {
     results.push(
-      repairFile(
+      await repairFile(
         item,
         backupRoot
       )
