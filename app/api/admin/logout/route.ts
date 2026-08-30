@@ -4,6 +4,18 @@ import { createAuditLog } from "@/lib/audit/audit";
 import { apiMethodNotAllowed } from "@/lib/api/response";
 import { clearCsrfCookie } from "@/lib/security/csrf";
 
+function clearAdminSessionCookie(response: NextResponse) {
+  // 必須與 login 寫入時的 path / sameSite / secure 一致，否則瀏覽器可能清不掉
+  response.cookies.set("cylg_admin_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  response.cookies.delete("cylg_admin_session");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get("cylg_admin_session")?.value;
@@ -40,7 +52,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    response.cookies.delete("cylg_admin_session");
+    clearAdminSessionCookie(response);
     clearCsrfCookie(response);
 
     return response;
@@ -55,7 +67,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    response.cookies.delete("cylg_admin_session");
+    clearAdminSessionCookie(response);
     clearCsrfCookie(response);
 
     return response;
