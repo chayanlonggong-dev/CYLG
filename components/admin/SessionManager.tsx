@@ -12,6 +12,8 @@ const SESSION_TIMEOUT = 10 * 60 * 1000;
 const WARNING_TIME = 60 * 1000;
 const ACTIVITY_PING_INTERVAL = 60 * 1000;
 const SESSION_CHECK_INTERVAL = 60 * 1000;
+/** 避免微抖、連續捲動把計時一直重置 */
+const ACTIVITY_RESET_THROTTLE = 15 * 1000;
 
 export default function SessionManager() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -19,6 +21,7 @@ export default function SessionManager() {
   const checkRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastPingRef = useRef(0);
   const lastActivityRef = useRef(Date.now());
+  const lastResetRef = useRef(0);
   const loggingOutRef = useRef(false);
 
   const [showWarning, setShowWarning] = useState(false);
@@ -62,7 +65,6 @@ export default function SessionManager() {
     lastPingRef.current = now;
 
     try {
-      // Must use adminFetch so CSRF header is sent (proxy requires it).
       const res = await adminFetch("/api/admin/session/activity", {
         method: "POST",
       });
@@ -77,8 +79,6 @@ export default function SessionManager() {
 
   async function checkSession() {
     try {
-      // Correct route: /api/admin/session/activity/check
-      // (old path /api/admin/session/check does not exist)
       const res = await adminFetch(
         "/api/admin/session/activity/check",
         {
@@ -111,8 +111,19 @@ export default function SessionManager() {
     }
   }
 
-  function resetTimer() {
-    lastActivityRef.current = Date.now();
+  function resetTimer(force = false) {
+    const now = Date.now();
+
+    if (
+      !force &&
+      now - lastResetRef.current < ACTIVITY_RESET_THROTTLE
+    ) {
+      lastActivityRef.current = now;
+      return;
+    }
+
+    lastResetRef.current = now;
+    lastActivityRef.current = now;
     clearTimers();
     setShowWarning(false);
     pingActivity();
@@ -126,11 +137,6 @@ export default function SessionManager() {
     }, SESSION_TIMEOUT);
   }
 
-  /**
-   * Mobile browsers throttle timers in background.
-   * When user returns, enforce idle timeout client-side
-   * and re-validate session with the server.
-   */
   function enforceIdleOnResume() {
     const idleMs = Date.now() - lastActivityRef.current;
 
@@ -143,7 +149,6 @@ export default function SessionManager() {
       setShowWarning(true);
     }
 
-    // Re-arm remaining time so desktop + mobile stay in sync.
     clearTimers();
 
     const remaining = SESSION_TIMEOUT - idleMs;
@@ -167,7 +172,6 @@ export default function SessionManager() {
   }
 
   useEffect(() => {
-    // Login page: no idle protection UI needed.
     if (
       typeof window !== "undefined" &&
       (window.location.pathname === "/admin/login" ||
@@ -176,10 +180,9 @@ export default function SessionManager() {
       return;
     }
 
-    resetTimer();
+    resetTimer(true);
 
     checkRef.current = setInterval(() => {
-      // Client-side idle hard stop (works even if timers were throttled briefly).
       if (Date.now() - lastActivityRef.current >= SESSION_TIMEOUT) {
         logout(true);
         return;
@@ -187,27 +190,24 @@ export default function SessionManager() {
       checkSession();
     }, SESSION_CHECK_INTERVAL);
 
-    // Desktop + mobile activity signals
+    // 已移除 mousemove
     const events: Array<keyof WindowEventMap> = [
-      "mousemove",
       "mousedown",
       "keydown",
       "click",
       "scroll",
       "touchstart",
-      "touchend",
       "pointerdown",
     ];
 
     const onActivity = () => {
-      resetTimer();
+      resetTimer(false);
     };
 
     events.forEach((event) => {
       window.addEventListener(event, onActivity, { passive: true });
     });
 
-    // Critical for mobile: tab / app resume
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
         enforceIdleOnResume();
@@ -271,7 +271,7 @@ export default function SessionManager() {
       <div className="mt-5 flex gap-3">
         <button
           type="button"
-          onClick={resetTimer}
+          onClick={() => resetTimer(true)}
           className="flex-1 rounded-xl bg-yellow-500 py-3 font-bold text-black transition hover:bg-yellow-400"
         >
           Continue
