@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
   compress: true,
 
   images: {
+    unoptimized: true, // ← 關鍵：關閉優化代理，直接用原圖
     remotePatterns: [
       {
         protocol: "https",
