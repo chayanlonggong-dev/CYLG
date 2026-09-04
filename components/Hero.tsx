@@ -108,13 +108,13 @@ export default function Hero() {
           <h1
             className="
               mt-1
-              whitespace-nowrap
-              text-[2.95rem]
+              text-[clamp(1.75rem,9vw,2.95rem)]
               font-black
               leading-[0.94]
               tracking-[-0.04em]
               text-white
               sm:mt-5
+              sm:whitespace-nowrap
               sm:text-[clamp(2.8rem,8vw,5.8rem)]
               sm:tracking-[-0.02em]
             "

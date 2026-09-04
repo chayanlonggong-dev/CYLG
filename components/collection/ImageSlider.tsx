@@ -51,6 +51,7 @@ export default function ImageSlider({
         alt={id}
         fill
         quality={85}
+        unoptimized
         priority={false}
         loading="lazy"
         decoding="async"
