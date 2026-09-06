@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 import fs from "fs";
 import path from "path";
@@ -45,20 +45,10 @@ type SchedulerConfig = {
   lastRunAt: Date | null;
 };
 
-/**
- * Get CRON secret from environment.
- */
 function getCronSecret(): string | undefined {
   return process.env.CRON_SECRET;
 }
 
-/**
- * Validate Authorization header.
- *
- * Expected:
- *
- * Authorization: Bearer <CRON_SECRET>
- */
 function isAuthorized(
   request: NextRequest
 ): boolean {
@@ -74,13 +64,6 @@ function isAuthorized(
   return ua.toLowerCase().includes("vercel-cron");
 }
 
-/**
- * Load Backup Scheduler configuration
- * from PostgreSQL.
- *
- * BackupScheduler is the production
- * source of truth.
- */
 async function loadSchedulerConfig(): Promise<SchedulerConfig> {
   const scheduler =
     await prisma.backupScheduler.findUnique({
@@ -89,10 +72,6 @@ async function loadSchedulerConfig(): Promise<SchedulerConfig> {
       },
     });
 
-  /**
-   * Create default scheduler record
-   * if it does not exist.
-   */
   if (!scheduler) {
     const created =
       await prisma.backupScheduler.create({
@@ -135,9 +114,6 @@ async function loadSchedulerConfig(): Promise<SchedulerConfig> {
   };
 }
 
-/**
- * Get current Malaysia time day name.
- */
 function getCurrentDayName(): string {
   return new Intl.DateTimeFormat(
     "en-US",
@@ -148,14 +124,6 @@ function getCurrentDayName(): string {
   ).format(new Date());
 }
 
-/**
- * Get current Malaysia time.
- *
- * Always returns HH:mm.
- *
- * Midnight is normalized from
- * possible "24:00" to "00:00".
- */
 function getCurrentTime(): string {
   const parts =
     new Intl.DateTimeFormat(
@@ -190,9 +158,6 @@ function getCurrentTime(): string {
   return `${normalizedHour}:${minute}`;
 }
 
-/**
- * Get current Malaysia calendar date key: YYYY-MM-DD
- */
 function getCurrentMalaysiaDateKey(): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kuala_Lumpur",
@@ -202,9 +167,6 @@ function getCurrentMalaysiaDateKey(): string {
   }).format(new Date());
 }
 
-/**
- * Convert a Date to Malaysia calendar date key.
- */
 function toMalaysiaDateKey(date: Date): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kuala_Lumpur",
@@ -214,17 +176,11 @@ function toMalaysiaDateKey(date: Date): string {
   }).format(date);
 }
 
-/**
- * Extract HH from "HH:mm".
- */
 function getHourFromTime(time: string): string {
   const hour = (time || "00:00").split(":")[0] ?? "00";
   return hour === "24" ? "00" : hour.padStart(2, "0");
 }
 
-/**
- * Copy supported media files recursively.
- */
 function copyMedia(
   source: string,
   destination: string
@@ -288,9 +244,6 @@ function copyMedia(
   }
 }
 
-/**
- * Count images and videos.
- */
 function countMedia(
   directory: string
 ): {
@@ -368,8 +321,7 @@ function countMedia(
 
 /**
  * Create database backup.
- */
-async function createDatabaseBackup() {
+ */async function createDatabaseBackup() {
   const [
     models,
     websiteSettings,
@@ -486,9 +438,6 @@ async function createDatabaseBackup() {
   };
 }
 
-/**
- * Create media backup.
- */
 async function createMediaBackup() {
   const publicDir =
     path.join(
@@ -603,10 +552,6 @@ async function createMediaBackup() {
   };
 }
 
-/**
- * Apply retention separately
- * to Database and Media backups.
- */
 async function applyRetention(
   retention: number
 ): Promise<string[]> {
@@ -751,23 +696,10 @@ async function applyRetention(
   );
 
   return deleted;
-}
-
-/**
- * Cron endpoint.
- *
- * Vercel Cron sends:
- *
- * Authorization:
- * Bearer <CRON_SECRET>
- */
-export async function GET(
+}export async function GET(
   request: NextRequest
 ) {
   try {
-    /**
-     * 1. Authentication
-     */
     if (
       !isAuthorized(
         request
@@ -788,16 +720,9 @@ export async function GET(
       );
     }
 
-    /**
-     * 2. Load scheduler
-     *    from PostgreSQL.
-     */
     const config =
       await loadSchedulerConfig();
 
-    /**
-     * 3. Check enabled.
-     */
     if (
       !config.enabled
     ) {
@@ -827,10 +752,6 @@ export async function GET(
       });
     }
 
-    /**
-     * 4. Get current Malaysia
-     *    schedule.
-     */
     const currentDay =
       getCurrentDayName();
 
@@ -840,9 +761,6 @@ export async function GET(
     const currentDateKey =
       getCurrentMalaysiaDateKey();
 
-    /**
-     * 5. Check if today matches the configured day.
-     */
     if (
       currentDay !==
       config.day
@@ -885,62 +803,7 @@ export async function GET(
     }
 
     /**
-     * 6. Check if current hour matches the scheduled hour.
-     *    (Vercel Cron usually triggers once per hour)
-     */
-    const scheduledHour =
-      getHourFromTime(
-        config.time
-      );
-
-    const currentHour =
-      getHourFromTime(
-        currentTime
-      );
-
-    if (
-      currentHour !==
-      scheduledHour
-    ) {
-      return NextResponse.json({
-        success:
-          true,
-
-        skipped:
-          true,
-
-        message:
-          `Current hour is ${currentHour}, scheduled hour is ${scheduledHour}.`,
-
-        scheduler: {
-          enabled:
-            config.enabled,
-
-          day:
-            config.day,
-
-          time:
-            config.time,
-
-          retention:
-            config.retention,
-        },
-
-        current: {
-          day:
-            currentDay,
-
-          time:
-            currentTime,
-
-          dateKey:
-            currentDateKey,
-        },
-      });
-    }
-
-    /**
-     * 7. Prevent running more than once on the same Malaysia calendar day.
+     * Prevent running more than once on the same Malaysia calendar day.
      */
     if (
       config.lastRunAt
@@ -995,26 +858,17 @@ export async function GET(
       }
     }
 
-    /**
-     * 8. Execute backups.
-     */
     const databaseBackup =
       await createDatabaseBackup();
 
     const mediaBackup =
       await createMediaBackup();
 
-    /**
-     * 9. Apply retention policy.
-     */
     const deletedIds =
       await applyRetention(
         config.retention
       );
 
-    /**
-     * 10. Update lastRunAt.
-     */
     const now =
       new Date();
 
@@ -1028,9 +882,6 @@ export async function GET(
       },
     });
 
-    /**
-     * 11. Audit log.
-     */
     try {
       await createAuditLog({
         action: "SETTINGS_CHANGE",
@@ -1073,9 +924,6 @@ export async function GET(
       );
     }
 
-    /**
-     * 12. Success response.
-     */
     return NextResponse.json({
       success:
         true,
