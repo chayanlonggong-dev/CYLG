@@ -9,14 +9,18 @@ import { createAuditLog } from "@/lib/audit/audit";
 
 export const dynamic = "force-dynamic";
 
+const BACKUP_ROOT = process.env.VERCEL
+  ? "/tmp"
+  : process.cwd();
+
 const DATABASE_BACKUP_DIR = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
+  BACKUP_ROOT,
   "backup",
   "database"
 );
 
 const MEDIA_BACKUP_DIR = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
+  BACKUP_ROOT,
   "backup",
   "media"
 );
