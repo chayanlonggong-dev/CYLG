@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const VISITOR_KEY = "cylg_visitor_id";
 const ACQ_KEY = "cylg_acq";
+const DWELL_MS = 3000;
 
 function getVisitorId(): string {
   let id = localStorage.getItem(VISITOR_KEY);
@@ -52,9 +53,9 @@ export default function AnalyticsTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
-    async function track() {
-      if (shouldSkipTracking(pathname)) return;
+    if (shouldSkipTracking(pathname)) return;
 
+    const timer = window.setTimeout(async () => {
       try {
         const visitorId = getVisitorId();
         const acq = getAcquisition();
@@ -72,9 +73,9 @@ export default function AnalyticsTracker() {
       } catch (error) {
         console.error("Analytics Track Error:", error);
       }
-    }
+    }, DWELL_MS);
 
-    if (pathname) void track();
+    return () => window.clearTimeout(timer);
   }, [pathname]);
 
   return null;

@@ -434,8 +434,8 @@ export async function GET(request: NextRequest) {
       if (count >= 3) us3Plus++;
     }
 
-    const recentUsRaw = (recentVisits as VisitRow[])
-      .filter((v) => isUnitedStates(v.country) && isPublicRealHuman(v))
+        const recentUsRaw = (recentVisits as VisitRow[])
+      .filter((v) => isPublicRealHuman(v))
       .slice(0, 200);
 
     const usSessionMap = new Map<

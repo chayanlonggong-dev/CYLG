@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-09-06T17:52:31.455Z",
+  "generatedAt": "2026-09-06T18:47:26.007Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -15,8 +15,8 @@
     },
     {
       "path": "app/admin/analytics/page.tsx",
-      "hash": "559c30a733c7e1416a9e52039e6302659b17144bba6d75f5dbd633c262a3fa30",
-      "size": 25428
+      "hash": "80570c112794f348f95146516feb9059f0d0f83db5dad5349ac663df4560f9e0",
+      "size": 17848
     },
     {
       "path": "app/admin/backups/page.tsx",
@@ -125,8 +125,8 @@
     },
     {
       "path": "app/api/admin/analytics/route.ts",
-      "hash": "7bfe7e50520b2a7700eaf322ee344f708df31b22772db524c40f3cc80ac32c54",
-      "size": 20741
+      "hash": "3bb575a5d45c1063010801ccc1846e347a45d09c7138bbe48444f1dd7a1b6f1d",
+      "size": 20716
     },
     {
       "path": "app/api/admin/backups/[id]/download/route.ts",
@@ -660,8 +660,8 @@
     },
     {
       "path": "components/analytics/AnalyticsTracker.tsx",
-      "hash": "6fbee297a34259a840a25d3500d14da6a5ac6b852cf8525f814a905384bb64ae",
-      "size": 2151
+      "hash": "a5a7d06f4f1d1ee2c90c36e850d897e7eb8df1612e59e012623c55dd6b20453b",
+      "size": 2219
     },
     {
       "path": "components/collection/CollectionCard.tsx",

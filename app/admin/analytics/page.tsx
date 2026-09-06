@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -13,18 +13,6 @@ type Overview = {
   confirmedBookings: number;
 };
 
-type UsTraffic = {
-  visitors: number;
-  sessions: number;
-  pageViews: number;
-  avgPagesPerVisitor: number;
-  engagedVisitors: number;
-  modelViewers: number;
-  contactClicks: number;
-  potentialLeads: number;
-  confirmedBookings: number;
-};
-
 type Funnel = {
   visitors?: number;
   engagedVisitors?: number;
@@ -32,12 +20,6 @@ type Funnel = {
   contactClicks?: number;
   potentialLeads?: number;
   confirmedBookings?: number;
-  usVisitors?: number;
-  usEngagedVisitors?: number;
-  usModelViewers?: number;
-  usContactClicks?: number;
-  usPotentialLeads?: number;
-  usConfirmedBookings?: number;
 };
 
 type ContactActivity = {
@@ -86,7 +68,6 @@ type AnalyticsPayload = {
   range: string;
   timezone: string;
   overview: Overview;
-  usTraffic: UsTraffic;
   trafficQuality: {
     realHumanVisitors: number;
     realHumanPageViews: number;
@@ -95,27 +76,15 @@ type AnalyticsPayload = {
     developmentTraffic: number;
     suspiciousTraffic: number;
   };
-  usVisitorQuality: {
-    usVisitors: number;
-    visitorsWith2PlusPages: number;
-    visitorsWith3PlusPages: number;
-    modelPageViewers: number;
-    contactClickers: number;
-    potentialLeads: number;
-    confirmedBookings: number;
-  };
   customerFunnel: Funnel;
-  usCustomerFunnel: Funnel;
   contactActivity: ContactActivity;
   trafficSources: SourceRow[];
-  usTrafficSources: SourceRow[];
   topModels: ModelRow[];
   topCollections: CollectionRow[];
   recentUsVisitors: RecentUs[];
   countries: { name: string; count: number }[];
   browsers: { name: string; count: number }[];
   devices: { name: string; count: number }[];
-  trafficChart: { date: string; views: number; usViews: number }[];
 };
 
 const RANGES = [
@@ -232,11 +201,8 @@ export default function AnalyticsPage() {
   }, [load]);
 
   const ov = data?.overview;
-  const us = data?.usTraffic;
   const tq = data?.trafficQuality;
-  const uq = data?.usVisitorQuality;
   const funnel = data?.customerFunnel;
-  const usFunnel = data?.usCustomerFunnel;
   const contact = data?.contactActivity;
 
   return (
@@ -251,8 +217,7 @@ export default function AnalyticsPage() {
               CYLG Website Analytics
             </h1>
             <p className="mt-2 text-xs text-gray-400 sm:text-sm">
-              Same data on phone & desktop · Asia/Bangkok (UTC+7) · No fabricated
-              data
+              Worldwide traffic · Asia/Bangkok
             </p>
           </div>
           <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
@@ -281,7 +246,7 @@ export default function AnalyticsPage() {
           </p>
         )}
 
-        {data && ov && us && (
+        {data && ov && (
           <>
             <section className="mt-10">
               <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">
@@ -289,8 +254,8 @@ export default function AnalyticsPage() {
               </h2>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 <Stat label="Real Visitors" value={ov.realVisitors} accent="text-white" />
-                <Stat label="🇺🇸 US Visitors" value={ov.usVisitors} accent="text-blue-400" />
-                <Stat label="Other Visitors" value={ov.otherVisitors} />
+                <Stat label="US Visitors" value={ov.usVisitors} accent="text-blue-400" />
+                <Stat label="Other Countries" value={ov.otherVisitors} />
                 <Stat label="Page Views" value={ov.pageViews} />
                 <Stat label="Currently Online" value={ov.currentlyOnline} accent="text-emerald-400" />
                 <Stat label="Contact Clicks" value={ov.contactClicks} accent="text-green-400" />
@@ -305,29 +270,9 @@ export default function AnalyticsPage() {
             </section>
 
             <section className="mt-10">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-blue-400">
-                🇺🇸 US Traffic
-              </h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
-                <Stat label="US Visitors" value={us.visitors} accent="text-blue-400" />
-                <Stat label="US Sessions" value={us.sessions} />
-                <Stat label="US Page Views" value={us.pageViews} />
-                <Stat label="Avg Pages / Visitor" value={us.avgPagesPerVisitor} />
-                <Stat label="Engaged Visitors" value={us.engagedVisitors} accent="text-emerald-400" />
-                <Stat label="Model Viewers" value={us.modelViewers} />
-                <Stat label="Contact Clicks" value={us.contactClicks} accent="text-green-400" />
-                <Stat label="Potential Leads" value={us.potentialLeads} accent="text-violet-400" />
-                <Stat label="Confirmed Bookings" value={us.confirmedBookings} />
-              </div>
-            </section>
-
-            <section className="mt-10 grid gap-6 lg:grid-cols-2">
               <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-6">
                 <h2 className="text-xl font-bold text-yellow-400">Traffic Quality</h2>
-                <p className="mt-1 text-xs text-gray-500">
-                  Public analytics only count Real Human Visitors
-                </p>
-                <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5">
                   <Stat label="Real Human" value={tq?.realHumanVisitors ?? 0} accent="text-emerald-400" />
                   <Stat label="Bot / Crawler" value={tq?.botCrawler ?? 0} accent="text-red-400" />
                   <Stat label="Admin Traffic" value={tq?.adminTraffic ?? 0} />
@@ -335,21 +280,9 @@ export default function AnalyticsPage() {
                   <Stat label="Suspicious" value={tq?.suspiciousTraffic ?? 0} />
                 </div>
               </div>
-
-              <div className="rounded-3xl border border-blue-500/20 bg-[#101010] p-6">
-                <h2 className="text-xl font-bold text-blue-400">🇺🇸 US Visitor Quality</h2>
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <Stat label="US Visitors" value={uq?.usVisitors ?? 0} accent="text-blue-400" />
-                  <Stat label="2+ Page Views" value={uq?.visitorsWith2PlusPages ?? 0} />
-                  <Stat label="3+ Page Views" value={uq?.visitorsWith3PlusPages ?? 0} />
-                  <Stat label="Model Page Viewers" value={uq?.modelPageViewers ?? 0} />
-                  <Stat label="Contact Clickers" value={uq?.contactClickers ?? 0} accent="text-green-400" />
-                  <Stat label="Potential Leads" value={uq?.potentialLeads ?? 0} accent="text-violet-400" />
-                </div>
-              </div>
             </section>
 
-            <section className="mt-10 grid gap-6 lg:grid-cols-2">
+            <section className="mt-10">
               <FunnelView
                 title="Customer Funnel"
                 steps={[
@@ -359,17 +292,6 @@ export default function AnalyticsPage() {
                   { label: "Contact Clicks", value: funnel?.contactClicks ?? 0 },
                   { label: "Potential Leads", value: funnel?.potentialLeads ?? 0 },
                   { label: "Confirmed Bookings", value: funnel?.confirmedBookings ?? 0 },
-                ]}
-              />
-              <FunnelView
-                title="🇺🇸 US Customer Funnel"
-                steps={[
-                  { label: "US Visitors", value: usFunnel?.usVisitors ?? 0 },
-                  { label: "US Engaged", value: usFunnel?.usEngagedVisitors ?? 0 },
-                  { label: "US Model Viewers", value: usFunnel?.usModelViewers ?? 0 },
-                  { label: "US Contact Clicks", value: usFunnel?.usContactClicks ?? 0 },
-                  { label: "US Potential Leads", value: usFunnel?.usPotentialLeads ?? 0 },
-                  { label: "US Confirmed Bookings", value: usFunnel?.usConfirmedBookings ?? 0 },
                 ]}
               />
             </section>
@@ -382,9 +304,6 @@ export default function AnalyticsPage() {
                     Total {contact?.total ?? 0} clicks
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Contact Click ≠ Lead · Lead ≠ Booking · Booking ≠ Confirmed Booking
-                </p>
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                   {["whatsapp", "telegram", "signal", "line", "wechat"].map((p) => (
                     <div
@@ -395,18 +314,17 @@ export default function AnalyticsPage() {
                       <p className="mt-2 text-2xl font-black text-yellow-400">
                         {contact?.platforms?.[p] ?? 0}
                       </p>
-                      <p className="text-xs text-gray-500">clicks</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            <section className="mt-10 grid gap-6 lg:grid-cols-2">
+            <section className="mt-10">
               <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-6">
                 <h2 className="text-xl font-bold text-yellow-400">Traffic Sources</h2>
                 <div className="mt-4 overflow-x-auto">
-                  <table className="w-full min-w-480px text-left text-sm">
+                  <table className="w-full text-left text-sm">
                     <thead className="text-gray-500">
                       <tr>
                         <th className="py-2">Source</th>
@@ -426,48 +344,6 @@ export default function AnalyticsPage() {
                           <td>{s.potentialLeads}</td>
                         </tr>
                       ))}
-                      {(!data.trafficSources || data.trafficSources.length === 0) && (
-                        <tr>
-                          <td colSpan={5} className="py-4 text-gray-500">
-                            No data
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-blue-500/20 bg-[#101010] p-6">
-                <h2 className="text-xl font-bold text-blue-400">🇺🇸 US Traffic Sources</h2>
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full min-w-480px text-left text-sm">
-                    <thead className="text-gray-500">
-                      <tr>
-                        <th className="py-2">Source</th>
-                        <th>Visitors</th>
-                        <th>Views</th>
-                        <th>Contact</th>
-                        <th>Leads</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(data.usTrafficSources || []).slice(0, 12).map((s) => (
-                        <tr key={s.source} className="border-t border-white/5">
-                          <td className="py-2 font-medium text-blue-400">{s.source}</td>
-                          <td>{s.visitors}</td>
-                          <td>{s.pageViews}</td>
-                          <td>{s.contactClicks}</td>
-                          <td>{s.potentialLeads}</td>
-                        </tr>
-                      ))}
-                      {(!data.usTrafficSources || data.usTrafficSources.length === 0) && (
-                        <tr>
-                          <td colSpan={5} className="py-4 text-gray-500">
-                            No US data in this range
-                          </td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
@@ -489,15 +365,9 @@ export default function AnalyticsPage() {
                           Views {m.views} · Unique {m.uniqueVisitors}
                         </p>
                       </div>
-                      <div className="text-right text-sm">
-                        <p className="text-blue-400">🇺🇸 {m.usVisitors}</p>
-                        <p className="text-green-400">💬 {m.contactClicks}</p>
-                      </div>
+                      <p className="text-green-400">💬 {m.contactClicks}</p>
                     </div>
                   ))}
-                  {(!data.topModels || data.topModels.length === 0) && (
-                    <p className="text-gray-500">No model views yet</p>
-                  )}
                 </div>
               </div>
 
@@ -515,25 +385,16 @@ export default function AnalyticsPage() {
                           Views {c.views} · Visitors {c.visitors}
                         </p>
                       </div>
-                      <div className="text-right text-sm">
-                        <p className="text-blue-400">🇺🇸 {c.usVisitors}</p>
-                        <p className="text-green-400">💬 {c.contactClicks}</p>
-                      </div>
+                      <p className="text-green-400">💬 {c.contactClicks}</p>
                     </div>
                   ))}
-                  {(!data.topCollections || data.topCollections.length === 0) && (
-                    <p className="text-gray-500">No collection data yet</p>
-                  )}
                 </div>
               </div>
             </section>
 
             <section className="mt-10">
-              <div className="rounded-3xl border border-blue-500/20 bg-[#101010] p-6">
-                <h2 className="text-xl font-bold text-blue-400">🇺🇸 Recent US Visitors</h2>
-                <p className="mt-1 text-xs text-gray-500">
-                  Anonymized · No full IP · No personal identity claims
-                </p>
+              <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-6">
+                <h2 className="text-xl font-bold text-yellow-400">Recent Visitors</h2>
                 <div className="mt-6 space-y-4">
                   {(data.recentUsVisitors || []).map((v, idx) => (
                     <div
@@ -542,7 +403,7 @@ export default function AnalyticsPage() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span>🇺🇸</span>
+                          <span className="text-sm text-gray-400">{v.country || ""}</span>
                           <span className="font-mono text-sm text-gray-400">
                             {v.visitorId}
                           </span>
@@ -560,36 +421,24 @@ export default function AnalyticsPage() {
                         <span className="text-gray-500">Source:</span>{" "}
                         <span className="text-yellow-400">{v.source}</span>
                         <span className="mx-2 text-gray-600">·</span>
-                        <span className="text-gray-500">Duration:</span>{" "}
                         {formatDuration(v.durationSeconds)}
-                        {v.contact && (
-                          <>
-                            <span className="mx-2 text-gray-600">·</span>
-                            <span className="text-green-400">
-                              Contact: {v.contact} ✓
-                            </span>
-                          </>
-                        )}
                       </div>
                       {v.pages?.length > 0 && (
-                        <div className="mt-2 break-all font-mono text-[11px] leading-relaxed text-gray-400 sm:text-xs">
+                        <div className="mt-2 break-all font-mono text-[11px] text-gray-400">
                           {v.pages.join(" → ")}
                         </div>
                       )}
                     </div>
                   ))}
-                  {(!data.recentUsVisitors || data.recentUsVisitors.length === 0) && (
-                    <p className="text-gray-500">No recent US visitors</p>
-                  )}
                 </div>
               </div>
             </section>
 
             <section className="mt-10 grid gap-6 lg:grid-cols-3">
               {[
-                { title: "Countries", rows: data.countries },
-                { title: "Browsers", rows: data.browsers },
-                { title: "Devices", rows: data.devices },
+                { title: "Countries — Page Views", rows: data.countries },
+                { title: "Browsers — Page Views", rows: data.browsers },
+                { title: "Devices — Page Views", rows: data.devices },
               ].map((block) => (
                 <div
                   key={block.title}
