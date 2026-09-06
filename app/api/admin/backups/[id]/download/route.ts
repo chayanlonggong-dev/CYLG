@@ -49,7 +49,7 @@ export async function GET(
     }
 
     const filePath = path.join(
-      process.cwd(),
+      /*turbopackIgnore: true*/ process.cwd(),
       "backup",
       "database",
       backup.filename

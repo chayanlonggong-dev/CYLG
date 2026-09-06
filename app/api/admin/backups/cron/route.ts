@@ -10,13 +10,13 @@ import { createAuditLog } from "@/lib/audit/audit";
 export const dynamic = "force-dynamic";
 
 const DATABASE_BACKUP_DIR = path.join(
-  process.cwd(),
+  /*turbopackIgnore: true*/ process.cwd(),
   "backup",
   "database"
 );
 
 const MEDIA_BACKUP_DIR = path.join(
-  process.cwd(),
+  /*turbopackIgnore: true*/ process.cwd(),
   "backup",
   "media"
 );
@@ -499,7 +499,7 @@ async function createDatabaseBackup() {
 async function createMediaBackup() {
   const publicDir =
     path.join(
-      process.cwd(),
+      /*turbopackIgnore: true*/ process.cwd(),
       "public"
     );
 

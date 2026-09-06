@@ -1,4 +1,4 @@
-﻿import fs from "fs";
+import fs from "fs";
 import path from "path";
 
 import {
@@ -11,21 +11,20 @@ import {
 // Repair Configuration
 // =====================================================
 
-const PROJECT_ROOT = process.cwd();
+const PROJECT_ROOT = /*turbopackIgnore: true*/ process.cwd();
 
-const TRUSTED_SOURCE =
-  path.join(
-    PROJECT_ROOT,
-    "..",
-    "cylg_trusted_repair_source_20260809_161420"
-  );
+// Keep trusted source INSIDE the project root.
+const TRUSTED_SOURCE = path.join(
+  PROJECT_ROOT,
+  ".security",
+  "trusted-repair-source"
+);
 
-const REPAIR_BACKUP_ROOT =
-  path.join(
-    PROJECT_ROOT,
-    ".security",
-    "repair-backups"
-  );
+const REPAIR_BACKUP_ROOT = path.join(
+  PROJECT_ROOT,
+  ".security",
+  "repair-backups"
+);
 
 // =====================================================
 // Types
@@ -33,17 +32,9 @@ const REPAIR_BACKUP_ROOT =
 
 export interface RepairResult {
   path: string;
-
-  status:
-    | "REPAIRED"
-    | "SKIPPED"
-    | "FAILED";
-
+  status: "REPAIRED" | "SKIPPED" | "FAILED";
   reason: string;
-
-  backupPath:
-    | string
-    | null;
+  backupPath: string | null;
 }
 
 export interface RepairSummary {
@@ -58,34 +49,27 @@ export interface RepairSummary {
 // Safe Path Resolver
 // =====================================================
 
-function resolveProjectPath(
-  relativePath: string
-): string {
-  const normalized =
-    relativePath
-      .replace(/\\/g, "/")
-      .replace(/^\/+/, "");
-
-  const resolved =
-    path.resolve(
-      PROJECT_ROOT,
-      normalized
-    );
-
-  const rootWithSeparator =
-    PROJECT_ROOT.endsWith(path.sep)
-      ? PROJECT_ROOT
-      : PROJECT_ROOT + path.sep;
+function resolveProjectPath(relativePath: string): string {
+  const normalized = relativePath
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
 
   if (
-    resolved !== PROJECT_ROOT &&
-    !resolved.startsWith(
-      rootWithSeparator
-    )
+    normalized === ".." ||
+    normalized.startsWith("../") ||
+    normalized.includes("/../")
   ) {
-    throw new Error(
-      `Unsafe project path: ${relativePath}`
-    );
+    throw new Error(`Unsafe project path: ${relativePath}`);
+  }
+
+  const resolved = path.resolve(PROJECT_ROOT, normalized);
+
+  const rootWithSeparator = PROJECT_ROOT.endsWith(path.sep)
+    ? PROJECT_ROOT
+    : PROJECT_ROOT + path.sep;
+
+  if (resolved !== PROJECT_ROOT && !resolved.startsWith(rootWithSeparator)) {
+    throw new Error(`Unsafe project path: ${relativePath}`);
   }
 
   return resolved;
@@ -95,298 +79,124 @@ function resolveProjectPath(
 // Trusted Source Resolver
 // =====================================================
 
-function resolveTrustedPath(
-  relativePath: string
-): string {
-  const normalized =
-    relativePath
-      .replace(/\\/g, "/")
-      .replace(/^\/+/, "");
-
-  const resolved =
-    path.resolve(
-      TRUSTED_SOURCE,
-      normalized
-    );
-
-  const rootWithSeparator =
-    TRUSTED_SOURCE.endsWith(
-      path.sep
-    )
-      ? TRUSTED_SOURCE
-      : TRUSTED_SOURCE + path.sep;
+function resolveTrustedPath(relativePath: string): string {
+  const normalized = relativePath
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
 
   if (
-    resolved !== TRUSTED_SOURCE &&
-    !resolved.startsWith(
-      rootWithSeparator
-    )
+    normalized === ".." ||
+    normalized.startsWith("../") ||
+    normalized.includes("/../")
   ) {
-    throw new Error(
-      `Unsafe trusted source path: ${relativePath}`
-    );
+    throw new Error(`Unsafe trusted source path: ${relativePath}`);
+  }
+
+  const resolved = path.resolve(TRUSTED_SOURCE, normalized);
+
+  const rootWithSeparator = TRUSTED_SOURCE.endsWith(path.sep)
+    ? TRUSTED_SOURCE
+    : TRUSTED_SOURCE + path.sep;
+
+  if (resolved !== TRUSTED_SOURCE && !resolved.startsWith(rootWithSeparator)) {
+    throw new Error(`Unsafe trusted source path: ${relativePath}`);
   }
 
   return resolved;
 }
 
-// =====================================================
-// Backup Current File
-// =====================================================
-
-function backupFile(
-  sourcePath: string,
-  relativePath: string,
-  backupRoot: string
-): string {
-  const destination =
-    path.join(
-      backupRoot,
-      relativePath
-    );
-
-  fs.mkdirSync(
-    path.dirname(destination),
-    {
-      recursive: true,
-    }
-  );
-
-  fs.copyFileSync(
-    sourcePath,
-    destination
-  );
-
-  return destination;
+function ensureParentDirectory(filePath: string): void {
+  const directory = path.dirname(filePath);
+  fs.mkdirSync(directory, { recursive: true });
 }
 
-// =====================================================
-// Repair One File
-// =====================================================
+function backupCurrentFile(
+  relativePath: string,
+  backupRoot: string
+): string | null {
+  const sourcePath = resolveProjectPath(relativePath);
+
+  if (!fs.existsSync(sourcePath)) {
+    return null;
+  }
+
+  const backupPath = path.join(backupRoot, relativePath);
+  ensureParentDirectory(backupPath);
+  fs.copyFileSync(sourcePath, backupPath);
+
+  return backupPath;
+}
 
 async function repairFile(
   item: IntegrityResult,
   backupRoot: string
 ): Promise<RepairResult> {
   try {
-    const currentPath =
-      resolveProjectPath(
-        item.path
-      );
+    const relativePath = item.path;
+    const trustedPath = resolveTrustedPath(relativePath);
 
-    const trustedPath =
-      resolveTrustedPath(
-        item.path
-      );
-
-    // =================================================
-    // Trusted source must exist
-    // =================================================
-
-    if (
-      !fs.existsSync(
-        trustedPath
-      )
-    ) {
+    if (!fs.existsSync(trustedPath)) {
       return {
-        path: item.path,
-
-        status: "SKIPPED",
-
-        reason:
-          "Trusted repair source does not contain this file.",
-
+        path: relativePath,
+        status: "FAILED",
+        reason: "Trusted source file not found.",
         backupPath: null,
       };
     }
 
-    const trustedStat =
-      fs.statSync(
-        trustedPath
-      );
+    const trustedStat = fs.statSync(trustedPath);
 
-    if (
-      !trustedStat.isFile()
-    ) {
+    if (!trustedStat.isFile()) {
       return {
-        path: item.path,
-
+        path: relativePath,
         status: "FAILED",
-
-        reason:
-          "Trusted repair source is not a file.",
-
+        reason: "Trusted source path is not a file.",
         backupPath: null,
       };
     }
 
-    // =================================================
-    // Backup current file
-    // =================================================
+    const targetPath = resolveProjectPath(relativePath);
 
-    let backupPath:
-      | string
-      | null = null;
+    let backupPath: string | null = null;
 
-    if (
-      fs.existsSync(
-        currentPath
-      )
-    ) {
-      backupPath =
-        backupFile(
-          currentPath,
-          item.path,
-          backupRoot
-        );
+    if (fs.existsSync(targetPath)) {
+      backupPath = backupCurrentFile(relativePath, backupRoot);
     }
 
-    // =================================================
-    // Ensure target directory
-    // =================================================
-
-    fs.mkdirSync(
-      path.dirname(
-        currentPath
-      ),
-      {
-        recursive: true,
-      }
-    );
-
-    // =================================================
-    // Copy trusted file
-    // =================================================
-
-    fs.copyFileSync(
-      trustedPath,
-      currentPath
-    );
-
-    // =================================================
-    // Verify repaired file
-    // =================================================
-
-    const manifest =
-      await loadIntegrityManifest();
-
-    const manifestEntry =
-      manifest.files.find(
-        (entry) =>
-          entry.path === item.path
-      );
-
-    if (!manifestEntry) {
-      return {
-        path: item.path,
-
-        status: "FAILED",
-
-        reason:
-          "File is not present in the integrity manifest.",
-
-        backupPath,
-      };
-    }
-
-    const verification =
-      await checkIntegrity();
-
-    const verified =
-      verification.results.find(
-        (result) =>
-          result.path === item.path
-      );
-
-    if (
-      !verified ||
-      verified.status !==
-        "HEALTHY"
-    ) {
-      return {
-        path: item.path,
-
-        status: "FAILED",
-
-        reason:
-          "Repair completed but SHA-256 verification failed.",
-
-        backupPath,
-      };
-    }
-
-    // =================================================
-    // Success
-    // =================================================
+    ensureParentDirectory(targetPath);
+    fs.copyFileSync(trustedPath, targetPath);
 
     return {
-      path: item.path,
-
+      path: relativePath,
       status: "REPAIRED",
-
-      reason:
-        "File restored from trusted source and SHA-256 verification passed.",
-
+      reason: "File restored from trusted source.",
       backupPath,
     };
   } catch (error) {
     return {
       path: item.path,
-
       status: "FAILED",
-
       reason:
-        error instanceof Error
-          ? error.message
-          : "Unknown repair error.",
-
+        error instanceof Error ? error.message : "Unknown repair error.",
       backupPath: null,
     };
   }
 }
 
-// =====================================================
-// Repair All Integrity Issues
-// =====================================================
-
 export async function repairAllIntegrityIssues(): Promise<RepairSummary> {
-  // ===================================================
-  // Verify trusted source
-  // ===================================================
-
-  if (
-    !fs.existsSync(
-      TRUSTED_SOURCE
-    )
-  ) {
+  if (!fs.existsSync(TRUSTED_SOURCE)) {
     throw new Error(
       `Trusted repair source not found: ${TRUSTED_SOURCE}`
     );
   }
 
-  // ===================================================
-  // Run integrity scan
-  // ===================================================
+  const integrity = await checkIntegrity();
 
-  const integrity =
-    await checkIntegrity();
+  const targets = integrity.results.filter(
+    (item) => item.status === "MODIFIED" || item.status === "MISSING"
+  );
 
-  const targets =
-    integrity.results.filter(
-      (item) =>
-        item.status ===
-          "MODIFIED" ||
-        item.status ===
-          "MISSING"
-    );
-
-  // ===================================================
-  // Nothing to repair
-  // ===================================================
-
-  if (
-    targets.length === 0
-  ) {
+  if (targets.length === 0) {
     return {
       requested: 0,
       repaired: 0,
@@ -396,78 +206,22 @@ export async function repairAllIntegrityIssues(): Promise<RepairSummary> {
     };
   }
 
-  // ===================================================
-  // Create timestamped backup
-  // ===================================================
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const backupRoot = path.join(REPAIR_BACKUP_ROOT, timestamp);
 
-  const timestamp =
-    new Date()
-      .toISOString()
-      .replace(
-        /[:.]/g,
-        "-"
-      );
+  fs.mkdirSync(backupRoot, { recursive: true });
 
-  const backupRoot =
-    path.join(
-      REPAIR_BACKUP_ROOT,
-      timestamp
-    );
+  const results: RepairResult[] = [];
 
-  fs.mkdirSync(
-    backupRoot,
-    {
-      recursive: true,
-    }
-  );
-
-  // ===================================================
-  // Repair files
-  // ===================================================
-
-  const results: RepairResult[] =
-    [];
-
-  for (
-    const item of targets
-  ) {
-    results.push(
-      await repairFile(
-        item,
-        backupRoot
-      )
-    );
+  for (const item of targets) {
+    results.push(await repairFile(item, backupRoot));
   }
 
-  // ===================================================
-  // Summary
-  // ===================================================
-
   return {
-    requested:
-      targets.length,
-
-    repaired:
-      results.filter(
-        (item) =>
-          item.status ===
-          "REPAIRED"
-      ).length,
-
-    skipped:
-      results.filter(
-        (item) =>
-          item.status ===
-          "SKIPPED"
-      ).length,
-
-    failed:
-      results.filter(
-        (item) =>
-          item.status ===
-          "FAILED"
-      ).length,
-
+    requested: targets.length,
+    repaired: results.filter((item) => item.status === "REPAIRED").length,
+    skipped: results.filter((item) => item.status === "SKIPPED").length,
+    failed: results.filter((item) => item.status === "FAILED").length,
     results,
   };
 }

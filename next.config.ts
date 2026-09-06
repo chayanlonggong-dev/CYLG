@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   compress: true,
 
   images: {
-    unoptimized: true, // ← 關鍵：關閉優化代理，直接用原圖
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -28,10 +28,6 @@ const nextConfig: NextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 365,
-  },
-
-  turbopack: {
-    root: process.cwd(),
   },
 
   async headers() {

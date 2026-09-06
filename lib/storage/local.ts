@@ -13,7 +13,7 @@ const UPLOAD_DIR =
 
 export function getUploadDirectory() {
   return path.resolve(
-    process.cwd(),
+    /*turbopackIgnore: true*/ process.cwd(),
     UPLOAD_DIR
   );
 }

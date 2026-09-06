@@ -1,174 +1,225 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-function detectBrowser(userAgent: string): string {
-  const ua = userAgent;
+const COUNTRY_MAP: Record<string, string> = {
+  US: "United States",
+  TH: "Thailand",
+  MY: "Malaysia",
+  SG: "Singapore",
+  JP: "Japan",
+  KR: "South Korea",
+  CN: "China",
+  TW: "Taiwan",
+  HK: "Hong Kong",
+  VN: "Vietnam",
+  ID: "Indonesia",
+  PH: "Philippines",
+  IN: "India",
+  GB: "United Kingdom",
+  UK: "United Kingdom",
+  FR: "France",
+  DE: "Germany",
+  IE: "Ireland",
+  CA: "Canada",
+  AU: "Australia",
+  SE: "Sweden",
+  NL: "Netherlands",
+  BE: "Belgium",
+  CH: "Switzerland",
+  ES: "Spain",
+  IT: "Italy",
+  BR: "Brazil",
+  MX: "Mexico",
+  AE: "United Arab Emirates",
+  SA: "Saudi Arabia",
+  RU: "Russia",
+  PL: "Poland",
+  NZ: "New Zealand",
+  XX: "Unknown",
+  T1: "Unknown",
+};
 
-  if (/Edg\/([\d.]+)/i.test(ua)) {
-    return "Edge";
-  }
+function normalizeCountry(code: string | null | undefined): string {
+  if (!code) return "Unknown";
+  const c = code.trim().toUpperCase();
+  if (!c || c === "XX" || c === "T1" || c === "UNKNOWN") return "Unknown";
+  return COUNTRY_MAP[c] || code.trim();
+}
 
-  if (/OPR\/([\d.]+)/i.test(ua)) {
-    return "Opera";
-  }
-
-  if (/Brave/i.test(ua)) {
-    return "Brave";
-  }
-
-  if (/SamsungBrowser\/([\d.]+)/i.test(ua)) {
-    return "Samsung Internet";
-  }
-
-  if (/DuckDuckGo/i.test(ua)) {
-    return "DuckDuckGo";
-  }
-
-  if (/Arc/i.test(ua)) {
-    return "Arc";
-  }
-
-  if (/Firefox\/([\d.]+)/i.test(ua)) {
-    return "Firefox";
-  }
-
+function isPrivateIp(ip: string): boolean {
+  if (!ip) return true;
+  const cleaned = ip.split(",")[0].trim();
   if (
-    /Chrome\/([\d.]+)/i.test(ua) &&
-    !/Edg|OPR/i.test(ua)
+    cleaned === "127.0.0.1" ||
+    cleaned === "::1" ||
+    cleaned === "localhost" ||
+    cleaned === "0.0.0.0" ||
+    cleaned === "::"
   ) {
+    return true;
+  }
+  if (
+    cleaned.startsWith("10.") ||
+    cleaned.startsWith("192.168.") ||
+    cleaned.startsWith("169.254.")
+  ) {
+    return true;
+  }
+  const m = cleaned.match(/^172\.(\d+)\./);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    if (n >= 16 && n <= 31) return true;
+  }
+  return false;
+}
+
+function detectBrowser(userAgent: string): string {
+  const ua = userAgent || "";
+
+  if (/Edg\/([\d.]+)/i.test(ua)) return "Edge";
+  if (/OPR\/([\d.]+)/i.test(ua) || /Opera/i.test(ua)) return "Opera";
+  if (/Brave/i.test(ua)) return "Brave";
+  if (/SamsungBrowser\/([\d.]+)/i.test(ua)) return "Samsung Internet";
+  if (/DuckDuckGo/i.test(ua)) return "DuckDuckGo";
+  if (/Arc\//i.test(ua)) return "Arc";
+  if (/Firefox\/([\d.]+)/i.test(ua) || /FxiOS/i.test(ua)) return "Firefox";
+  if (/Chrome\/([\d.]+)/i.test(ua) && !/Edg|OPR|Brave/i.test(ua)) {
     return "Chrome";
   }
-
-  if (/Version\/([\d.]+).*Safari/i.test(ua)) {
+  if (
+    /Version\/([\d.]+).*Safari/i.test(ua) ||
+    (/Safari/i.test(ua) && !/Chrome/i.test(ua))
+  ) {
     return "Safari";
   }
-
   return "Unknown";
 }
 
 function detectDevice(userAgent: string): string {
-  const ua = userAgent.toLowerCase();
+  const ua = (userAgent || "").toLowerCase();
 
-  // Apple
-  if (ua.includes("iphone")) {
-    return "Mobile";
-  }
-
-  if (ua.includes("ipad")) {
-    return "Tablet";
-  }
-
-  // Android
+  if (ua.includes("iphone") || ua.includes("ipod")) return "Mobile";
+  if (ua.includes("ipad")) return "Tablet";
   if (ua.includes("android")) {
-    if (ua.includes("mobile")) {
-      return "Mobile";
-    }
-
+    if (ua.includes("mobile")) return "Mobile";
     return "Tablet";
   }
-
-  // Desktop OS
   if (
     ua.includes("windows") ||
     ua.includes("macintosh") ||
     ua.includes("linux") ||
-    ua.includes("x11")
+    ua.includes("x11") ||
+    ua.includes("cros")
   ) {
     return "Desktop";
   }
-
-  return "Desktop";
+  if (ua.includes("mobile") || ua.includes("phone")) return "Mobile";
+  return "Unknown";
 }
 
 function detectReferrer(referrer: string): string {
-  if (!referrer) return "Direct";
+  if (!referrer || referrer.trim() === "") return "Direct";
 
   const url = referrer.toLowerCase();
 
-  if (url.includes("google.")) return "Google";
+  if (url.includes("google.") || url.includes("googleads") || url.includes("goo.gl"))
+    return "Google";
   if (url.includes("bing.")) return "Bing";
   if (url.includes("yahoo.")) return "Yahoo";
   if (url.includes("duckduckgo.")) return "DuckDuckGo";
 
-  if (url.includes("facebook.")) return "Facebook";
-  if (url.includes("instagram.")) return "Instagram";
+  if (url.includes("facebook.") || url.includes("fb.com") || url.includes("fb.me"))
+    return "Facebook";
+  if (url.includes("instagram.") || url.includes("instagr.am")) return "Instagram";
   if (url.includes("threads.")) return "Threads";
-  if (url.includes("x.com") || url.includes("twitter.")) return "X";
+  if (url.includes("x.com") || url.includes("twitter.") || url.includes("t.co"))
+    return "X";
+  if (url.includes("linkedin.")) return "LinkedIn";
 
-  if (url.includes("telegram.")) return "Telegram";
-  if (url.includes("whatsapp.")) return "WhatsApp";
-  if (url.includes("line.me")) return "LINE";
-  if (url.includes("wechat.")) return "WeChat";
+  if (url.includes("telegram.") || url.includes("t.me")) return "Telegram";
+  if (url.includes("whatsapp.") || url.includes("wa.me") || url.includes("api.whatsapp"))
+    return "WhatsApp";
+  if (url.includes("line.me") || url.includes("line.naver")) return "LINE";
+  if (url.includes("wechat.") || url.includes("weixin.")) return "WeChat";
+  if (url.includes("signal.")) return "Signal";
 
   if (url.includes("reddit.")) return "Reddit";
-  if (url.includes("youtube.")) return "YouTube";
+  if (url.includes("youtube.") || url.includes("youtu.be")) return "YouTube";
   if (url.includes("tiktok.")) return "TikTok";
 
   return "Other";
 }
 
+function shouldSkipPath(path: string): boolean {
+  const p = (path || "").toLowerCase();
+  if (p.startsWith("/admin")) return true;
+  if (p.startsWith("/api")) return true;
+  if (p.startsWith("/_next")) return true;
+  if (p === "/favicon.ico") return true;
+  if (p === "/robots.txt") return true;
+  if (p.startsWith("/sitemap")) return true;
+  return false;
+}
+
+function isLikelyBot(ua: string): boolean {
+  if (!ua || ua.trim().length < 10) return true;
+  return /bot|crawler|spider|slurp|googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|linkedinbot|semrush|ahrefs|petalbot|bytespider|headlesschrome|phantomjs|selenium|puppeteer|playwright|wget|curl\/|python-requests|go-http-client|scrapy|lighthouse|pingdom|uptime/i.test(
+    ua
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
 
-    const userAgent =
-      request.headers.get("user-agent") ?? "";
+    const path = typeof body.path === "string" ? body.path : "/";
 
-    const referrer =
-      request.headers.get("referer") ?? "";
+    if (shouldSkipPath(path)) {
+      return NextResponse.json({ success: true, skipped: "admin_or_internal" });
+    }
+
+    const userAgent = request.headers.get("user-agent") ?? "";
+
+    if (isLikelyBot(userAgent)) {
+      return NextResponse.json({ success: true, skipped: "bot" });
+    }
+
+    const referrerHeader = request.headers.get("referer") ?? "";
+
+    const rawIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      request.headers.get("cf-connecting-ip") ||
+      "";
 
     const rawCountry =
       request.headers.get("cf-ipcountry") ??
       request.headers.get("x-vercel-ip-country") ??
+      request.headers.get("x-country-code") ??
       "";
 
-    const country =
-      rawCountry &&
-      rawCountry !== "XX" &&
-      rawCountry !== "unknown"
-        ? rawCountry
-        : "Local Development";
+    let country = normalizeCountry(rawCountry);
+
+    if (isPrivateIp(rawIp)) {
+      country = "Development";
+    }
 
     await prisma.analyticsVisit.create({
       data: {
-        path: body.path ?? "/",
-
-        visitorId:
-          body.visitorId ?? "unknown",
-
-        ip:
-          request.headers.get("x-forwarded-for") ??
-          request.headers.get("x-real-ip") ??
-          "",
-
-        userAgent,
-
-        referrer: detectReferrer(referrer),
-
-        country: country.trim(),
-
+        path,
+        visitorId: typeof body.visitorId === "string" ? body.visitorId : "unknown",
+        ip: isPrivateIp(rawIp) ? "local" : rawIp.slice(0, 64),
+        userAgent: userAgent.slice(0, 512),
+        referrer: detectReferrer(referrerHeader),
+        country,
         browser: detectBrowser(userAgent),
-
         device: detectDevice(userAgent),
       },
     });
 
-    return NextResponse.json({
-      success: true,
-    });
-
+    return NextResponse.json({ success: true });
   } catch (error) {
-
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 500,
-      }
-    );
-
+    console.error("[analytics/track]", error);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 }

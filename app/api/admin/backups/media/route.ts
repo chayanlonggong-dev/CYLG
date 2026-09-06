@@ -184,7 +184,7 @@ export async function GET() {
      */
     const publicDir =
       path.join(
-        process.cwd(),
+        /*turbopackIgnore: true*/ process.cwd(),
         "public"
       );
 
@@ -206,7 +206,7 @@ export async function GET() {
      */
     const backupRoot =
       path.join(
-        process.cwd(),
+        /*turbopackIgnore: true*/ process.cwd(),
         "backup",
         "media"
       );

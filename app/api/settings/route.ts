@@ -107,18 +107,17 @@ export async function DELETE(
     const field =
       typeof body?.field === "string"
         ? body.field
-        : "favicon"; // 預設維持原本 favicon 行為
+        : "favicon";
 
     const storedPath =
       typeof body?.path === "string"
         ? body.path
         : "";
 
-    // 刪除實際檔案
     if (storedPath) {
       const relativePath = storedPath.replace(/^\/+/, "");
       const absolutePath = path.join(
-        process.cwd(),
+        /*turbopackIgnore: true*/ process.cwd(),
         "public",
         relativePath
       );
@@ -132,7 +131,6 @@ export async function DELETE(
       }
     }
 
-    // 只清對應欄位
     const dataToUpdate =
       field === "wechatQr"
         ? { wechatQr: "" }

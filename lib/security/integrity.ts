@@ -1,4 +1,4 @@
-﻿import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -51,19 +51,22 @@ export interface IntegrityBaselineUpdateResult {
   protectedFiles: number;
 }
 
-const PROJECT_ROOT = process.cwd();
-
+// process.cwd() scoped to .security (NFT-safe)
 const MANIFEST_PATH = path.join(
-  PROJECT_ROOT,
+  /*turbopackIgnore: true*/ process.cwd(),
   ".security",
   "integrity-manifest.json"
 );
 
 const MANIFEST_BACKUP_ROOT = path.join(
-  PROJECT_ROOT,
+  /*turbopackIgnore: true*/ process.cwd(),
   ".security",
   "manifest-backups"
 );
+
+function getProjectRoot(): string {
+  return /*turbopackIgnore: true*/ process.cwd();
+}
 
 // =====================================================
 // Environment Detection (Serverless / Vercel)
@@ -88,16 +91,22 @@ function resolveSafeProjectPath(relativePath: string): string {
     .replace(/\\/g, "/")
     .replace(/^\/+/, "");
 
-  const resolved = path.resolve(PROJECT_ROOT, normalized);
-
-  const rootWithSeparator = PROJECT_ROOT.endsWith(path.sep)
-    ? PROJECT_ROOT
-    : PROJECT_ROOT + path.sep;
-
   if (
-    resolved !== PROJECT_ROOT &&
-    !resolved.startsWith(rootWithSeparator)
+    normalized === ".." ||
+    normalized.startsWith("../") ||
+    normalized.includes("/../")
   ) {
+    throw new Error(`Unsafe integrity path: ${relativePath}`);
+  }
+
+  const root = getProjectRoot();
+  const resolved = path.resolve(root, normalized);
+
+  const rootWithSeparator = root.endsWith(path.sep)
+    ? root
+    : root + path.sep;
+
+  if (resolved !== root && !resolved.startsWith(rootWithSeparator)) {
     throw new Error(`Unsafe integrity path: ${relativePath}`);
   }
 
@@ -210,7 +219,6 @@ async function loadManifestFromDb(): Promise<IntegrityManifest | null> {
 
     return manifest;
   } catch (error) {
-    // Table may not exist yet before migration
     console.error("INTEGRITY: Failed to load baseline from DB:", error);
     return null;
   }
@@ -250,7 +258,6 @@ async function loadManifest(): Promise<IntegrityManifest> {
     return fromDb;
   }
 
-  // Bootstrap from committed file, then persist to DB so it survives restarts
   const fromFile = loadManifestFromFile();
 
   try {
@@ -282,11 +289,6 @@ export async function loadIntegrityManifest(): Promise<IntegrityManifest> {
 // =====================================================
 
 export async function checkIntegrity(): Promise<IntegritySummary> {
-  // ---------------------------------------------------
-  // Serverless / Vercel: skip full source file check
-  // (source tree may not be fully available at runtime)
-  // Still report total from the persistent baseline.
-  // ---------------------------------------------------
   if (isServerlessEnvironment()) {
     let total = 0;
 
@@ -310,11 +312,7 @@ export async function checkIntegrity(): Promise<IntegritySummary> {
     };
   }
 
-  // ---------------------------------------------------
-  // Local / CI: full check against persistent baseline
-  // ---------------------------------------------------
   const manifest = await loadManifest();
-
   const results: IntegrityResult[] = [];
 
   for (const entry of manifest.files) {
@@ -376,14 +374,10 @@ export async function checkIntegrity(): Promise<IntegritySummary> {
 
   return {
     total: results.length,
-    healthy: results.filter((item) => item.status === "HEALTHY")
-      .length,
-    modified: results.filter((item) => item.status === "MODIFIED")
-      .length,
-    missing: results.filter((item) => item.status === "MISSING")
-      .length,
-    errors: results.filter((item) => item.status === "ERROR")
-      .length,
+    healthy: results.filter((item) => item.status === "HEALTHY").length,
+    modified: results.filter((item) => item.status === "MODIFIED").length,
+    missing: results.filter((item) => item.status === "MISSING").length,
+    errors: results.filter((item) => item.status === "ERROR").length,
     results,
   };
 }
@@ -432,60 +426,37 @@ function createManifestFromCurrentFiles(
 // =====================================================
 
 export async function updateIntegrityBaseline(): Promise<IntegrityBaselineUpdateResult> {
-  // Full re-hash requires readable source files.
-  // On pure serverless without source tree this will fail with a clear error.
-  // Local / CI (and any environment where files exist) can always update.
-
   const currentManifest = await loadManifest();
-
   const currentIntegrity = await checkIntegrity();
 
-  if (
-    currentIntegrity.missing > 0 ||
-    currentIntegrity.errors > 0
-  ) {
+  if (currentIntegrity.missing > 0 || currentIntegrity.errors > 0) {
     throw new Error(
       "Trusted baseline cannot be updated while files are missing or unreadable."
     );
   }
 
-  // Local file backup (best-effort; may fail on read-only FS)
   let backupPath = "db:integrity_baseline";
 
   try {
     if (fs.existsSync(MANIFEST_PATH)) {
-      const timestamp = new Date()
-        .toISOString()
-        .replace(/[:.]/g, "-");
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
-      const backupDirectory = path.join(
-        MANIFEST_BACKUP_ROOT,
-        timestamp
-      );
+      const backupDirectory = path.join(MANIFEST_BACKUP_ROOT, timestamp);
 
       fs.mkdirSync(backupDirectory, { recursive: true });
 
-      backupPath = path.join(
-        backupDirectory,
-        "integrity-manifest.json"
-      );
+      backupPath = path.join(backupDirectory, "integrity-manifest.json");
 
       fs.copyFileSync(MANIFEST_PATH, backupPath);
     }
   } catch (backupError) {
-    console.warn(
-      "INTEGRITY: Local file backup skipped:",
-      backupError
-    );
+    console.warn("INTEGRITY: Local file backup skipped:", backupError);
   }
 
-  const updatedManifest =
-    createManifestFromCurrentFiles(currentManifest);
+  const updatedManifest = createManifestFromCurrentFiles(currentManifest);
 
-  // 1) Persist to database (authoritative, survives restarts / new instances)
   await saveManifestToDb(updatedManifest);
 
-  // 2) Also write local file when possible (keeps git/CI bootstrap in sync)
   try {
     writeManifestToFile(updatedManifest);
   } catch (fileError) {

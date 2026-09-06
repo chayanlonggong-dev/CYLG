@@ -27,7 +27,6 @@ export async function GET() {
       node: false,
     };
 
-    // Database — runtime connectivity
     try {
       await prisma.$queryRaw`SELECT 1`;
       checks.database = true;
@@ -35,23 +34,12 @@ export async function GET() {
       checks.database = false;
     }
 
-    // Upload Folder — public assets root exists in the deployment bundle
-    const uploadPath = path.join(process.cwd(), "public");
+    const uploadPath = path.join(
+      /*turbopackIgnore: true*/ process.cwd(),
+      "public"
+    );
     checks.uploads = fs.existsSync(uploadPath);
 
-    /*
-     * Backup readiness (production-correct for Vercel Serverless)
-     *
-     * Local `backup/` on disk is ephemeral on Vercel and is NOT a valid
-     * production readiness signal.
-     *
-     * What is production-relevant today:
-     * - BackupRecord / BackupScheduler live in PostgreSQL
-     * - Export API streams JSON download (no durable local FS required)
-     * - Save-to-disk remains available for non-serverless environments
-     *
-     * Pass when the DB-backed backup subsystem is reachable.
-     */
     try {
       await Promise.all([
         prisma.backupRecord.findFirst(),
@@ -62,10 +50,6 @@ export async function GET() {
       checks.backups = false;
     }
 
-    /*
-     * Environment — align with lib/config/env.ts validateEnv()
-     * Report which keys are missing so Production UI can be diagnosed.
-     */
     const requiredEnv = [
       "DATABASE_URL",
       "SESSION_SECRET",
@@ -77,11 +61,7 @@ export async function GET() {
     );
 
     checks.environment = missingEnv.length === 0;
-
-    // Prisma Client is available if this route module loaded
     checks.prisma = true;
-
-    // Node runtime
     checks.node = true;
 
     const passed = Object.values(checks).filter(Boolean).length;

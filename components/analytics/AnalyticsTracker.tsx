@@ -19,11 +19,30 @@ function getVisitorId(): string {
   return id;
 }
 
+function shouldSkipTracking(pathname: string | null): boolean {
+  if (!pathname) return true;
+
+  const p = pathname.toLowerCase();
+
+  if (p.startsWith("/admin")) return true;
+  if (p.startsWith("/api")) return true;
+  if (p.startsWith("/_next")) return true;
+  if (p === "/favicon.ico") return true;
+  if (p === "/robots.txt") return true;
+  if (p.startsWith("/sitemap")) return true;
+
+  return false;
+}
+
 export default function AnalyticsTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
     async function track() {
+      if (shouldSkipTracking(pathname)) {
+        return;
+      }
+
       try {
         const visitorId = getVisitorId();
 

@@ -38,26 +38,12 @@ export async function POST() {
       prisma.analyticsVisit.findMany(),
     ]);
 
-    /*
-     * Sessions are intentionally NOT included.
-     *
-     * Session tokens are active authentication credentials
-     * and must never be stored inside a portable backup.
-     *
-     * After a restore, administrators must log in again.
-     */
-
     const backup = {
       exportedAt: new Date().toISOString(),
-
       version: "1.0.0",
-
       application: "ChaYanLongGong",
-
       database: "PostgreSQL",
-
       schema: "public",
-
       data: {
         models,
         websiteSettings,
@@ -68,7 +54,7 @@ export async function POST() {
     };
 
     const backupDir = path.join(
-      process.cwd(),
+      /*turbopackIgnore: true*/ process.cwd(),
       "backup",
       "database"
     );
@@ -115,15 +101,10 @@ export async function POST() {
       await prisma.backupRecord.create({
         data: {
           filename: fileName,
-
           type: "Database",
-
           size,
-
           filePath,
-
           checksum,
-
           status: "Completed",
         },
       });
@@ -147,14 +128,10 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-
       message:
         "Database backup saved successfully.",
-
       filename: fileName,
-
       checksum,
-
       size,
     });
   } catch (error) {
