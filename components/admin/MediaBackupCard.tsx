@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { adminFetch } from "@/lib/admin/adminFetch";
 
 export default function MediaBackupCard() {
   const [loading, setLoading] = useState(false);
@@ -9,11 +10,7 @@ export default function MediaBackupCard() {
     setLoading(true);
 
     try {
-      // ① 执行 Media Backup
-      const mediaResponse = await fetch(
-        "/api/admin/backups/media"
-      );
-
+      const mediaResponse = await adminFetch("/api/admin/backups/media");
       const mediaResult = await mediaResponse.json();
 
       if (!mediaResult.success) {
@@ -22,29 +19,17 @@ export default function MediaBackupCard() {
         return;
       }
 
-      // ② 建立 Backup History 记录
       const now = new Date();
+      const filename = `CYLG-MEDIA-${now.getFullYear()}${String(
+        now.getMonth() + 1
+      ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(
+        now.getHours()
+      ).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(
+        now.getSeconds()
+      ).padStart(2, "0")}`;
 
-      const filename =
-        `CYLG-MEDIA-${
-          now.getFullYear()
-        }${
-          String(now.getMonth() + 1).padStart(2, "0")
-        }${
-          String(now.getDate()).padStart(2, "0")
-        }-${
-          String(now.getHours()).padStart(2, "0")
-        }${
-          String(now.getMinutes()).padStart(2, "0")
-        }${
-          String(now.getSeconds()).padStart(2, "0")
-        }`;
-
-      await fetch("/api/admin/backups", {
+      await adminFetch("/api/admin/backups", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           filename,
           type: "Media",
@@ -53,14 +38,9 @@ export default function MediaBackupCard() {
       });
 
       alert(
-        `Media Backup Completed
-
-Images : ${mediaResult.images}
-Videos : ${mediaResult.videos}
-Total : ${mediaResult.total}`
+        `Media Backup Completed\n\nImages : ${mediaResult.images}\nVideos : ${mediaResult.videos}\nTotal : ${mediaResult.total}\n\nThis copies local public/ files only, not Cloudinary.`
       );
 
-      // ③ 自动刷新页面，让 History 出现新纪录
       window.location.reload();
     } catch (error) {
       console.error(error);
@@ -72,14 +52,11 @@ Total : ${mediaResult.total}`
 
   return (
     <div className="rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-      <h2 className="text-2xl font-bold text-yellow-400">
-        Media Backup
-      </h2>
-
+      <h2 className="text-2xl font-bold text-yellow-400">Media Backup</h2>
       <p className="mt-4 text-gray-400">
-        Backup uploaded images and videos.
+        Copies images and videos stored in this project public folder.
+        Model photos on Cloudinary are kept via Database Backup URLs.
       </p>
-
       <button
         onClick={backupMedia}
         disabled={loading}
@@ -87,10 +64,6 @@ Total : ${mediaResult.total}`
       >
         {loading ? "Backing Up..." : "Backup Media"}
       </button>
-
-      <p className="mt-6 text-sm text-gray-500">
-        Export all uploaded images and videos.
-      </p>
     </div>
   );
 }

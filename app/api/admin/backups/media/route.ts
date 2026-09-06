@@ -1,3 +1,5 @@
+import { downloadRemoteMedia } from "@/lib/backup/remote-media";
+export const maxDuration = 300;
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
@@ -260,6 +262,8 @@ export async function GET() {
       publicDir,
       backupFolder
     );
+
+        const remote = await downloadRemoteMedia(backupFolder);
 
     /*
      * Count copied media

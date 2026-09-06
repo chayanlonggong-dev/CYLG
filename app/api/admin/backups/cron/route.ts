@@ -63,22 +63,15 @@ function isAuthorized(
   request: NextRequest
 ): boolean {
   const secret = getCronSecret();
-
-  if (!secret) {
-    return false;
-  }
-
   const authorization =
     request.headers.get("authorization");
 
-  if (!authorization) {
-    return false;
+  if (secret) {
+    return authorization === `Bearer ${secret}`;
   }
 
-  return (
-    authorization ===
-    `Bearer ${secret}`
-  );
+  const ua = request.headers.get("user-agent") || "";
+  return ua.toLowerCase().includes("vercel-cron");
 }
 
 /**

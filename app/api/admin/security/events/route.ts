@@ -92,9 +92,43 @@ function isSecurityEventStatus(
   ).includes(value);
 }
 
-// =====================================================
-// GET SECURITY EVENTS
-// =====================================================
+function isLocalIp(ip: string | null | undefined): boolean {
+  const v = (ip || "").trim().toLowerCase();
+  return (
+    !v ||
+    v === "unknown" ||
+    v === "::1" ||
+    v === "127.0.0.1" ||
+    v === "localhost" ||
+    v === "local"
+  );
+}
+
+function groupSecurityEvents<
+  T extends { type: string; status: string; ip: string | null }
+>(events: T[]) {
+  const map = new Map<
+    string,
+    T & { count: number; isLocal: boolean; originLabel: string }
+  >();
+
+  for (const event of events) {
+    const key = `${event.status}|${event.type}|${event.ip || "unknown"}`;
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, {
+        ...event,
+        count: 1,
+        isLocal: isLocalIp(event.ip),
+        originLabel: isLocalIp(event.ip) ? "Local machine" : "External",
+      });
+    } else {
+      existing.count += 1;
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -219,10 +253,13 @@ export async function GET(request: NextRequest) {
         take,
       });
 
+    const grouped = groupSecurityEvents(events);
+
     return apiSuccess(
       {
-        events,
-        total: events.length,
+        events: grouped,
+        total: grouped.length,
+        rawTotal: events.length,
       },
       "Security events retrieved successfully.",
       200
@@ -239,10 +276,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// =====================================================
-// CREATE SECURITY EVENT
-// =====================================================
 
 export async function POST(
   request: NextRequest
@@ -432,10 +465,6 @@ export async function POST(
   }
 }
 
-// =====================================================
-// UPDATE SECURITY EVENT STATUS
-// =====================================================
-
 export async function PATCH(
   request: NextRequest
 ) {
@@ -490,6 +519,74 @@ export async function PATCH(
       return apiBadRequest(
         "Request body is required.",
         "EMPTY_BODY"
+      );
+    }
+
+    const action =
+      typeof body.action === "string"
+        ? body.action.trim()
+        : "";
+
+    if (action === "resolve_noise") {
+      const noiseTypes = [
+        "LOGIN_FAILED",
+        "INVALID_2FA",
+        "TWO_FACTOR_RATE_LIMITED",
+        "RATE_LIMIT_EXCEEDED",
+      ] as const;
+
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      const openEvents = await prisma.securityEvent.findMany({
+        where: {
+          status: "OPEN",
+          type: {
+            in: [...noiseTypes],
+          },
+        },
+      });
+
+      const ids = openEvents
+        .filter(
+          (event) =>
+            isLocalIp(event.ip) || event.createdAt < cutoff
+        )
+        .map((event) => event.id);
+
+      if (ids.length > 0) {
+        await prisma.securityEvent.updateMany({
+          where: {
+            id: {
+              in: ids,
+            },
+          },
+          data: {
+            status: "RESOLVED",
+            resolvedAt: new Date(),
+          },
+        });
+      }
+
+      await createAuditLog({
+        action: "UPDATE",
+        entity: "SecurityEvent",
+        entityId: "bulk-resolve-noise",
+        userId: String(session.adminUserId),
+        description: "Resolved local/old login noise events.",
+        metadata: {
+          resolved: ids.length,
+          operator: session.username,
+          result: "Success",
+          actionLabel: "SECURITY_EVENT_NOISE_RESOLVED",
+        },
+      });
+
+      return apiSuccess(
+        {
+          resolved: ids.length,
+        },
+        `Resolved ${ids.length} noise events.`,
+        200
       );
     }
 
@@ -601,13 +698,6 @@ export async function PATCH(
   }
 }
 
-// =====================================================
-// DELETE
-// Intentionally disabled.
-// Security events are evidence and should not be
-// casually deleted from the security system.
-// =====================================================
-
 export async function DELETE() {
   return apiError(
     "Security events cannot be deleted.",
@@ -615,10 +705,6 @@ export async function DELETE() {
     "SECURITY_EVENT_DELETE_DISABLED"
   );
 }
-
-// =====================================================
-// OPTIONS
-// =====================================================
 
 export async function OPTIONS() {
   return apiMethodNotAllowed(

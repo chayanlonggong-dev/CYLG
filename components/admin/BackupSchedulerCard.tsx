@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { adminFetch } from "@/lib/admin/adminFetch";
 
 interface SchedulerConfig {
   enabled: boolean;
@@ -43,11 +44,10 @@ export default function BackupSchedulerCard() {
     setError("");
 
     try {
-      const response = await fetch(
+      const response = await adminFetch(
         "/api/admin/backups/scheduler",
         {
           method: "GET",
-          credentials: "same-origin",
           cache: "no-store",
         }
       );
@@ -61,19 +61,14 @@ export default function BackupSchedulerCard() {
         );
       }
 
-      if (
-        !result?.success ||
-        !result?.data
-      ) {
+      if (!result?.success || !result?.data) {
         throw new Error(
           result?.message ||
             "Invalid scheduler response."
         );
       }
 
-      setEnabled(
-        Boolean(result.data.enabled)
-      );
+      setEnabled(Boolean(result.data.enabled));
 
       setDay(
         typeof result.data.day === "string"
@@ -88,18 +83,12 @@ export default function BackupSchedulerCard() {
       );
 
       setRetention(
-        Number.isFinite(
-          Number(result.data.retention)
-        )
+        Number.isFinite(Number(result.data.retention))
           ? Number(result.data.retention)
           : DEFAULT_CONFIG.retention
       );
     } catch (error) {
-      console.error(
-        "LOAD BACKUP SCHEDULER ERROR:",
-        error
-      );
-
+      console.error("LOAD BACKUP SCHEDULER ERROR:", error);
       setError(
         error instanceof Error
           ? error.message
@@ -115,14 +104,10 @@ export default function BackupSchedulerCard() {
     setError("");
 
     try {
-      const response = await fetch(
+      const response = await adminFetch(
         "/api/admin/backups/scheduler",
         {
           method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-          },
           cache: "no-store",
           body: JSON.stringify({
             enabled,
@@ -142,19 +127,14 @@ export default function BackupSchedulerCard() {
         );
       }
 
-      if (
-        !result?.success ||
-        !result?.data
-      ) {
+      if (!result?.success || !result?.data) {
         throw new Error(
           result?.message ||
             "Invalid scheduler response."
         );
       }
 
-      setEnabled(
-        Boolean(result.data.enabled)
-      );
+      setEnabled(Boolean(result.data.enabled));
 
       setDay(
         typeof result.data.day === "string"
@@ -169,25 +149,18 @@ export default function BackupSchedulerCard() {
       );
 
       setRetention(
-        Number.isFinite(
-          Number(result.data.retention)
-        )
+        Number.isFinite(Number(result.data.retention))
           ? Number(result.data.retention)
           : retention
       );
 
       alert("Backup scheduler saved.");
     } catch (error) {
-      console.error(
-        "SAVE BACKUP SCHEDULER ERROR:",
-        error
-      );
-
+      console.error("SAVE BACKUP SCHEDULER ERROR:", error);
       const message =
         error instanceof Error
           ? error.message
           : "Failed to save scheduler.";
-
       setError(message);
       alert(message);
     } finally {
@@ -202,9 +175,7 @@ export default function BackupSchedulerCard() {
   if (loading) {
     return (
       <section className="mt-10 rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
-        <p className="text-gray-400">
-          Loading scheduler...
-        </p>
+        <p className="text-gray-400">Loading scheduler...</p>
       </section>
     );
   }
@@ -216,7 +187,8 @@ export default function BackupSchedulerCard() {
       </h2>
 
       <p className="mt-4 text-gray-400">
-        Configure weekly automatic backups.
+        Weekly automatic backup uses Malaysia time (Asia/Kuala_Lumpur).
+        Enable the checkbox and click Save Settings.
       </p>
 
       {error && (
@@ -234,7 +206,6 @@ export default function BackupSchedulerCard() {
           }
           className="h-5 w-5"
         />
-
         <span className="font-semibold text-white">
           Enable Weekly Backup
         </span>
@@ -245,41 +216,18 @@ export default function BackupSchedulerCard() {
           <label className="mb-2 block text-sm text-gray-400">
             Day
           </label>
-
           <select
             value={day}
-            onChange={(event) =>
-              setDay(event.target.value)
-            }
+            onChange={(event) => setDay(event.target.value)}
             className="w-full rounded-xl bg-[#181818] p-3 text-white"
           >
-            <option value="Sunday">
-              Sunday
-            </option>
-
-            <option value="Monday">
-              Monday
-            </option>
-
-            <option value="Tuesday">
-              Tuesday
-            </option>
-
-            <option value="Wednesday">
-              Wednesday
-            </option>
-
-            <option value="Thursday">
-              Thursday
-            </option>
-
-            <option value="Friday">
-              Friday
-            </option>
-
-            <option value="Saturday">
-              Saturday
-            </option>
+            <option value="Sunday">Sunday</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
           </select>
         </div>
 
@@ -287,13 +235,10 @@ export default function BackupSchedulerCard() {
           <label className="mb-2 block text-sm text-gray-400">
             Time
           </label>
-
           <input
             type="time"
             value={time}
-            onChange={(event) =>
-              setTime(event.target.value)
-            }
+            onChange={(event) => setTime(event.target.value)}
             className="w-full rounded-xl bg-[#181818] p-3 text-white"
           />
         </div>
@@ -302,16 +247,13 @@ export default function BackupSchedulerCard() {
           <label className="mb-2 block text-sm text-gray-400">
             Retention
           </label>
-
           <input
             type="number"
             min={1}
             max={52}
             value={retention}
             onChange={(event) =>
-              setRetention(
-                Number(event.target.value)
-              )
+              setRetention(Number(event.target.value))
             }
             className="w-full rounded-xl bg-[#181818] p-3 text-white"
           />
@@ -323,9 +265,7 @@ export default function BackupSchedulerCard() {
         disabled={saving}
         className="mt-10 rounded-full bg-yellow-500 px-8 py-3 font-bold text-black transition hover:bg-yellow-400 disabled:opacity-50"
       >
-        {saving
-          ? "Saving..."
-          : "Save Settings"}
+        {saving ? "Saving..." : "Save Settings"}
       </button>
     </section>
   );

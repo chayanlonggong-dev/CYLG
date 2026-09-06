@@ -513,6 +513,9 @@ export async function GET(request: NextRequest) {
       const map = new Map<string, number>();
       for (const r of rows) {
         let key = (r[field] as string) || "Unknown";
+        if (field === "country" && isUnitedStates(key)) {
+          key = "United States";
+        }
         if (field === "browser") {
           if (
             ![

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-08-29T08:56:14.008Z",
+  "generatedAt": "2026-09-06T17:52:31.455Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -15,8 +15,8 @@
     },
     {
       "path": "app/admin/analytics/page.tsx",
-      "hash": "aafaef4718dfc4cb4bb37002ee3981e0aa002032ba7878e26c0c5e2953985554",
-      "size": 4902
+      "hash": "559c30a733c7e1416a9e52039e6302659b17144bba6d75f5dbd633c262a3fa30",
+      "size": 25428
     },
     {
       "path": "app/admin/backups/page.tsx",
@@ -25,8 +25,8 @@
     },
     {
       "path": "app/admin/dashboard/page.tsx",
-      "hash": "74b15db591c9fa6243a9f0f4f85a63d83f469818dee7ef77efb1e72691e0c1a6",
-      "size": 7141
+      "hash": "a79a901ab3095048fda650004117828ff165a13b82a474d3bcf160f8e89297f3",
+      "size": 5914
     },
     {
       "path": "app/admin/firewall/page.tsx",
@@ -40,8 +40,8 @@
     },
     {
       "path": "app/admin/layout.tsx",
-      "hash": "8e281c3af35f93cdf417b21f5edd370f3140a8c6d04867df694bbf05466e1a42",
-      "size": 2201
+      "hash": "ef405f58336c7abbe3ebf92600cde57ce78d70635344e0aeae13cd02e9ac4f68",
+      "size": 565
     },
     {
       "path": "app/admin/login/page.tsx",
@@ -75,8 +75,8 @@
     },
     {
       "path": "app/admin/page.tsx",
-      "hash": "e7ef2e9f2440d154253ef650ac8f1607146f6fd699768f4d0d07319b51835eeb",
-      "size": 2116
+      "hash": "3423a2191558e410c56a9e8dce11f4e7719a96cc68eef4bbaee3a590929b6f23",
+      "size": 830
     },
     {
       "path": "app/admin/production/page.tsx",
@@ -85,8 +85,8 @@
     },
     {
       "path": "app/admin/security/page.tsx",
-      "hash": "427204491cb7ae09dcf3755627581d893dc7d88096a16d1e1675870c7a90231a",
-      "size": 72895
+      "hash": "7fda087f48b6876bf72ac11c09a1d43e08c15d3a400529d380399219db4cc2de",
+      "size": 74077
     },
     {
       "path": "app/admin/settings/page.tsx",
@@ -100,8 +100,8 @@
     },
     {
       "path": "app/admin/top-models/page.tsx",
-      "hash": "81d843aeb59e8b1e0988ad3e2ad3511f3a34718b3938547c3fb4f10347b04843",
-      "size": 6308
+      "hash": "be09555c38390de47cbcbff9e41eb3450011d8c30a101bde3188122e84792fe6",
+      "size": 7552
     },
     {
       "path": "app/admin/translations/page.tsx",
@@ -125,13 +125,13 @@
     },
     {
       "path": "app/api/admin/analytics/route.ts",
-      "hash": "39960c9f1d3d3b980950c82fa2e2f4529752ec736c371e859580f38dcd31d1fe",
-      "size": 8272
+      "hash": "7bfe7e50520b2a7700eaf322ee344f708df31b22772db524c40f3cc80ac32c54",
+      "size": 20741
     },
     {
       "path": "app/api/admin/backups/[id]/download/route.ts",
-      "hash": "d2323581ac4ce459a715801c7318b666d644f5b0aab27f8c4470f459ff5835a2",
-      "size": 1784
+      "hash": "63d840c1064550e223383a2c27fb5d98f0ca5040d5de2bfcbc0410a9be473929",
+      "size": 1810
     },
     {
       "path": "app/api/admin/backups/[id]/route.ts",
@@ -140,8 +140,8 @@
     },
     {
       "path": "app/api/admin/backups/cron/route.ts",
-      "hash": "0c0c7081ee497f94b62e2ffb720bb349e8a098208b2e2bea5f64e48483d8d6f1",
-      "size": 19967
+      "hash": "05ae65e92d8d9f5740cd5539bba2b3427a2030332d992390ae95c16e56429c21",
+      "size": 20064
     },
     {
       "path": "app/api/admin/backups/export/route.ts",
@@ -150,8 +150,8 @@
     },
     {
       "path": "app/api/admin/backups/media/route.ts",
-      "hash": "99085642703e9b277f0ffff3e06b8636f4c4af06813e37892f93f4287dbde3fb",
-      "size": 5667
+      "hash": "a6e2eda8d95abaca9c278d78c924a9b40ff0aa165b7b943803b4fa991a8a6cf5",
+      "size": 5885
     },
     {
       "path": "app/api/admin/backups/restore/restore-admin-users.ts",
@@ -195,8 +195,8 @@
     },
     {
       "path": "app/api/admin/backups/save/route.ts",
-      "hash": "37a198418c4a6dc38b546a672708d3fca4e4109abb2a6e7a5f6a80100c0aade1",
-      "size": 3458
+      "hash": "4a1e78d011dc927f7e53bd85918da5e1d670dc94c510ed16eba9c788b9b48928",
+      "size": 3193
     },
     {
       "path": "app/api/admin/backups/scheduler/route.ts",
@@ -210,13 +210,13 @@
     },
     {
       "path": "app/api/admin/login/route.ts",
-      "hash": "cd120faa786c6f0a4ad8be811dfcefa026ee2b0dc66b31464e8857e97de12a4a",
-      "size": 19829
+      "hash": "b4997c1892eb1435bacaa9f3b88ef5cf5fe77a2cac40370fdbb175e8ce601c9d",
+      "size": 19836
     },
     {
       "path": "app/api/admin/logout/route.ts",
-      "hash": "cab6257ec7d0910e295cd7e50b0c49da2734d8e8711f7df5bd468c15f55c3da9",
-      "size": 1647
+      "hash": "bc4f51bfbe98fcfbfd5a61b7a510911bcd7e3f53f97d24586ba004cb730a1782",
+      "size": 2134
     },
     {
       "path": "app/api/admin/logs/route.ts",
@@ -230,13 +230,13 @@
     },
     {
       "path": "app/api/admin/production/route.ts",
-      "hash": "8e3abcfb73cd2ba71ca9704e7706ae9b535299e8810efb4f3a967b2348559c06",
-      "size": 3009
+      "hash": "694f85ab19e8443ba5c81d2b3d3a9a6c2342c1e7df45b59f49d273281287df4b",
+      "size": 2159
     },
     {
       "path": "app/api/admin/security/events/route.ts",
-      "hash": "ea25dc4334daa70be3ced0163b74315989b053a53dd8f6fdd35fc13a03000df2",
-      "size": 13103
+      "hash": "9d2e7b41e1faec11c34d77ee39d0ea16ea704b375d081f34cb391ff76039d25e",
+      "size": 14976
     },
     {
       "path": "app/api/admin/security/recovery/route.ts",
@@ -270,13 +270,13 @@
     },
     {
       "path": "app/api/analytics/book/route.ts",
-      "hash": "1d66c88f90748f0b89ad96759795f033da44009b4bf8e99ffcb9741f801a4913",
-      "size": 1055
+      "hash": "b52342550bc965a3a0f11c8f9b0e2a5314c03afe7f6f2482bfae3cd1e24fc2da",
+      "size": 3658
     },
     {
       "path": "app/api/analytics/track/route.ts",
-      "hash": "4234d4758f6ef453ac99901de04f1f6fdad50703560b89dab50957d9c82c2c34",
-      "size": 3648
+      "hash": "d30f8abda37f790ad0f107a984db100aa0d806875d060c52d84f4ded25facda8",
+      "size": 8916
     },
     {
       "path": "app/api/models/[id]/route.ts",
@@ -295,8 +295,8 @@
     },
     {
       "path": "app/api/settings/route.ts",
-      "hash": "133f675a90e38f98802b38cda45450a7e1dd2a1a8815f0c3a481882ab39faee1",
-      "size": 6771
+      "hash": "ec2da5fc1d6b2dd8a1e145debcaab27cac8c744d4cfe6d2571d5d39000631cfe",
+      "size": 6706
     },
     {
       "path": "app/api/upload/avatar/route.ts",
@@ -325,8 +325,8 @@
     },
     {
       "path": "app/collection/[level]/layout.tsx",
-      "hash": "3644bb1d1c5af001f4a26a4adf8e498c4819a6c785aede3ee0ffa8d6f2024d98",
-      "size": 2078
+      "hash": "fdbd49349f02e9630c9c368283cb776b51f201194d17050bfcfea1f236ad10a7",
+      "size": 1795
     },
     {
       "path": "app/collection/[level]/page.tsx",
@@ -370,8 +370,8 @@
     },
     {
       "path": "app/layout.tsx",
-      "hash": "17345c9bfc4bd78bd64d6e4561288f90a258061e1ca601f758c8c23b0c936cdf",
-      "size": 4593
+      "hash": "bef13c384a0e7ca21dbaacd614bf28304aa70228d38cf4ef1fe7494d0410c60f",
+      "size": 4558
     },
     {
       "path": "app/loading.tsx",
@@ -380,8 +380,8 @@
     },
     {
       "path": "app/models/[id]/page.tsx",
-      "hash": "452bbadde0d3c08e4aa65b1e15b67e1dfa07e2678c6c3bedbcaf40c4e1738eec",
-      "size": 5371
+      "hash": "4a304e55583d075d8bc3d446135a92d29b483ca4b73c1d4d0b9d0ad8b24fdf00",
+      "size": 5364
     },
     {
       "path": "app/not-found.tsx",
@@ -405,8 +405,8 @@
     },
     {
       "path": "app/sitemap.ts",
-      "hash": "4a348cd6978832cbf8d5211d6755c1fd293685560fe5063690561dd562e113ae",
-      "size": 1750
+      "hash": "242d418a97fca0d2f1f2d2315344f40b52edb0ad944f5475981d4390ffa7ddbe",
+      "size": 1743
     },
     {
       "path": "components/CollectionCards.tsx",
@@ -415,8 +415,8 @@
     },
     {
       "path": "components/ContactPopup.tsx",
-      "hash": "9cfdf510aae3e95cf44057058c52a1c9ed7dbb5b522f2121238e75d7479ff30b",
-      "size": 8320
+      "hash": "4f8262da3cba44bce3ac5f5d7c19466673bd41f6405ada799ae5d369a8830d3d",
+      "size": 8444
     },
     {
       "path": "components/FloatingContact.tsx",
@@ -435,8 +435,8 @@
     },
     {
       "path": "components/Hero.tsx",
-      "hash": "cdbb1fab90c1b3a288a82943a965e8336bb502889baf3440ce7c72e66c4e3b30",
-      "size": 4441
+      "hash": "bcc539a1a89293df80ef3d7bf1e253e62e623b80d8bbf770ca8e245d13b71222",
+      "size": 4463
     },
     {
       "path": "components/HomeContactPopup.tsx",
@@ -495,13 +495,13 @@
     },
     {
       "path": "components/admin/BackupHistoryCard.tsx",
-      "hash": "8fb368d2dc16705f60356f78dd7aae32ba70bf094432e710b1a8e6e669bf73e8",
-      "size": 4207
+      "hash": "3e6be27a89b3f4b8d45ac114f13992d9c1056c7223f31692f94013e6df6ad0cf",
+      "size": 3973
     },
     {
       "path": "components/admin/BackupSchedulerCard.tsx",
-      "hash": "72427647bbe96aa185e99acb5583882b6838e7f7e3451fb14f32d0f835c71ba9",
-      "size": 7523
+      "hash": "7b8432781a614fe7f4b39a5808bdf06a0a3422c2541a0127da443e6a6a245e73",
+      "size": 6946
     },
     {
       "path": "components/admin/DashboardStats.tsx",
@@ -510,8 +510,8 @@
     },
     {
       "path": "components/admin/DatabaseBackupCard.tsx",
-      "hash": "4e400421d59bf0ccdc5aaf4c91835c02c8d0ad60058fdebf1f41b1ac9ce6d415",
-      "size": 2049
+      "hash": "21b22fbd727960653327f6c9c089ff2e49aff6b7708058bce1ea9a70e8841f05",
+      "size": 1618
     },
     {
       "path": "components/admin/EditModelForm.tsx",
@@ -535,8 +535,8 @@
     },
     {
       "path": "components/admin/MediaBackupCard.tsx",
-      "hash": "9c0abc703a07289e54d4daef4a55925c5c16c49e461b33bbda057a68dbf2a61b",
-      "size": 2407
+      "hash": "e2d6b625deba6fa3cd532bd56e864c98680eb597d4be3b9ecb539b7423fde922",
+      "size": 2165
     },
     {
       "path": "components/admin/ModelsList.tsx",
@@ -580,8 +580,8 @@
     },
     {
       "path": "components/admin/SessionManager.tsx",
-      "hash": "d6b70aa583af9a70a569ad342bfd7795d37d9aca44529264d68afb6434f9e49c",
-      "size": 5373
+      "hash": "36ea2ca6b53fe09101b901ce26e472b17fd5b77f0efee184120c0f950f1814fd",
+      "size": 7092
     },
     {
       "path": "components/admin/SystemStatusCard.tsx",
@@ -660,8 +660,8 @@
     },
     {
       "path": "components/analytics/AnalyticsTracker.tsx",
-      "hash": "fb3dcc1ef82745c50274afae7238864580fda6fdcff08920808b2e60a820fa6e",
-      "size": 1046
+      "hash": "6fbee297a34259a840a25d3500d14da6a5ac6b852cf8525f814a905384bb64ae",
+      "size": 2151
     },
     {
       "path": "components/collection/CollectionCard.tsx",
@@ -670,8 +670,8 @@
     },
     {
       "path": "components/collection/ImageSlider.tsx",
-      "hash": "12fa8b5cb4044bed5fa2ca842786bbcd10f1880bea72897f0433038db1ac8326",
-      "size": 1506
+      "hash": "7f17f1cd1dcdd3dbb36f787431e58ef42ccfd6efe81ef8bc7cb5423589985248",
+      "size": 1527
     },
     {
       "path": "components/collection/LevelCard.tsx",
@@ -735,8 +735,8 @@
     },
     {
       "path": "lib/analytics/index.ts",
-      "hash": "234240b08f56b3ac46c3a9814c8c37909162aa9b068be9ffd0a2e81e3068d12d",
-      "size": 55
+      "hash": "f6b197507c49ccb660d7bcfb70284585488deced2cda0f2fb7581677d94d13df",
+      "size": 83
     },
     {
       "path": "lib/analytics/report.ts",
@@ -1005,8 +1005,8 @@
     },
     {
       "path": "lib/middleware/authMiddleware.ts",
-      "hash": "b2c6b2e17204a3b8c8229c5bb00204499dd324ca286e4b467cb265fb843c0e51",
-      "size": 775
+      "hash": "5c16e96cf76f0b38ba5ab679d5529bd3f5c7f603f9bd2bc5eff535b754b01058",
+      "size": 1191
     },
     {
       "path": "lib/middleware/index.ts",
@@ -1145,8 +1145,8 @@
     },
     {
       "path": "lib/security/csrf.ts",
-      "hash": "26a9664feae3f18159be8446878bffd620e8146c3531e31cfa22c7dc6033962d",
-      "size": 819
+      "hash": "11ad7bd14378b2ce5c10fff2aac402ee2c7387ecd5d87279c3722ec038fe710a",
+      "size": 1978
     },
     {
       "path": "lib/security/firewall.ts",
@@ -1155,18 +1155,18 @@
     },
     {
       "path": "lib/security/headers.ts",
-      "hash": "90a10ebc8bf237f83d252ce9cebbb06d48d5f9d836e00135691050bef318bd44",
-      "size": 1168
+      "hash": "d8640d8012813e32dd19ee491138e1994b6ad7000ff6421f915b2a6fb67f4a99",
+      "size": 1204
     },
     {
       "path": "lib/security/index.ts",
-      "hash": "5795bb5f4fc86268cb67489b340501aee6f3b06f4bdd2a26466d1953acc07295",
-      "size": 271
+      "hash": "893f65a947efac89bc8feac2bf9bd97042d92a96940c4468ae4bd86e46427fdc",
+      "size": 298
     },
     {
       "path": "lib/security/integrity.ts",
-      "hash": "3d82fb3bbd50bf49f011a4d93abbc7bbf84b07cddc649fa85de042ac3f0cc0aa",
-      "size": 9460
+      "hash": "1a2c5a22b7fdb1e79828117b4be80fcfb0eb69477b812d0a303aa6e856810f49",
+      "size": 11727
     },
     {
       "path": "lib/security/loginProtection.ts",
@@ -1185,8 +1185,8 @@
     },
     {
       "path": "lib/security/session.ts",
-      "hash": "b09576d1399443e90bee26ff51dbf601b2e40cb76e7f3aabb05ab3c2f7c46f26",
-      "size": 1608
+      "hash": "927cd9092477ffa9017539b6774df01d2a030b35a736cae5a364f63cdfd828f9",
+      "size": 5239
     },
     {
       "path": "lib/security/threatResponse.ts",
@@ -1205,8 +1205,8 @@
     },
     {
       "path": "lib/storage/local.ts",
-      "hash": "75c49cfeac654c0be76c2c701842d224b83389383cefa91d0f83eea5c0fdf94c",
-      "size": 935
+      "hash": "3878d64421cde7c9cf3e15c706a407830f889f9e6f71f0ac8baa0316bc5e43d6",
+      "size": 961
     },
     {
       "path": "lib/storage/storage.ts",
@@ -1300,8 +1300,8 @@
     },
     {
       "path": "proxy.ts",
-      "hash": "5c443c1e7a95284c99cce0ed97c78a389ef61dd118703aee9bc0f5a7dc61fb23",
-      "size": 1043
+      "hash": "510fc8a62aeac65ac1e8b36d3b4a5c97eb89e1c92b6337a84daa06a0e6ec3334",
+      "size": 1723
     }
   ]
 }
