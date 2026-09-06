@@ -587,7 +587,7 @@ export default function SecurityPage() {
       setUpdatingEventId(id);
       setSecurityEventsMessage("");
 
-      const res = await fetch(
+      const res = await adminFetch(
         "/api/admin/security/events",
         {
           method: "PATCH",
@@ -2448,3 +2448,4 @@ export default function SecurityPage() {
     </main>
   );
 }
+
