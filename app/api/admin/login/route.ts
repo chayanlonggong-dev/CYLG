@@ -1,4 +1,4 @@
-import { setCsrfCookie } from "@/lib/security/csrf";
+﻿import { setCsrfCookie } from "@/lib/security/csrf";
 import {
   NextRequest,
 } from "next/server";
@@ -910,6 +910,34 @@ export async function POST(
     }
 
     // =====================================================
+        const isLocalLogin =
+      !ip || ip === "::1" || ip === "127.0.0.1" || ip === "localhost";
+
+    const knownSession = await prisma.session.findFirst({
+      where: {
+        adminUserId: adminUser.id,
+        ip,
+        id: { not: session.id },
+      },
+      select: { id: true },
+    });
+
+    if (!isLocalLogin && !knownSession) {
+      await createSecurityEvent({
+        type: "SENSITIVE_ACTION",
+        severity: "HIGH",
+        ip,
+        country,
+        userAgent,
+        adminUserId: adminUser.id,
+        description: "Administrator logged in from a new IP.",
+        metadata: {
+          reason: "NEW_LOGIN_IP",
+          username: adminUser.username,
+        },
+      });
+    }
+
     // AUDIT LOG
     // =====================================================
 
