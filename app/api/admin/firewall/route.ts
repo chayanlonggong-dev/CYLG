@@ -139,8 +139,9 @@ export async function GET(request: NextRequest) {
     };
 
     
-    const threatEvents = await prisma.securityEvent.findMany({
+        const threatEvents = await prisma.securityEvent.findMany({
       where: {
+        status: "OPEN",
         type: { in: ["RATE_LIMIT_EXCEEDED", "FIREWALL_BLOCKED"] },
       },
       orderBy: { createdAt: "desc" },
