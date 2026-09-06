@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   FormEvent,
@@ -32,9 +32,11 @@ interface FirewallResponse {
   message?: string;
   blocks?: FirewallBlock[];
   statistics?: FirewallStatistics;
+    recentThreats?: { ip: string; country: string | null; type: string; createdAt: string }[];
   data?: {
     blocks?: FirewallBlock[];
     statistics?: FirewallStatistics;
+    recentThreats?: { ip: string; country: string | null; type: string; createdAt: string }[];
   };
 }
 
@@ -66,6 +68,7 @@ export default function FirewallPage() {
   const [message, setMessage] =
     useState("");
 
+  const [recentThreats, setRecentThreats] = useState<{ ip: string; country: string | null; type: string; createdAt: string }[]>([]);
   const [error, setError] =
     useState("");
 
@@ -111,8 +114,13 @@ export default function FirewallPage() {
           country: 0,
         };
 
-      setBlocks(nextBlocks);
+            setBlocks(nextBlocks);
       setStatistics(nextStatistics);
+      setRecentThreats(
+        result.data?.recentThreats ??
+          result.recentThreats ??
+          []
+      );
     } catch (err) {
       console.error(
         "Load firewall error:",
@@ -129,6 +137,28 @@ export default function FirewallPage() {
     }
   }
 
+
+  async function blockThreatIp(ip: string) {
+    try {
+      setSubmitting(true);
+      setError("");
+      const response = await fetch("/api/admin/firewall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "IP", value: ip }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to block IP.");
+      }
+      setMessage("Blocked " + ip);
+      await loadFirewall();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to block IP.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
   // =====================================================
   // Add Firewall Block
   // =====================================================
@@ -494,6 +524,25 @@ export default function FirewallPage() {
           </form>
         </section>
 
+
+        <section className="mt-10 rounded-3xl border border-yellow-500/20 bg-[#101010] p-8">
+          <h2 className="text-2xl font-bold text-yellow-400">Recent Threat IPs</h2>
+          <p className="mt-2 text-gray-400">From rate-limit and firewall events. Do not block your own IP.</p>
+          <div className="mt-6 space-y-3">
+            {recentThreats.length === 0 && <p className="text-gray-500">No recent threat IPs.</p>}
+            {recentThreats.map((threat) => (
+              <div key={threat.ip} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/40 px-4 py-3">
+                <div>
+                  <p className="font-mono text-yellow-400">{threat.ip}</p>
+                  <p className="text-xs text-gray-500">{threat.type} · {threat.country || "Unknown"}</p>
+                </div>
+                <button type="button" disabled={submitting} onClick={() => blockThreatIp(threat.ip)} className="rounded-xl border border-yellow-500/40 px-4 py-2 text-sm font-bold text-yellow-400 hover:bg-yellow-500 hover:text-black disabled:opacity-50">
+                  Add Block
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
         {/* ================================================= */}
         {/* Firewall Protection */}
         {/* ================================================= */}

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+﻿import { NextRequest } from "next/server";
 import { isIP } from "node:net";
 
 import { prisma } from "@/lib/prisma";
@@ -138,10 +138,45 @@ export async function GET(request: NextRequest) {
       ).length,
     };
 
-    return apiSuccess(
+    
+    const threatEvents = await prisma.securityEvent.findMany({
+      where: {
+        type: { in: ["RATE_LIMIT_EXCEEDED", "FIREWALL_BLOCKED"] },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+
+    const blockedIps = new Set(
+      blocks.filter((block) => block.type === "IP").map((block) => block.value)
+    );
+
+    const seen = new Set<string>();
+    const recentThreats: {
+      ip: string;
+      country: string | null;
+      type: string;
+      createdAt: Date;
+    }[] = [];
+
+    for (const event of threatEvents) {
+      const threatIp = (event.ip || "").trim();
+      if (!threatIp || threatIp === "unknown" || threatIp === "::1") continue;
+      if (seen.has(threatIp) || blockedIps.has(threatIp)) continue;
+      seen.add(threatIp);
+      recentThreats.push({
+        ip: threatIp,
+        country: event.country,
+        type: event.type,
+        createdAt: event.createdAt,
+      });
+      if (recentThreats.length >= 10) break;
+    }
+return apiSuccess(
       {
         blocks,
         statistics,
+        recentThreats,
       },
       "Firewall blocks fetched.",
       200
