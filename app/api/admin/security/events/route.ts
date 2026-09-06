@@ -654,6 +654,20 @@ export async function PATCH(
         },
       });
 
+    if (rawStatus === "RESOLVED" && existingEvent.ip) {
+      await prisma.securityEvent.updateMany({
+        where: {
+          ip: existingEvent.ip,
+          type: existingEvent.type,
+          status: "OPEN",
+        },
+        data: {
+          status: "RESOLVED",
+          resolvedAt: new Date(),
+        },
+      });
+    }
+
     await createAuditLog({
       action: "UPDATE",
       entity: "SecurityEvent",
