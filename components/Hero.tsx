@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useLanguage,
@@ -7,7 +7,7 @@ import {
 export default function Hero() {
   const { messages } = useLanguage();
 
-  const video = "/video/hero.mp4";
+  const video = "/videos/homepage-new/免版权使用自取留痕_4k高清_原素材_免版权使用自取留痕_4k高清_原素材_氛围感_电影感_城市夜景.mp4";
 
   return (
     <section
@@ -102,7 +102,7 @@ export default function Hero() {
               fontFamily: "var(--font-cinzel)",
             }}
           >
-            茶艳龙宫
+           茶艳龙宫
           </p>
 
           <h1

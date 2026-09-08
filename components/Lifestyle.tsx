@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useLanguage } from "@/app/providers/LanguageProvider";
 
@@ -7,31 +7,31 @@ export default function Lifestyle() {
 
   const sections = [
     {
-      video: "/video/champagne.mp4",
+      video: "/videos/homepage-new/如果幸福是这间餐厅的夜景_如果幸福是这间餐厅的夜景_绝美观景餐厅.mp4",
       ...messages.lifestyle.slides.luxuryLifestyle,
     },
     {
-      video: "/video/lounge.mp4",
+      video: "/videos/homepage-new/拍摄用繁花视角打开眉山VW酒吧_拍摄用繁花视角打开眉山VW酒吧_最近看繁花有点痴迷被胡歌的宝总帅到了.mp4",
       ...messages.lifestyle.slides.privateLounge,
     },
     {
-      video: "/video/penthouse.mp4",
+      video: "/videos/homepage-new/入夜的客厅要怎么拍出电影感...关掉顶灯_入夜的客厅要怎么拍出电影感...关掉顶灯_STEP_1_关.mp4",
       ...messages.lifestyle.slides.luxuryPenthouse,
     },
     {
-      video: "/video/skyline-pool.mp4",
+      video: "/videos/homepage-new/没有时差的国家_方便和你说晚安_没有时差的国家_方便和你说晚安_吉隆坡_双子塔_夜景_无边泳池_背影.mp4",
       ...messages.lifestyle.slides.skylinePool,
     },
     {
-      video: "/video/woman-walk.mp4",
+      video: "/videos/homepage-new/我用10s在sanya柏悦走廊拍出了电影感_我用10s在sanya柏悦走廊拍出了电影感_酒店天花板.mp4",
       ...messages.lifestyle.slides.elegantArrival,
     },
     {
-      video: "/video/woman-window.mp4",
+      video: "/videos/homepage-new/video_73楼的风景_73楼的风景_在家..._0.mp4",
       ...messages.lifestyle.slides.privateMoments,
     },
     {
-      video: "/video/whisky.mp4",
+      video: "/videos/homepage-new/每晚一杯就是我为自己营造的晚安氛围_每晚一杯就是我为自己营造的晚安氛围_周末把灵魂交给酒精_在房间里.mp4",
       ...messages.lifestyle.slides.luxuryNight,
     },
   ];
