@@ -139,7 +139,7 @@ export default function Header() {
           </div>
 
                     {/* Mobile Branding */}
-          <div className="flex min-w-2 flex-1 items-center gap-0 lg:hidden">
+          <div className="flex min-w-0 flex-1 items-center gap-0 lg:hidden">
             <Image
               src="/logo.png"
               alt="ChaYanLongGong"
@@ -148,7 +148,7 @@ export default function Header() {
               priority
               className="shrink-0"
             />
-            <div className="min-w-0">
+            <div className="min-w-0 -ml-3">
               <p className="text-base font-bold leading-tight text-white sm:text-xl">
                 ChaYanLongGong
               </p>
