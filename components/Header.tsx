@@ -110,8 +110,8 @@ export default function Header() {
           className="
             mx-auto
             flex
-            min-h-[110px]
-            max-w-[1400px]
+            min-h-110px
+            max-w-1400px
             items-center
             justify-between
             gap-6
