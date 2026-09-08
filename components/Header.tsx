@@ -110,8 +110,8 @@ export default function Header() {
           className="
             mx-auto
             flex
-            min-h-110px
-            max-w-1400px
+            min-h-[110px]
+            max-w-[1400px]
             items-center
             justify-between
             gap-6
@@ -155,25 +155,15 @@ export default function Header() {
             </div>
           </div>
 
-                    {/* Mobile Branding */}
-          <div className="flex min-w-0 flex-1 items-center gap-2 pr-2 lg:hidden">
+          {/* Mobile Branding */}
+          <div className="lg:hidden">
             <Image
               src="/logo.png"
               alt="ChaYanLongGong"
-              width={88}
-              height={38}
+              width={130}
+              height={55}
               priority
-              className="h-9 w-auto shrink-0"
             />
-
-            <div className="min-w-0">
-              <p className="text-[13px] font-bold leading-tight text-white sm:text-base">
-                ChaYanLongGong
-              </p>
-              <p className="mt-0.5 text-[9px] leading-tight text-yellow-500 sm:text-[11px]">
-                Luxury Elite Companion Service
-              </p>
-            </div>
           </div>
 
           {/* Desktop Navigation */}
