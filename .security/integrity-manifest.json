@@ -1,7 +1,7 @@
 {
   "version": 1,
   "algorithm": "sha256",
-  "generatedAt": "2026-09-06T19:40:06.997Z",
+  "generatedAt": "2026-09-08T17:40:25.363Z",
   "files": [
     {
       "path": "app/HomeClient.tsx",
@@ -30,8 +30,8 @@
     },
     {
       "path": "app/admin/firewall/page.tsx",
-      "hash": "4cfc83c57d6cbedc4126994c2fe44f6470a2a5bfa8ae1fd6c1e581728133b663",
-      "size": 19970
+      "hash": "3065043f0e97c2601ce7777026769f6fb2f07497775aac8d74df949c22fb4872",
+      "size": 22395
     },
     {
       "path": "app/admin/languages/page.tsx",
@@ -85,8 +85,8 @@
     },
     {
       "path": "app/admin/security/page.tsx",
-      "hash": "7fda087f48b6876bf72ac11c09a1d43e08c15d3a400529d380399219db4cc2de",
-      "size": 74077
+      "hash": "03d63305badd80c5a515fdd185ee6655d8f7c3e081570d28d08897fc34630181",
+      "size": 74084
     },
     {
       "path": "app/admin/settings/page.tsx",
@@ -205,13 +205,13 @@
     },
     {
       "path": "app/api/admin/firewall/route.ts",
-      "hash": "e91d1e11365a799b335c6b09da3bafcd3bcefc030e2c49fcddc0096ed9b5b56e",
-      "size": 11996
+      "hash": "265420815b0148f4d0f770852aeebf0cadf77c3eda263e2ce1760dbffffe3bc2",
+      "size": 13060
     },
     {
       "path": "app/api/admin/login/route.ts",
-      "hash": "b4997c1892eb1435bacaa9f3b88ef5cf5fe77a2cac40370fdbb175e8ce601c9d",
-      "size": 19836
+      "hash": "892325fd1c1dba5760dbfa9c3248e9c6b383b7118cf2f86d7d71e73b78303d05",
+      "size": 20543
     },
     {
       "path": "app/api/admin/logout/route.ts",
@@ -235,8 +235,8 @@
     },
     {
       "path": "app/api/admin/security/events/route.ts",
-      "hash": "9d2e7b41e1faec11c34d77ee39d0ea16ea704b375d081f34cb391ff76039d25e",
-      "size": 14976
+      "hash": "47180a24429819281866b62d332d64511dec5bed99395a258f98ec9d2a8952ba",
+      "size": 15322
     },
     {
       "path": "app/api/admin/security/recovery/route.ts",
@@ -435,8 +435,8 @@
     },
     {
       "path": "components/Hero.tsx",
-      "hash": "bcc539a1a89293df80ef3d7bf1e253e62e623b80d8bbf770ca8e245d13b71222",
-      "size": 4463
+      "hash": "f43af95b21959d7aabb1f285d0a897d98ba985bb3dba321d9f6a7510aaf63b4e",
+      "size": 4601
     },
     {
       "path": "components/HomeContactPopup.tsx",
@@ -445,8 +445,8 @@
     },
     {
       "path": "components/Lifestyle.tsx",
-      "hash": "300fc3241ce0abaccdf5b91a9f346369fa7a9c9f036a990f21e6126e5d4cfb2f",
-      "size": 2283
+      "hash": "0fbc175fae4bcd22651314f6344fa7ea86e24d31b4ccd940a1c5084e025a2b6b",
+      "size": 3106
     },
     {
       "path": "components/LuxuryExperience.tsx",
