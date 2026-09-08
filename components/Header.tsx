@@ -106,12 +106,12 @@ export default function Header() {
             "env(safe-area-inset-top, 0px)",
         }}
       >
-        <div
+                <div
           className="
             mx-auto
             flex
-            min-h-[110px]
-            max-w-[1400px]
+            min-h-28
+            max-w-350
             items-center
             justify-between
             gap-6
@@ -119,15 +119,8 @@ export default function Header() {
             lg:px-8
           "
         >
-          {/* Desktop Branding */}
-          <div
-            className="
-              hidden
-              items-center
-              gap-6
-              lg:flex
-            "
-          >
+                    {/* Desktop Branding */}
+          <div className="hidden items-center gap-6 lg:flex">
             <Image
               src="/logo.png"
               alt="ChaYanLongGong"
@@ -135,35 +128,34 @@ export default function Header() {
               height={90}
               priority
             />
-
             <div>
               <h1 className="text-5xl font-bold leading-none text-white">
                 ChaYanLongGong
               </h1>
-
-              <p
-                className="
-                  mt-2
-                  text-sm
-                  uppercase
-                  tracking-[6px]
-                  text-yellow-500
-                "
-              >
+              <p className="mt-2 text-sm uppercase tracking-[6px] text-yellow-500">
                 Luxury Elite Companion Service
               </p>
             </div>
           </div>
 
-          {/* Mobile Branding */}
-          <div className="lg:hidden">
+                    {/* Mobile Branding */}
+          <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
             <Image
               src="/logo.png"
               alt="ChaYanLongGong"
               width={130}
               height={55}
               priority
+              className="shrink-0"
             />
+            <div className="min-w-0">
+              <p className="text-base font-bold leading-tight text-white sm:text-xl">
+                ChaYanLongGong
+              </p>
+              <p className="mt-1 text-[10px] leading-tight text-yellow-500 sm:text-xs">
+                Luxury Elite Companion Service
+              </p>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
