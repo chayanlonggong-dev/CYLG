@@ -139,7 +139,7 @@ export default function Header() {
           </div>
 
                     {/* Mobile Branding */}
-          <div className="flex min-w-0 flex-1 items-center gap-0 lg:hidden">
+          <div className="flex min-w-2 flex-1 items-center gap-0 lg:hidden">
             <Image
               src="/logo.png"
               alt="ChaYanLongGong"
