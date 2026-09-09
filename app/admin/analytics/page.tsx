@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -29,6 +29,7 @@ type ContactActivity = {
 
 type SourceRow = {
   source: string;
+  category?: string;
   visitors: number;
   pageViews: number;
   modelViews: number;
@@ -328,6 +329,7 @@ export default function AnalyticsPage() {
                     <thead className="text-gray-500">
                       <tr>
                         <th className="py-2">Source</th>
+                        <th>Category</th>
                         <th>Visitors</th>
                         <th>Views</th>
                         <th>Contact</th>
@@ -338,6 +340,7 @@ export default function AnalyticsPage() {
                       {(data.trafficSources || []).slice(0, 12).map((s) => (
                         <tr key={s.source} className="border-t border-white/5">
                           <td className="py-2 font-medium text-yellow-400">{s.source}</td>
+                          <td className="text-gray-400">{s.category || ""}</td>
                           <td>{s.visitors}</td>
                           <td>{s.pageViews}</td>
                           <td>{s.contactClicks}</td>

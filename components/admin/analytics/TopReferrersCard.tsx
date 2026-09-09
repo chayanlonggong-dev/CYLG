@@ -33,7 +33,14 @@ function getReferrerInfo(referrer: string | null) {
       return { icon: "🧵", color: "text-gray-200" };
 
     case "X":
+    case "X / Twitter":
       return { icon: "✖️", color: "text-white" };
+
+    case "LinkedIn":
+      return { icon: "💼", color: "text-sky-300" };
+
+    case "Pinterest":
+      return { icon: "📌", color: "text-red-400" };
 
     case "Telegram":
       return { icon: "✈️", color: "text-sky-400" };

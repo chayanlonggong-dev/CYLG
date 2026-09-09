@@ -11,6 +11,7 @@ import {
   extractCollection,
   classifyTrafficQuality,
 } from "@/lib/analytics/filters";
+import { classifyTrafficSource } from "@/lib/analytics/trafficSource";
 
 /** Asia/Bangkok (UTC+7) day boundaries */
 function getBangkokDayBounds(base = new Date()) {
@@ -307,7 +308,8 @@ export async function GET(request: NextRequest) {
       >();
 
       for (const r of rows) {
-        const key = r.referrer || "Direct";
+        const classified = classifyTrafficSource({ referrer: r.referrer, userAgent: r.userAgent });
+        const key = classified.source;
         if (!map.has(key)) {
           map.set(key, {
             visitors: new Set(),
@@ -328,14 +330,18 @@ export async function GET(request: NextRequest) {
       }
 
       return Array.from(map.entries())
-        .map(([source, e]) => ({
-          source,
-          visitors: e.visitors.size,
-          pageViews: e.pageViews,
-          modelViews: e.modelViews,
-          contactClicks: e.contactClicks,
-          potentialLeads: e.potentialLeads.size,
-        }))
+        .map(([source, e]) => {
+          const classified = classifyTrafficSource({ referrer: source });
+          return {
+            source,
+            category: classified.category,
+            visitors: e.visitors.size,
+            pageViews: e.pageViews,
+            modelViews: e.modelViews,
+            contactClicks: e.contactClicks,
+            potentialLeads: e.potentialLeads.size,
+          };
+        })
         .sort((a, b) => b.visitors - a.visitors);
     }
 
@@ -463,7 +469,12 @@ export async function GET(request: NextRequest) {
           country: r.country || "United States",
           device: r.device || "Unknown",
           browser: r.browser || "Unknown",
-          source: isContactClickPath(r.path) ? "Direct" : r.referrer || "Direct",
+          source: isContactClickPath(r.path)
+            ? "Direct"
+            : classifyTrafficSource({
+                referrer: r.referrer,
+                userAgent: r.userAgent,
+              }).source,
           pages: [r.path],
           firstAt: t,
           lastAt: t,
@@ -483,7 +494,10 @@ export async function GET(request: NextRequest) {
           existing.source === "Direct" &&
           r.referrer
         ) {
-          existing.source = r.referrer;
+          existing.source = classifyTrafficSource({
+            referrer: r.referrer,
+            userAgent: r.userAgent,
+          }).source;
         }
       }
     }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { classifyTrafficSource } from "@/lib/analytics/trafficSource";
 
 const COUNTRY_MAP: Record<string, string> = {
   US: "United States",
@@ -127,88 +128,11 @@ function detectReferrer(
   query = "",
   userAgent = ""
 ): string {
-  const q = (query || "").toLowerCase();
-  const ua = (userAgent || "").toLowerCase();
-  const url = (referrer || "").toLowerCase();
-
-  if (
-    q.includes("utm_source=facebook") ||
-    q.includes("fbclid=") ||
-    /fban|fbav|fb_iab|fb4a/.test(ua)
-  ) {
-    return "Facebook";
-  }
-  if (
-    q.includes("utm_source=instagram") ||
-    q.includes("igshid=") ||
-    ua.includes("instagram")
-  ) {
-    return "Instagram";
-  }
-  if (
-    q.includes("utm_source=google") ||
-    q.includes("gclid=") ||
-    q.includes("gbraid=")
-  ) {
-    return "Google";
-  }
-  if (q.includes("utm_source=tiktok") || q.includes("ttclid=")) return "TikTok";
-  if (q.includes("utm_source=twitter") || q.includes("utm_source=x")) return "X";
-  if (q.includes("utm_source=whatsapp")) return "WhatsApp";
-  if (q.includes("utm_source=telegram")) return "Telegram";
-  if (q.includes("utm_source=bing") || q.includes("msclkid=")) return "Bing";
-
-  if (!url || url.trim() === "") {
-    if (ua.includes("instagram")) return "Instagram";
-    if (/fban|fbav|fb_iab|fb4a/.test(ua)) return "Facebook";
-    return "Direct";
-  }
-
-  if (
-    url.includes("chayanlonggong.") ||
-    url.includes("localhost") ||
-    url.includes("cylg-production.vercel.app")
-  ) {
-    if (ua.includes("instagram")) return "Instagram";
-    if (/fban|fbav|fb_iab|fb4a/.test(ua)) return "Facebook";
-    return "Direct";
-  }
-
-  if (url.includes("google.") || url.includes("googleads") || url.includes("goo.gl"))
-    return "Google";
-  if (url.includes("bing.")) return "Bing";
-  if (url.includes("yahoo.")) return "Yahoo";
-  if (url.includes("duckduckgo.")) return "DuckDuckGo";
-  if (
-    url.includes("facebook.") ||
-    url.includes("fb.com") ||
-    url.includes("fb.me") ||
-    url.includes("l.facebook")
-  ) {
-    return "Facebook";
-  }
-  if (
-    url.includes("instagram.") ||
-    url.includes("instagr.am") ||
-    url.includes("l.instagram")
-  ) {
-    return "Instagram";
-  }
-  if (url.includes("threads.")) return "Threads";
-  if (url.includes("x.com") || url.includes("twitter.") || url.includes("t.co"))
-    return "X";
-  if (url.includes("linkedin.")) return "LinkedIn";
-  if (url.includes("telegram.") || url.includes("t.me")) return "Telegram";
-  if (url.includes("whatsapp.") || url.includes("wa.me") || url.includes("api.whatsapp"))
-    return "WhatsApp";
-  if (url.includes("line.me") || url.includes("line.naver")) return "LINE";
-  if (url.includes("wechat.") || url.includes("weixin.")) return "WeChat";
-  if (url.includes("signal.")) return "Signal";
-  if (url.includes("reddit.")) return "Reddit";
-  if (url.includes("youtube.") || url.includes("youtu.be")) return "YouTube";
-  if (url.includes("tiktok.")) return "TikTok";
-
-  return "Other";
+  return classifyTrafficSource({
+    referrer,
+    query,
+    userAgent,
+  }).source;
 }
 
 function shouldSkipPath(path: string): boolean {
